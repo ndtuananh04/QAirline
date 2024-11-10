@@ -1,0 +1,41 @@
+.signup {
+    &__content {
+        display: flex;
+        margin-top: 1rem;
+        border: solid 1px #ccc;
+        border-radius: 10px;
+        height: 800px;
+    }
+
+    &__form {
+        flex: 2;
+        padding: 2rem 1.5rem;
+    }
+
+    &__image {
+        flex: 1;
+        background-image: url(/images/signup.jpg);
+        background-size: cover;
+        position: relative;
+
+        &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(255, 255, 255, 0.2);
+                pointer-events: none;
+            }
+    }
+
+    label {
+        font-weight: 700;
+        font-size: 19px;
+    }
+
+    &__group {
+        display: flex;
+    }
+}

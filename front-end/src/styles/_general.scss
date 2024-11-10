@@ -1,0 +1,42 @@
+html {
+    font-size: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Archivo', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+
+h1,
+h2,
+h3 {
+    font-weight: 700;
+}
+
+h4,
+.h4 {
+    font-size: 18px;
+}
+
+h3,
+.h3 {
+    font-size: 20px;
+}
+
+h2,
+.h2 {
+    font-size: 32px;
+}
+
+h1,
+.h1 {
+    font-size: 40px;
+}
+
+a {
+    text-decoration: none;
+}
