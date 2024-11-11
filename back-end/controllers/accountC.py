@@ -1,13 +1,13 @@
 import os
 from flask_restful import Resource, reqparse
-from models.accountDB import AccountDB, UserInfo
+from models.accountDB import AccountDB, UserInfo, RevokedTokenModel
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import date
 from flask import jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_mail import Message
 from services.accountS import AccountS
 from database import db
+from services import my_mail
 
 class AccountLogin(Resource):
     parser = reqparse.RequestParser()
@@ -35,12 +35,7 @@ class AccountLogin(Resource):
         if check_password_hash(user.password, password):
             additional_claim = {"role": user.role, "name": name}
             access_token = create_access_token(email=email, additional_claims=additional_claim)
-
-            # Trả về token cho frontend
-            try:
-                return jsonify(access_token=access_token.decode('utf-8'))
-            except:
-                return jsonify(access_token=access_token)
+            return jsonify(access_token=access_token)
         
         return {"msg": "Incorrect username or password"}, 401
     
@@ -106,3 +101,51 @@ class AccountRegister(Resource):
         db.session.commit()
 
         return {"msg": "Account created successfully"}, 201
+    
+class UserLogoutAccess(Resource):
+    """
+    User Logout Api
+    """
+
+    @jwt_required()
+    def post(self):
+
+        jti = get_jwt()['jti']
+        try:
+            # Revoking access token
+            revoked_token = RevokedTokenModel(jti=jti)
+
+            revoked_token.add()
+
+            return {'msg': 'Access token has been revoked'}, 200
+
+        except:
+            return {'msg': 'Something went wrong'}, 500
+        
+class Repass(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('email', type=str)
+    parser.add_argument('password', type=str)
+
+    def post(self):
+        data = Repass.parser.parse_args()
+        email = data['email']
+
+        if not AccountS.validate_email(email):
+            return {'msg': "Check your Email or Password"}, 400
+
+        get_user = AccountDB.find_email(email)
+        if get_user is None:
+            return {'msg': "No account with this Email"}, 400
+        try:
+            new_password = AccountS.random_string()
+            # Gửi new password qua email
+            get_user.password = generate_password_hash(new_password, method='sha256')
+            msg = Message('New Password Recovery', sender=os.environ.get('MAIL'), recipients=[email.lower()])
+            msg.body = 'Your new password is {}'.format(new_password)
+            my_mail.send(msg)
+            get_user.commit_to_db()
+        except Exception as e:
+            print(e)
+            return {'msg': "Unable to send confirmation mail"}, 400
+        return {'msg': "New password sent to your mailbox!"}, 200

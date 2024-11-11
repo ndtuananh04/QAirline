@@ -15,21 +15,18 @@ class AccountDB(db.Model):
     email = db.Column(db.String(60), unique=True)
     password = db.Column(db.String(60), nullable=True)
     role = db.Column(db.Enum(AccountType), nullable=True)
-    is_locked = db.Column(db.Boolean, default=False)
     
     def __init__(self, account_id, email, password, role_id, is_locked):
         self.account_id = account_id
         self.email = email
         self.password = password
         self.role_id = role_id
-        self.is_locked = is_locked
 
     def to_json(self):
         return {
             "account_id": self.account_id,
             "email" : self.email,
             "role": self.role,
-            "is_locked": self.is_locked
         }
     
     @classmethod
@@ -91,3 +88,33 @@ class UserInfo(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
+
+class RevokedTokenModel(db.Model):
+    """
+    Revoked Token Model Class
+    """
+
+    __tablename__ = 'revoked_tokens'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    jti = db.Column(db.String(120))
+
+    """
+    Save Token in DB
+    """
+
+    def add(self):
+        db.session.add(self)
+
+        db.session.commit()
+
+    """
+    Checking that token is blacklisted
+    """
+
+    @classmethod
+    def is_jti_blacklisted(cls, jti):
+        query = cls.query.filter_by(jti=jti).first()
+
+        return bool(query)
