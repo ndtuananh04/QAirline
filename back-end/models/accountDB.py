@@ -10,7 +10,7 @@ class AccountType(enum.Enum):
     ADMIN = 1
     CUSTOMER = 2
 
-class AccountDB(db.Model):
+class Account(db.Model):
     account_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(60), unique=True)
     password = db.Column(db.String(60), nullable=True)
@@ -26,12 +26,13 @@ class AccountDB(db.Model):
         return {
             "account_id": self.account_id,
             "email" : self.email,
+            "password": self.password,
             "role": self.role,
         }
     
     @classmethod
-    def find_email(cls, email, account_id):
-        return cls.query.filter_by(email=email, accountId=account_id).first()
+    def find_email(cls, email):
+        return cls.query.filter_by(email=email).first()
 
 
     def save_to_db(self):

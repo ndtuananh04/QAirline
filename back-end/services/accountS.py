@@ -1,4 +1,4 @@
-from models.accountDB import AccountDB
+from models.accountDB import Account
 import re
 import random
 import string

@@ -1,6 +1,6 @@
 import os
 from flask_restful import Resource, reqparse
-from models.accountDB import AccountDB, UserInfo, RevokedTokenModel
+from models.accountDB import Account, UserInfo, RevokedTokenModel
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
@@ -25,7 +25,7 @@ class AccountLogin(Resource):
         if not AccountS.validate_input_email_pass(email, password):
             return {'msg': "Invalid id or password"}, 400
         
-        user = AccountDB.find_email(email)
+        user = Account.find_email(email)
 
         if user is None:
             return {'msg': "Incorrect email or password"}, 401
@@ -69,7 +69,7 @@ class AccountRegister(Resource):
         phone_number = data['phone_number']
 
         # Kiểm tra xem email đã tồn tại chưa
-        if AccountDB.find_email(email):
+        if Account.find_email(email):
             return {'msg': "Email already exists"}, 400
 
         # Kiểm tra xem identification đã tồn tại trong bảng user_infor chưa
@@ -83,7 +83,7 @@ class AccountRegister(Resource):
         hashed_password = generate_password_hash(password)
 
         # Tạo tài khoản mới trong bảng account
-        new_account = AccountDB(email=email, password=hashed_password, role=2)
+        new_account = Account(email=email, password=hashed_password, role=2)
         db.session.add(new_account)
         db.session.commit()
 
@@ -134,7 +134,7 @@ class Repass(Resource):
         if not AccountS.validate_email(email):
             return {'msg': "Check your Email or Password"}, 400
 
-        get_user = AccountDB.find_email(email)
+        get_user = Account.find_email(email)
         if get_user is None:
             return {'msg': "No account with this Email"}, 400
         try:
