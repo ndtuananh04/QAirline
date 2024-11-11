@@ -144,7 +144,7 @@ class Repass(Resource):
             msg = Message('New Password Recovery', sender=os.environ.get('MAIL'), recipients=[email.lower()])
             msg.body = 'Your new password is {}'.format(new_password)
             my_mail.send(msg)
-            get_user.commit_to_db()
+            db.session.commit()
         except Exception as e:
             print(e)
             return {'msg': "Unable to send confirmation mail"}, 400
