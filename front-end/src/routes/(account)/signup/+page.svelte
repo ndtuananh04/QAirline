@@ -13,7 +13,7 @@
                 <div class="signup__group">
                     <div class="form-group">
                         <label for="lastname">Họ</label>
-                        <input type="text" id="lastname" name="lastname" placeholder="Họ, ví dụ: PHAM">
+                        <input type="text" id="lastname" name="lastname" placeholder="Họ, ví dụ: NGUYEN">
                     </div>
     
                     <div class="form-group">
@@ -22,19 +22,21 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="birthdate">Ngày, Tháng, Năm Sinh</label>
-                    <input type="date" id="birthdate" name="birthdate">
-                </div>
-
-                <div class="form-group">
-                    <label for="gender">Giới tính</label>
-                    <select id="gender" name="gender">
-                        <option value="">Giới tính</option>
-                        <option value="male">Nam</option>
-                        <option value="female">Nữ</option>
-                        <option value="other">Khác</option>
-                    </select>
+                <div class="signup__group">
+                    <div class="form-group">
+                        <label for="birthdate">Ngày, Tháng, Năm Sinh</label>
+                        <input type="date" id="birthdate" name="birthdate">
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="gender">Giới tính</label>
+                        <select id="gender" name="gender">
+                            <option value="">Giới tính</option>
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
                 </div>
             </fieldset>
 
