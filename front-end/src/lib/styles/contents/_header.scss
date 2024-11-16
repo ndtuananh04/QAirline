@@ -1,0 +1,42 @@
+.header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    background-color: $dark-blue;
+    padding: 1rem 0;
+    color: $light-gray;
+
+    a{
+        color: $light-gray;
+    }
+
+    > .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+    }
+    
+    &__pcpart {
+        display: none;
+
+        @include media-breakpoint-up(lg) {
+            display: flex;
+        }
+    }
+
+    &__links {
+        display: flex;
+        gap: 3rem;
+        margin-right: 55px;
+    }
+
+    &__icon {
+        display: inline-block;
+        right: 0;
+
+        @include media-breakpoint-up(lg) {
+            display: none;
+        }
+    }
+
+}
