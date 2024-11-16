@@ -1,10 +1,9 @@
 from datetime import date
 from database import db
-from flask_login import UserMixin
 from sqlalchemy.sql import func
 import enum
-from airplaneDB import Airplane
-from seatsDB import Seats
+from models.airplaneDB import Airplane
+from models.seatsDB import Seats
 
 class FlightType(enum.Enum):
     SCHEDULED = 1
@@ -12,6 +11,7 @@ class FlightType(enum.Enum):
     CANCELLED = 3
 
 class Flight(db.Model):
+    __tablename__ = 'flight'
     flight_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     flight_number = db.Column(db.String(45), unique=True, nullable=False)
     departure = db.Column(db.String(60), nullable=False)
@@ -118,8 +118,9 @@ class Flight(db.Model):
         db.session.commit()
     
 class FlightDelay(db.Model):
-    delay_id = db.Column(db.Interger, primary_key=True, autoincrement=True)
-    flight_id = db.Column(db.Interger, db.ForeignKey('flight.flight_id'), nullable=False)
+    __tablename__ = 'flight_delay'
+    delay_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    flight_id = db.Column(db.Integer, db.ForeignKey('flight.flight_id'), nullable=False)
     new_departure_time = db.Column(db.DateTime())
 
     def __init__(self, delay_id, new_departure_time):

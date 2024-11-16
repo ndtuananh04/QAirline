@@ -1,11 +1,11 @@
 import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask import jsonify
+from database import db
 
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
-from models.flightDB import  Airplane, Seats
-from flask import jsonify
-from database import db
+from models.flightDB import  Airplane
 
 class AirplaneSearch(Resource):
     parser = reqparse.RequestParser()
@@ -17,7 +17,8 @@ class AirplaneSearch(Resource):
             return jsonify({"airplanes": airplanes}), 200
         else:
             return jsonify({"message": "No airplanes found"}), 400
-
+        
+    '''Admin thêm airplane mới'''
     airplane_parser = reqparse.RequestParser()
     airplane_parser.add_argument('name_airplane', type=str, required=True, help="Airplane name is required")
     airplane_parser.add_argument('capacity', type=int, required=True, help="Capacity is required")
@@ -59,6 +60,7 @@ class AirplaneSearch(Resource):
 
         return {'msg': 'Airplane added successfully'}, 200
     
+    '''Admin xóa airplane'''
     delete_parser = reqparse.RequestParser()
     delete_parser.add_argument('name_airplane', type=str, required=True, help="Airplane name is required")
     
@@ -86,6 +88,7 @@ class AirplaneSearch(Resource):
 
         return {'msg': 'Airplane deleted successfully'}, 200
     
+    '''Admin cập nhật thông tin airplane'''
     update_parser = reqparse.RequestParser()
     update_parser.add_argument('name_airplane', type=str, required=True, help="Airplane name is required")
     update_parser.add_argument('capacity', type=int, required=True, help="Capacity is required")

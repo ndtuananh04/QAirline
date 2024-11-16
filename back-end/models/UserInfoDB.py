@@ -1,15 +1,9 @@
 from datetime import date
 from database import db
-from flask_login import UserMixin
 from sqlalchemy.sql import func
-from models.ticketDB import Ticket
-from models.flightDB import Flight
-from models.airplaneDB import Airplane
-from models.seatsDB import Seats
-import enum
-
 
 class UserInfo(db.Model):
+    __tablename__ = 'user_info'
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     accout_id = db.Column(db.Integer, db.ForeignKey('account.account_id'), nullable=False, onupdate="CASCADE")
     identification = db.Column(db.Integer, unique=True, nullable=False)

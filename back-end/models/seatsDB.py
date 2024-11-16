@@ -1,6 +1,5 @@
 from datetime import date
 from database import db
-from airplaneDB import Airplane
 from sqlalchemy.sql import func
 import enum
 
@@ -9,11 +8,12 @@ class SeatClass(enum.Enum):
     BUSINESS = 2
 
 class Seats(db.Model):
+    __tablename__ = 'seats'
     seat_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     airplane_id = db.Column(db.String(60), db.ForeignKey('airplane.airplane_id'), onupdate="CASCADE")
     seat_number = db.Column(db.String(45), nullable=False)
     seat_class = db.Column(db.Enum(SeatClass), nullable=False)
-    price = db.Column(db.Decimal(10,2), nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
     seat_info = db.Column(db.Text, nullable=False)
 
     def __init__(self, seat_id, seat_number, seat_class, price, seat_info):

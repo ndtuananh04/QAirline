@@ -1,12 +1,9 @@
 from datetime import date
 from database import db
-from flightDB import Flight
 from sqlalchemy.sql import func
-import enum
-from seatsDB import Seats
-from flightDB import Flight
 
 class Airplane(db.Model):
+    __tablename__ = 'airplane'
     airplane_id = db.Column(db.String(60), primary_key=True, autoincrement=True)
     name_airplane = db.Column(db.String(45), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)

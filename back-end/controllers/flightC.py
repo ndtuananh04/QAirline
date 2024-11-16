@@ -5,11 +5,11 @@ from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
 from models.flightDB import Flight, FlightDelay
 from models.airplaneDB import Airplane
-from services.flightS import FlightS
 from database import db
 from flask import jsonify
 
 class FlightSearch(Resource):
+    #Tìm kiếm chuyến bay dựa trên các tham số
     parser = reqparse.RequestParser()
     parser.add_argument('departure', type=str, required=True, help="Departure location is required")
     parser.add_argument('arrival', type=str, required=True, help="Arrival location is required")
@@ -35,6 +35,7 @@ class FlightSearch(Resource):
         else:
             return jsonify({"message": "No flights found"}), 404
 
+    #Admin thêm chuyến bay mới
     flight_parser = reqparse.RequestParser()
     flight_parser.add_argument('flight_number', type=str, required=True, help="Flight number is required")
     flight_parser.add_argument('departure', type=str, required=True, help="Departure location is required")
@@ -78,6 +79,7 @@ class FlightSearch(Resource):
 
         return jsonify({"msg": "Flight added successfully", "flight": new_flight.to_json()}), 200
 
+    #Admin xóa chuyến bay
     parser_delete = reqparse.RequestParser()
     parser_delete.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
 
@@ -109,6 +111,7 @@ class FlightSearch(Resource):
 
         return jsonify({"msg": "Flight deleted successfully"}), 200
 
+    #Admin cập nhật thông tin chuyến bay
     update_parser = reqparse.RequestParser()
     update_parser.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
     update_parser.add_argument('flight_number', type=str, help="Flight number")

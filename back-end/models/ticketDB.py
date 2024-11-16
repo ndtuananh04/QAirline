@@ -1,9 +1,6 @@
 from datetime import date
 from database import db
-from flask_login import UserMixin
 from sqlalchemy.sql import func
-from models.accountDB import Account
-from models.flightDB import Flight
 import enum
 
 class TicketClass(enum.Enum):
@@ -11,6 +8,7 @@ class TicketClass(enum.Enum):
     BUSINESS = 2
 
 class Ticket(db.Model):
+    __tablename__ = 'ticket'
     ticket_id = db.Column(db.String(45), primary_key=True, autoincrement=True)
     flight_id = db.Column(db.String(45), db.ForeignKey('flight.flight_id'))
     ticket_number = db.Column(db.String(45), unique=True, nullable=False)
