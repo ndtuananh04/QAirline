@@ -25,7 +25,7 @@ class AccountS:
         return True
     
     @staticmethod
-    def validate_email(password):
+    def validate_password(password):
         regex_password = '^[a-z0-9@]*$'
         if not validate_regex(password, regex_password):
             return False

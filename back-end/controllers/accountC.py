@@ -17,6 +17,7 @@ class AccountLogin(Resource):
     def get(self):
         pass
 
+    @jwt_required()
     def post(self):
         data  = AccountLogin.parser.parse_args()
         email = data['email']
@@ -28,7 +29,7 @@ class AccountLogin(Resource):
         user = Account.find_email(email)
 
         if user is None:
-            return {'msg': "Incorrect email or password"}, 401
+            return {'msg': "Incorrect email or password"}, 400
         
         name = AccountS.area_name_of_acc(user)
 
@@ -61,6 +62,7 @@ class AccountRegister(Resource):
     def get(self):
         pass
 
+    @jwt_required()
     def post(self):
         data = AccountRegister.parser.parse_args()
         email = data['email']
@@ -89,7 +91,8 @@ class AccountRegister(Resource):
 
         # Tạo bản ghi mới trong bảng user_infor với identification tùy ý
         new_user_info = UserInfo(
-            identification=identification,
+            account_id=new_account.account_id,
+            identification=data['identification'],
             family_name=data['family_name'],
             given_name=data['given_name'],
             gender=data['gender'],
@@ -100,7 +103,7 @@ class AccountRegister(Resource):
         db.session.add(new_user_info)
         db.session.commit()
 
-        return {"msg": "Account created successfully"}, 201
+        return {"msg": "Account created successfully"}, 200
     
 class UserLogoutAccess(Resource):
     """
@@ -127,6 +130,7 @@ class Repass(Resource):
     parser.add_argument('email', type=str)
     parser.add_argument('password', type=str)
 
+    @jwt_required() 
     def post(self):
         data = Repass.parser.parse_args()
         email = data['email']
@@ -135,6 +139,7 @@ class Repass(Resource):
             return {'msg': "Check your Email or Password"}, 400
 
         get_user = Account.find_email(email)
+        
         if get_user is None:
             return {'msg': "No account with this Email"}, 400
         try:
