@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 
 class Airplane(db.Model):
     __tablename__ = 'airplane'
-    airplane_id = db.Column(db.String(60), primary_key=True, autoincrement=True)
+    airplane_id = db.Column(db.Integer, primary_key=True)
     name_airplane = db.Column(db.String(45), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     is_deleted = db.Column(db.Boolean, default=False)

@@ -5,13 +5,13 @@ from models.ticketDB import Ticket
 from models.flightDB import Flight
 from models.airplaneDB import Airplane
 from models.seatsDB import Seats
-from models.userInfoDB import UserInfo
+from models.UserInfoDB import UserInfo
 import enum
 
 # Lựa chọn cho tài khoản admin hoăc user
 class AccountType(enum.Enum):
-    ADMIN = 1
-    CUSTOMER = 2
+    admin = 1
+    customer = 2
 
 class Account(db.Model):
     __tablename__ = 'account'

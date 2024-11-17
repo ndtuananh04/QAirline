@@ -1,7 +1,7 @@
 import os
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, RevokedTokenModel
-from models.userInfoDB import UserInfo
+from models.UserInfoDB import UserInfo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt

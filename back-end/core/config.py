@@ -1,7 +1,9 @@
 from datetime import timedelta
 import os
 
-SQLALCHEMY_DATABASE_URI = 'sqlite:///database123.db'
+''' SQLALCHEMY_DATABASE_URI = 'sqlite:///database123.db' '''
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost/qairline'
+SECRET_KEY = 'Latinos4PussinBoots'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_POOL_SIZE = 1000   # Để tạm là 300 -> setTimeOutError sqlachemy
 MAIL_SERVER = 'smtp.gmail.com'
