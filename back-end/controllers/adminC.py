@@ -5,6 +5,7 @@ from models.accountDB import Account
 from werkzeug.security import generate_password_hash
 from database import AlchemyEncoder
 import json
+from models.accountDB import AccountType
 
 class AddAccount(Resource):
     parser = reqparse.RequestParser()
@@ -14,7 +15,7 @@ class AddAccount(Resource):
     def get(self):
         return getUsers()
     
-    def post():
+    def post(self):
         data  = AddAccount.parser.parse_args()
         email = data['email']
         password = data['password']
@@ -24,7 +25,7 @@ class AddAccount(Resource):
         
         hashed_password = generate_password_hash(password)
 
-        new_account = Account(email=email, password=hashed_password, role=1)
+        new_account = Account(email=email, password=hashed_password, role=AccountType.admin)
         new_account.save_to_db()
 
         #Cập nhật lại panel sau khi add
