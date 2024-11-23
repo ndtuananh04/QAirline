@@ -49,7 +49,7 @@ class DeleteAccount(Resource):
 def getUsers():
     accounts = Account.query.all()
     accounts_json = json.dumps(accounts, cls=AlchemyEncoder)
-    return accounts_json
+    return jsonify({"accounts": accounts_json})
 
 
 
