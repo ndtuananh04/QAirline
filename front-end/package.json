@@ -27,6 +27,9 @@
 	},
 	"dependencies": {
 		"@iconify/svelte": "^4.0.2",
-		"front-end": "file:"
+		"@splidejs/splide": "^4.1.4",
+		"front-end": "file:",
+		"svelte-carousel": "^1.0.25",
+		"swiper": "^11.1.15"
 	}
 }
