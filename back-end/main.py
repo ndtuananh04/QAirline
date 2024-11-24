@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_restful import Api
 
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass
+from controllers.flightC import DepartureArrival
 from services.__init__ import init_app
 from controllers.__init__ import init_app
 
@@ -18,6 +19,7 @@ api.add_resource(AccountLogin, '/login')
 api.add_resource(AccountRegister, '/register')
 api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
+api.add_resource(DepartureArrival, '/departure-arrival')
 
 if __name__ == '__main__':
     from database import db

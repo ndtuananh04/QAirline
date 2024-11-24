@@ -8,6 +8,16 @@ from models.airplaneDB import Airplane
 from database import db
 from flask import jsonify
 
+class DepartureArrival(Resource):
+    def get(self):
+        departure = Flight.query.with_entities(Flight.departure).distinct().all()
+        arrival = Flight.query.with_entities(Flight.arrival).distinct().all()
+
+        return jsonify({
+            "departure": [d[0] for d in departure],
+            "arrival": [a[0] for a in arrival]
+        }), 200
+
 class FlightSearch(Resource):
     #Tìm kiếm chuyến bay dựa trên các tham số
     parser = reqparse.RequestParser()
