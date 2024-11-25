@@ -20,7 +20,7 @@ class Flight(db.Model):
     arrival_time = db.Column(db.DateTime(timezone=True), nullable=False)
     status = db.Column(db.Enum(FlightType), nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
-    airplane_id = db.Column(db.String(60), db.ForeignKey('airplane.airplane_id'), onupdate="CASCADE")
+    airplane_id = db.Column(db.Integer, db.ForeignKey('airplane.airplane_id'), onupdate="CASCADE")
 
     def __init__(self, flight_id, flight_number, departure, arrival, departure_time, arrival_time, status, available_seats):
         self.flight_id = flight_id

@@ -9,7 +9,7 @@ class TicketClass(enum.Enum):
 
 class Ticket(db.Model):
     __tablename__ = 'ticket'
-    ticket_id = db.Column(db.String(45), primary_key=True, autoincrement=True)
+    ticket_id = db.Column(db.String(45), primary_key=True)
     flight_id = db.Column(db.String(45), db.ForeignKey('flight.flight_id'))
     ticket_number = db.Column(db.String(45), unique=True, nullable=False)
     seat_number = db.Column(db.String(45))

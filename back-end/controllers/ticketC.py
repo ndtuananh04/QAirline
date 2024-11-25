@@ -27,7 +27,7 @@ class TicketSearch(Resource):
         if account.role != AccountType.ADMIN:
             return {'msg': 'Access forbidden: Only admins can view flights'}, 400
         
-        flights = Flight.()
+        flights = Flight.query.all()
         if flights:
             return jsonify({"flights": flights}), 200
         else:

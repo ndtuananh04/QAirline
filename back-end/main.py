@@ -7,6 +7,7 @@ from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess
 from controllers.flightC import DepartureArrival
 from services.__init__ import init_app
 from controllers.__init__ import init_app
+from controllers.adminC import AddAccount
 
 app = Flask(__name__)
 CORS(app)
@@ -21,7 +22,15 @@ api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
 api.add_resource(DepartureArrival, '/departure-arrival')
 
+api.add_resource(AddAccount, '/addaccount')
+
+def create_database():
+    with app.app_context():
+        db.create_all()
+
+
 if __name__ == '__main__':
     from database import db
     db.init_app(app)
+    create_database()
     app.run(debug=True)

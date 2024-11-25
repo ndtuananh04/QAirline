@@ -10,8 +10,8 @@ import enum
 
 # Lựa chọn cho tài khoản admin hoăc user
 class AccountType(enum.Enum):
-    ADMIN = 1
-    CUSTOMER = 2
+    admin = 1
+    customer = 2
 
 class Account(db.Model):
     __tablename__ = 'account'
@@ -20,11 +20,10 @@ class Account(db.Model):
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.Enum(AccountType), nullable=False)
     
-    def __init__(self, account_id, email, password, role_id):
-        self.account_id = account_id
+    def __init__(self, email, password, role):
         self.email = email
         self.password = password
-        self.role_id = role_id
+        self.role = role
 
     def to_json(self):
         return {
