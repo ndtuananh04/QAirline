@@ -20,7 +20,6 @@
 				<a href="/explore">Khám phá</a>
 				<a href="/booking">Đặt vé</a>
 				<a href="/info">Thông tin hành trình</a>
-				<a href="/club">Bamboo Club</a>
 			</nav>
 
 			<div class="header__auth">
