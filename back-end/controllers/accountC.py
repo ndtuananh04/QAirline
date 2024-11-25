@@ -37,7 +37,7 @@ class AccountLogin(Resource):
         name = AccountS.area_name_of_acc(user)
 
         # Tạo access token với thông tin bổ sung (bao gồm account_id, role, name)
-        additional_claims = {"role": user.role.name, "name": name}  # Chuyển role thành string nếu là enum
+        additional_claims = {"role": user.role.name, "name": name}  # Chuyển role thành string nếu là enum hello
         access_token = create_access_token(identity=user.account_id, additional_claims=additional_claims)
 
         return jsonify(access_token=access_token)
