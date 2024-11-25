@@ -40,7 +40,7 @@ class FlightSearch(Resource):
         flights = Flights.find_flights_with_seats(departure, arrival, departure_time)
 
         if flights:
-            return {"flights": flights}
+            return flights
         else:
             return jsonify({"message": "No flights found"}), 404
 

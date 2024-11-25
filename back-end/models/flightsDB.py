@@ -1,14 +1,22 @@
-from datetime import date
+from datetime import datetime
 from database import db
 from sqlalchemy.sql import func
 import enum
 from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
+from flask import jsonify
 
 class FlightType(enum.Enum):
-    SCHEDULED = 1
-    DELAYED = 2
-    CANCELLED = 3
+    SCHEDULED = "scheduled"
+    DELAYED = "delayed"
+    CANCELLED = "cancelled"
+
+    @classmethod
+    def from_string(cls, value):
+        try:
+            return cls[value.upper()]  # Chuyển giá trị thành chữ hoa trước khi đối chiếu
+        except KeyError:
+            raise ValueError(f"Invalid flight type: {value}")
 
 class Flights(db.Model):
     __tablename__ = 'flights'
@@ -26,7 +34,7 @@ class Flights(db.Model):
         self.departure = departure
         self.arrival = arrival
         self.departure_time = departure_time
-        self.status = status
+        self.status = FlightType.from_string(status.upper())
         self.available_seats = available_seats
 
     def to_json(self):
@@ -34,8 +42,8 @@ class Flights(db.Model):
             "flight_number" : self.flight_number,
             "departure": self.departure,
             "arrival": self.arrival,
-            "departure_time": self.departure_time,
-            "status": self.status,
+            "departure_time": self.departure_time.strftime('%Y-%m-%d'),
+            "status": self.status.name,
             "available_seats": self.available_seats
         }
 
@@ -58,8 +66,6 @@ class Flights(db.Model):
             Flights.departure,
             Flights.arrival,
             Flights.departure_time,
-            Flights.status,
-            Flights.available_seats,
             Seats.seat_class,
             Seats.price
         ).select_from(Flights). \
@@ -70,26 +76,29 @@ class Flights(db.Model):
             filter(Flights.departure_time == departure_time). \
             all()
 
-        results = []
-        for flight in flights:
-            # Đảm bảo tất cả trường dữ liệu đều được chuyển đổi phù hợp
-            flight_data = {
-                "flight_number": flight.flight_number,
-                "departure": flight.departure,
-                "arrival": flight.arrival,
-                "departure_time": flight.departure_time.isoformat(),  # ISO định dạng ngày
-                "status": flight.status.name if isinstance(flight.status, enum.Enum) else str(flight.status),  # Enum -> string
-                "available_seats": flight.available_seats,
-                "seats": [
-                    {
-                        "seat_class": flight.seat_class.name if isinstance(flight.seat_class, enum.Enum) else str(flight.seat_class),
-                        "price": float(flight.price)  # Decimal -> float
-                    }
-                ]
-            }
-            results.append(flight_data)
+        flight_dict = {}
 
-        return results
+        for flight in flights:
+            if flight.flight_number not in flight_dict:
+                flight_dict[flight.flight_number] = {
+                    "flight_number": flight.flight_number,
+                    "departure": flight.departure,
+                    "arrival": flight.arrival,
+                    "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
+                    "seats": []
+                }
+
+            seat = {
+                "seat_class": flight.seat_class.name if isinstance(flight.seat_class, enum.Enum) else str(flight.seat_class),
+                "price": float(flight.price)
+            }
+
+            # Kiểm tra xem hạng ghế này đã có trong seats chưa
+            if seat not in flight_dict[flight.flight_number]["seats"]:
+                flight_dict[flight.flight_number]["seats"].append(seat)
+            results = list(flight_dict.values())
+
+        return jsonify(results)
     
     @classmethod
     def find_flight_id(cls, flight_id):

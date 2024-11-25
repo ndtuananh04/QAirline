@@ -5,8 +5,15 @@ import enum
 from models.airplanesDB import Airplanes
 
 class SeatClass(enum.Enum):
-    ECONOMY = 1
-    BUSINESS = 2
+    ECONOMY = "ECONOMY"
+    BUSINESS = "BUSINESS"
+
+    @classmethod
+    def from_string(cls, value):
+        try:
+            return cls[value.upper()]  # Chuyển giá trị thành chữ hoa trước khi đối chiếu
+        except KeyError:
+            raise ValueError(f"Invalid flight type: {value}")
 
 class Seats(db.Model):
     __tablename__ = 'seats'
@@ -17,18 +24,16 @@ class Seats(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     seat_info = db.Column(db.Text, nullable=False)
 
-    def __init__(self, seat_id, seat_number, seat_class, price, seat_info):
-        self.seat_id = seat_id
+    def __init__(self, seat_number, seat_class, price, seat_info):
         self.seat_number = seat_number
-        self.seat_class = seat_class
+        self.seat_class = SeatClass.from_string(seat_class.upper())
         self.price = price
         self.seat_info = seat_info
 
     def to_json(self):
         return {
-            "seat_id": self.seat_id,
             "seat_number": self.seat_number,
-            "seat_class": self.seat_class,
+            "seat_class": self.seat_class.name,
             "price": self.price,
             "seat_info": self.seat_info
         }
