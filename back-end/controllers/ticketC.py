@@ -3,10 +3,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
-from models.flightDB import Flight, FlightDelay
-from models.airplaneDB import Airplane
+from models.flightsDB import Flights, FlightDelay
+from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
-from models.ticketDB import Ticket
+from models.ticketsDB import Tickets
 
 from services.ticketS import TicketS
 #from services.flightS import FlightS
@@ -27,7 +27,7 @@ class TicketSearch(Resource):
         if account.role != AccountType.ADMIN:
             return {'msg': 'Access forbidden: Only admins can view flights'}, 400
         
-        flights = Flight.query.all()
+        flights = Flights.query.all()
         if flights:
             return jsonify({"flights": flights}), 200
         else:
@@ -48,10 +48,10 @@ class TicketSearch(Resource):
         data = TicketSearch.parser.parse_args()
         
         flight_id = data['flight_number']
-        if not Flight.find_flight_id(flight_id):
+        if not Flights.find_flight_id(flight_id):
             return {'msg': 'Flight not found'}, 400
         
-        new_ticket = Ticket(
+        new_ticket = Tickets(
             ticket_number=TicketS.generate_ticket_number(),
             flight_id=data['flight_id'],
             ticket_class=data['ticket_class']
@@ -76,7 +76,7 @@ class TicketSearch(Resource):
         data = TicketSearch.parser_delete.parse_args()
         
         ticket_id = data['ticket_id']
-        ticket = Ticket.find_ticket_id(ticket_id)
+        ticket = Tickets.find_ticket_id(ticket_id)
 
         if not ticket:
             return {'msg': 'Flight not found'}, 400
@@ -106,7 +106,7 @@ class TicketSearch(Resource):
         data = TicketSearch.parser_update.parse_args()
         
         ticket_id = data['ticket_id']
-        ticket = Ticket.find_ticket_id(ticket_id)
+        ticket = Tickets.find_ticket_id(ticket_id)
         
         if not ticket:
             return {'msg': 'Flight not found'}, 400

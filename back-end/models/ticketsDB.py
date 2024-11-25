@@ -7,10 +7,10 @@ class TicketClass(enum.Enum):
     ECONOMY = 1
     BUSINESS = 2
 
-class Ticket(db.Model):
-    __tablename__ = 'ticket'
+class Tickets(db.Model):
+    __tablename__ = 'tickets'
     ticket_id = db.Column(db.String(45), primary_key=True)
-    flight_id = db.Column(db.String(45), db.ForeignKey('flight.flight_id'))
+    flight_id = db.Column(db.String(45), db.ForeignKey('flights.flight_id'))
     ticket_number = db.Column(db.String(45), unique=True, nullable=False)
     seat_number = db.Column(db.String(45))
     ticket_class = db.Column(db.Enum(TicketClass), nullable=False)

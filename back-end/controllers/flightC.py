@@ -3,20 +3,20 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
-from models.flightDB import Flight, FlightDelay
-from models.airplaneDB import Airplane
+from models.flightsDB import Flights, FlightDelay
+from models.airplanesDB import Airplanes
 from database import db
 from flask import jsonify
 
 class DepartureArrival(Resource):
     def get(self):
-        departure = Flight.query.with_entities(Flight.departure).distinct().all()
-        arrival = Flight.query.with_entities(Flight.arrival).distinct().all()
-
+        departure = Flights.query.with_entities(Flights.departure).distinct().all()
+        arrival = Flights.query.with_entities(Flights.arrival).distinct().all()
+        
         return jsonify({
             "departure": [d[0] for d in departure],
             "arrival": [a[0] for a in arrival]
-        }), 200
+        })
 
 class FlightSearch(Resource):
     #Tìm kiếm chuyến bay dựa trên các tham số
@@ -32,16 +32,15 @@ class FlightSearch(Resource):
         departure_time = data['departure_time']
 
         try:
-            departure_time = datetime.strptime(departure_time, "%Y-%m-%d %H:%M:%S")
+            departure_time = datetime.strptime(departure_time, "%Y-%m-%d")
         except ValueError:
             return jsonify({"message": "Invalid departure time format"}), 400
 
-
         # Tìm kiếm chuyến bay dựa trên các tham số
-        flights = Flight.find_flights_with_seats(departure, arrival, departure_time)
+        flights = Flights.find_flights_with_seats(departure, arrival, departure_time)
 
         if flights:
-            return jsonify({"flights": flights}), 200
+            return {"flights": flights}
         else:
             return jsonify({"message": "No flights found"}), 404
 
@@ -50,8 +49,7 @@ class FlightSearch(Resource):
     flight_parser.add_argument('flight_number', type=str, required=True, help="Flight number is required")
     flight_parser.add_argument('departure', type=str, required=True, help="Departure location is required")
     flight_parser.add_argument('arrival', type=str, required=True, help="Arrival location is required")
-    flight_parser.add_argument('departure_time', type=str, required=True, help="Departure time (format: YYYY-MM-DD HH:MM:SS)")
-    flight_parser.add_argument('arrival_time', type=str, required=True, help="Arrival time (format: YYYY-MM-DD HH:MM:SS)")
+    flight_parser.add_argument('departure_time', type=str, required=True, help="Departure time (format: YYYY-MM-DD)")
     flight_parser.add_argument('status', type=str, required=True, help="Flight status is required")
     flight_parser.add_argument('available_seats', type=int, required=True, help="Available seats are required")
     flight_parser.add_argument('airplane_id', type=str, required=True, help="Airplane ID is required")
@@ -70,17 +68,16 @@ class FlightSearch(Resource):
         
         data = FlightSearch.flight_parser.parse_args()
 
-        airplane = Airplane.find_airplane_id(data['airplane_id'])
+        airplane = Airplanes.find_airplane_id(data['airplane_id'])
         if not airplane:
             return {'msg': 'Airplane not found'}, 400
 
         # Thêm chuyến bay vào cơ sở dữ liệu
-        new_flight = Flight(
+        new_flight = Flights(
             flight_number=data['flight_number'],
             departure=data['departure'],
             arrival=data['arrival'],
             departure_time=data['departure_time'],
-            arrival_time=data['arrival_time'],
             status=data['status'],
             available_seats=data['available_seats'],
             airplane_id=data['airplane_id']
@@ -110,7 +107,7 @@ class FlightSearch(Resource):
         flight_id = data['flight_id']
 
         # Kiểm tra xem chuyến bay có tồn tại hay không
-        flight = Flight.query.filter_by(flight_id=flight_id).first()
+        flight = Flights.query.filter_by(flight_id=flight_id).first()
 
         if not flight:
             return {'msg': 'Flight not found'}, 400
@@ -128,7 +125,6 @@ class FlightSearch(Resource):
     update_parser.add_argument('departure', type=str, help="Departure location")
     update_parser.add_argument('arrival', type=str, help="Arrival location")
     update_parser.add_argument('departure_time', type=str, help="Departure time (format: YYYY-MM-DD HH:MM:SS)")
-    update_parser.add_argument('arrival_time', type=str, help="Arrival time (format: YYYY-MM-DD HH:MM:SS)")
     update_parser.add_argument('status', type=str, help="Flight status (SCHEDULED, DELAYED, CANCELLED)")
     update_parser.add_argument('available_seats', type=int, help="Available seats")
     update_parser.add_argument('airplane_id', type=str, help="Airplane ID")
@@ -149,7 +145,7 @@ class FlightSearch(Resource):
         data = FlightSearch.update_parser.parse_args()
 
         # Kiểm tra xem chuyến bay có tồn tại không
-        flight = Flight.query.filter_by(flight_id=data['flight_id']).first()
+        flight = Flights.query.filter_by(flight_id=data['flight_id']).first()
         if not flight:
             return {'msg': 'Flight not found'}, 404
 
@@ -162,15 +158,13 @@ class FlightSearch(Resource):
             flight.arrival = data['arrival']
         if data['departure_time']:
             flight.departure_time = data['departure_time']
-        if data['arrival_time']:
-            flight.arrival_time = data['arrival_time']
         if data['status']:
             flight.status = data['status']
         if data['available_seats'] is not None:
             flight.available_seats = data['available_seats']
         if data['airplane_id']:
             # Kiểm tra xem `airplane_id` mới có tồn tại không
-            airplane = Airplane.find_airplane_id(data['airplane_id'])
+            airplane = Airplanes.find_airplane_id(data['airplane_id'])
             if not airplane:
                 return {'msg': 'Airplane not found'}, 400
             flight.airplane_id = data['airplane_id']

@@ -2,24 +2,23 @@ from datetime import date
 from database import db
 from sqlalchemy.sql import func
 
-class Airplane(db.Model):
-    __tablename__ = 'airplane'
+class Airplanes(db.Model):
+    __tablename__ = 'airplanes'
     airplane_id = db.Column(db.Integer, primary_key=True)
     name_airplane = db.Column(db.String(45), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
-    is_deleted = db.Column(db.Boolean, default=False)
+    is_locked = db.Column(db.Boolean, default=False)
 
-    def __init__(self, airplane_id, name_airplane, capacity, is_deleted):
-        self.airplane_id = airplane_id
+    def __init__(self, name_airplane, capacity, is_locked):
         self.name_airplane = name_airplane
         self.capacity = capacity
-        self.is_deleted = is_deleted
+        self.is_locked = is_locked
 
     def to_json(self):
         return {
             "name_airplane": self.name_airplane,
             "capacity": self.capacity,
-            "is_deleted": self.is_deleted
+            "is_locked": self.is_locked
         }
     
     # Lọc chỉ những airplane chưa khóa

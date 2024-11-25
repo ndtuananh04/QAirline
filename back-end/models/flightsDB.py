@@ -2,7 +2,7 @@ from datetime import date
 from database import db
 from sqlalchemy.sql import func
 import enum
-from models.airplaneDB import Airplane
+from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
 
 class FlightType(enum.Enum):
@@ -10,36 +10,31 @@ class FlightType(enum.Enum):
     DELAYED = 2
     CANCELLED = 3
 
-class Flight(db.Model):
-    __tablename__ = 'flight'
+class Flights(db.Model):
+    __tablename__ = 'flights'
     flight_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     flight_number = db.Column(db.String(45), unique=True, nullable=False)
     departure = db.Column(db.String(60), nullable=False)
     arrival = db.Column(db.String(60), nullable=False)
-    departure_time = db.Column(db.DateTime(timezone=True), nullable=False)
-    arrival_time = db.Column(db.DateTime(timezone=True), nullable=False)
+    departure_time = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(FlightType), nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
-    airplane_id = db.Column(db.Integer, db.ForeignKey('airplane.airplane_id'), onupdate="CASCADE")
+    airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
 
-    def __init__(self, flight_id, flight_number, departure, arrival, departure_time, arrival_time, status, available_seats):
-        self.flight_id = flight_id
+    def __init__(self, flight_number, departure, arrival, departure_time, status, available_seats):
         self.flight_number = flight_number
         self.departure = departure
         self.arrival = arrival
         self.departure_time = departure_time
-        self.arrival_time = arrival_time
         self.status = status
         self.available_seats = available_seats
 
     def to_json(self):
         return {
-            "flight_id": self.flight_id,
             "flight_number" : self.flight_number,
             "departure": self.departure,
             "arrival": self.arrival,
             "departure_time": self.departure_time,
-            "arrival_time": self.arrival_time,
             "status": self.status,
             "available_seats": self.available_seats
         }
@@ -58,46 +53,40 @@ class Flight(db.Model):
     '''
     @classmethod
     def find_flights_with_seats(cls, departure, arrival, departure_time):
-    # Sử dụng JOIN để kết nối các bảng Flight, Airplane và Seats
         flights = db.session.query(
-            Flight.flight_id,
-            Flight.flight_number,
-            Flight.departure,
-            Flight.arrival,
-            Flight.departure_time,
-            Flight.arrival_time,
-            Flight.status,
-            Flight.available_seats,
+            Flights.flight_number,
+            Flights.departure,
+            Flights.arrival,
+            Flights.departure_time,
+            Flights.status,
+            Flights.available_seats,
             Seats.seat_class,
             Seats.price
-        ).select_from(Flight). \
-            join(Airplane, Flight.airplane_id == Airplane.airplane_id). \
-            join(Seats, Airplane.airplane_id == Seats.airplane_id). \
-            filter(Flight.departure == departure). \
-            filter(Flight.arrival == arrival). \
-            filter(Flight.departure_time == departure_time). \
+        ).select_from(Flights). \
+            join(Airplanes, Flights.airplane_id == Airplanes.airplane_id). \
+            join(Seats, Airplanes.airplane_id == Seats.airplane_id). \
+            filter(Flights.departure == departure). \
+            filter(Flights.arrival == arrival). \
+            filter(Flights.departure_time == departure_time). \
             all()
 
-        # Chuyển đổi kết quả thành định dạng JSON hợp lệ
         results = []
         for flight in flights:
+            # Đảm bảo tất cả trường dữ liệu đều được chuyển đổi phù hợp
             flight_data = {
-                "flight_id": flight.flight_id,
                 "flight_number": flight.flight_number,
                 "departure": flight.departure,
                 "arrival": flight.arrival,
-                "departure_time": flight.departure_time,
-                "arrival_time": flight.arrival_time,
-                "status": flight.status.name,
+                "departure_time": flight.departure_time.isoformat(),  # ISO định dạng ngày
+                "status": flight.status.name if isinstance(flight.status, enum.Enum) else str(flight.status),  # Enum -> string
                 "available_seats": flight.available_seats,
-                "seats": []
+                "seats": [
+                    {
+                        "seat_class": flight.seat_class.name if isinstance(flight.seat_class, enum.Enum) else str(flight.seat_class),
+                        "price": float(flight.price)  # Decimal -> float
+                    }
+                ]
             }
-
-            flight_data["seats"].append({
-                "seat_class": flight.seat_class.name,
-                "price": str(flight.price)  # Chuyển Decimal thành string
-            })
-
             results.append(flight_data)
 
         return results

@@ -5,13 +5,13 @@ from database import db
 
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
-from models.flightDB import  Airplane
+from models.airplanesDB import  Airplanes
 
 class AirplaneSearch(Resource):
     parser = reqparse.RequestParser()
     def get(self):
         # Tìm kiếm may bay dựa trên tên
-        airplanes = Airplane.get_all_airplanes()
+        airplanes = Airplanes.get_all_airplanes()
         # Trả về kết quả tìm kiếm
         if airplanes:
             return jsonify({"airplanes": airplanes}), 200
@@ -38,7 +38,7 @@ class AirplaneSearch(Resource):
         data = AirplaneSearch.airplane_parser.parse_args()
         name_airplane = data['name_airplane']
 
-        existing_airplane = Airplane.find_name_airplane(name_airplane)
+        existing_airplane = Airplanes.find_name_airplane(name_airplane)
         if existing_airplane:
             if existing_airplane.is_locked:
                 # Nếu đã tồn tại máy bay với `is_locked=False`, không thêm mới
@@ -51,7 +51,7 @@ class AirplaneSearch(Resource):
                 return {'msg': 'Airplane unlocked and updated successfully'}, 200
 
         # Nếu không tồn tại máy bay nào, tạo máy bay mới
-        new_airplane = Airplane(
+        new_airplane = Airplanes(
             name_airplane=data['name_airplane'],
             capacity=data['capacity'],
             is_locked=False
@@ -79,7 +79,7 @@ class AirplaneSearch(Resource):
         data = AirplaneSearch.parser.parse_args()
         name_airplane = data['name_airplane']
 
-        airplane = Airplane.find_name_airplane_with_locked(name_airplane)
+        airplane = Airplanes.find_name_airplane_with_locked(name_airplane)
         if not airplane: 
             return {'msg': 'Airplane not found'}, 400
 
@@ -108,7 +108,7 @@ class AirplaneSearch(Resource):
         data = AirplaneSearch.update_parser.parse_args()
         name_airplane = data['name_airplane']
 
-        airplane = Airplane.find_name_airplane(name_airplane)
+        airplane = Airplanes.find_name_airplane(name_airplane)
         if not airplane:
             return {'msg': 'Airplane not found'}, 400
 

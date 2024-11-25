@@ -8,6 +8,7 @@ from controllers.flightC import DepartureArrival
 from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import AddAccount
+from controllers.flightC import FlightSearch
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +22,7 @@ api.add_resource(AccountRegister, '/register')
 api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
 api.add_resource(DepartureArrival, '/departure-arrival')
+api.add_resource(FlightSearch, '/flight-search')
 
 api.add_resource(AddAccount, '/addaccount')
 

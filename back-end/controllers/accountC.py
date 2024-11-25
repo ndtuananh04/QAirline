@@ -18,28 +18,29 @@ class AccountLogin(Resource):
     def get(self):
         pass
 
-    @jwt_required()
     def post(self):
-        data  = AccountLogin.parser.parse_args()
+        data = AccountLogin.parser.parse_args()
         email = data['email']
         password = data['password']  
 
-        if not AccountS.validate_input_email_pass(email, password):
-            return {'msg': "Invalid id or password"}, 400
-        
+        # Tìm tài khoản theo email
         user = Account.find_email(email)
 
         if user is None:
             return {'msg': "Incorrect email or password"}, 400
+
+        # Kiểm tra mật khẩu
+        if not check_password_hash(user.password, password):
+            return {"msg": "Incorrect username or password"}, 401
         
+        # Lấy tên người dùng từ AccountS
         name = AccountS.area_name_of_acc(user)
 
-        if check_password_hash(user.password, password):
-            additional_claim = {"role": user.role, "name": name}
-            access_token = create_access_token(email=email, additional_claims=additional_claim)
-            return jsonify(access_token=access_token)
-        
-        return {"msg": "Incorrect username or password"}, 401
+        # Tạo access token với thông tin bổ sung (bao gồm account_id, role, name)
+        additional_claims = {"role": user.role.name, "name": name}  # Chuyển role thành string nếu là enum
+        access_token = create_access_token(identity=user.account_id, additional_claims=additional_claims)
+
+        return jsonify(access_token=access_token)
     
     def delete(self):
         return {'msg': 'Not allowed'}, 404
@@ -63,9 +64,8 @@ class AccountRegister(Resource):
     def get(self):
         pass
 
-    @jwt_required()
     def post(self):
-        data = AccountRegister.parser.parse_args()
+        data = self.parser.parse_args()
         email = data['email']
         password = data['password']
         identification = data['identification']
@@ -86,7 +86,7 @@ class AccountRegister(Resource):
         hashed_password = generate_password_hash(password)
 
         # Tạo tài khoản mới trong bảng account
-        new_account = Account(email=email, password=hashed_password, role=2)
+        new_account = Account(email=email, password=hashed_password, role='customer')
         db.session.add(new_account)
         db.session.commit()
 

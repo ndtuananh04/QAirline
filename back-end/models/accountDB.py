@@ -1,9 +1,9 @@
 from datetime import date
 from database import db
 from sqlalchemy.sql import func
-from models.ticketDB import Ticket
-from models.flightDB import Flight
-from models.airplaneDB import Airplane
+from models.ticketsDB import Tickets
+from models.flightsDB import Flights
+from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
 from models.userInfoDB import UserInfo
 import enum
@@ -19,6 +19,7 @@ class Account(db.Model):
     email = db.Column(db.String(60), unique=False)
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.Enum(AccountType), nullable=False)
+    user_info = db.relationship('UserInfo', backref='account', uselist=False)  # Quan hệ 1-1 với bảng UserInfo
     
     def __init__(self, email, password, role):
         self.email = email
@@ -27,7 +28,6 @@ class Account(db.Model):
 
     def to_json(self):
         return {
-            "account_id": self.account_id,
             "email" : self.email,
             "password": self.password,
             "role": self.role,
@@ -46,17 +46,17 @@ class Account(db.Model):
         return db.session.query(
                 UserInfo.family_name,
                 UserInfo.given_name, 
-                Ticket.ticket_number, 
-                Flight.departure, 
-                Flight.arrival, 
-                Flight.departure_time, 
+                Tickets.ticket_number, 
+                Flights.departure, 
+                Flights.arrival, 
+                Flights.departure_time, 
                 Seats.seat_class
             ) \
             .join(UserInfo, UserInfo.account_id == Account.account_id) \
-            .join(Ticket, Ticket.ticket_id == Account.account_id) \
-            .join(Flight, Flight.flight_id == Ticket.flight_id) \
-            .join(Airplane, Flight.airplane_id == Airplane.airplane_id) \
-            .join(Seats, Seats.airplane_id == Airplane.airplane_id) \
+            .join(Tickets, Tickets.ticket_id == Account.account_id) \
+            .join(Flights, Flights.flight_id == Tickets.flight_id) \
+            .join(Airplanes, Flights.airplane_id == Airplanes.airplane_id) \
+            .join(Seats, Seats.airplane_id == Airplanes.airplane_id) \
             .filter(Account.account_id == account_id) \
             .all()
 
