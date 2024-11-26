@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 from database import db
 from sqlalchemy.sql import func
 import enum
@@ -23,17 +23,25 @@ class Flights(db.Model):
     flight_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     flight_number = db.Column(db.String(45), unique=True, nullable=False)
     departure = db.Column(db.String(60), nullable=False)
-    arrival = db.Column(db.String(60), nullable=False)
+    code_departure = db.Column(db.String(60), nullable=False)
+    arrival = db.Column(db.String(10), nullable=False)
+    code_arrival = db.Column(db.String(10), nullable=False)
     departure_time = db.Column(db.Date, nullable=False)
+    departure_hour_time = db.Column(db.Time, nullable=False)
+    arrival_hour_time = db.Column(db.Time, nullable=False)
     status = db.Column(db.Enum(FlightType), nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
     airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
 
-    def __init__(self, flight_number, departure, arrival, departure_time, status, available_seats):
+    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, status, available_seats):
         self.flight_number = flight_number
         self.departure = departure
+        self.code_departure = code_departure
         self.arrival = arrival
+        self.code_arrival = code_arrival
         self.departure_time = departure_time
+        self.departure_hour_time = departure_hour_time.strftime('%H:%M') if departure_hour_time else None
+        self.arrival_hour_time = arrival_hour_time.strftime('%H:%M') if arrival_hour_time else None
         self.status = FlightType.from_string(status.upper())
         self.available_seats = available_seats
 
@@ -41,8 +49,12 @@ class Flights(db.Model):
         return {
             "flight_number" : self.flight_number,
             "departure": self.departure,
+            "code_departure": self.code_departure,
             "arrival": self.arrival,
+            "code_arrival": self.code_arrival,
             "departure_time": self.departure_time.strftime('%Y-%m-%d'),
+            "departure_hour_time": self.departure_hour_time.strftime('%H:%M'),
+            "arrival_hour_time": self.arrival_hour_time.strftime('%H:%M'),
             "status": self.status.name,
             "available_seats": self.available_seats
         }
@@ -64,8 +76,12 @@ class Flights(db.Model):
         flights = db.session.query(
             Flights.flight_number,
             Flights.departure,
+            Flights.code_departure,
             Flights.arrival,
+            Flights.code_arrival,
             Flights.departure_time,
+            Flights.departure_hour_time,
+            Flights.arrival_hour_time,
             Seats.seat_class,
             Seats.price
         ).select_from(Flights). \
@@ -83,8 +99,12 @@ class Flights(db.Model):
                 flight_dict[flight.flight_number] = {
                     "flight_number": flight.flight_number,
                     "departure": flight.departure,
+                    "code_departure": flight.code_departure,
                     "arrival": flight.arrival,
+                    "code_arrival": flight.code_arrival,
                     "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
+                    "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
+                    "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
                     "seats": []
                 }
 

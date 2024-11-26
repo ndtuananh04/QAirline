@@ -6,6 +6,7 @@ from models.airplanesDB import Airplanes
 
 class SeatClass(enum.Enum):
     ECONOMY = "ECONOMY"
+    SKYBOSS = "SKYBOSS"
     BUSINESS = "BUSINESS"
 
     @classmethod
