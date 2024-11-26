@@ -6,16 +6,33 @@ from werkzeug.security import generate_password_hash
 from database import AlchemyEncoder
 import json
 from models.accountDB import AccountType
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
+
+def getUsers():
+    accounts = Account.query.all()
+    accounts_json = json.dumps(accounts, cls=AlchemyEncoder)
+    return jsonify({"accounts": accounts_json})
 
 class AddAccount(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('email', type=str, required=True, help="This field cannot be left blank")
     parser.add_argument('password', type=str, required=True, help="This field cannot be left blank")
 
+    @jwt_required()
     def get(self):
         return getUsers()
     
+    @jwt_required()
     def post(self):
+        current_user_id = get_jwt_identity()
+        account = Account.find_account_id(current_user_id)
+
+        if not account:
+            return {'msg': 'Account not found'}, 400
+        
+        if account.role != AccountType.admin:
+            return {'msg': 'Access forbidden: Only admins can add flights'}, 400
+
         data  = AddAccount.parser.parse_args()
         email = data['email']
         password = data['password']
@@ -46,10 +63,7 @@ class DeleteAccount(Resource):
         
     
 
-def getUsers():
-    accounts = Account.query.all()
-    accounts_json = json.dumps(accounts, cls=AlchemyEncoder)
-    return jsonify({"accounts": accounts_json})
+
 
 
 
