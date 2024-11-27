@@ -1,22 +1,21 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.engine.row import Row
+from enum import Enum
+
 import json
 
 db = SQLAlchemy()
 
 class AlchemyEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj.__class__, DeclarativeMeta):
-            # Convert SQLAlchemy model to dictionary
-            fields = {}
-            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
-                data = obj.__getattribute__(field)
-                try:
-                    json.dumps(data)
-                    fields[field] = data
-                except TypeError:
-                    fields[field] = None
-            return fields
-        return json.JSONEncoder.default(self, obj)
+        if isinstance(obj, Row):
+            # Convert Row objects to dictionaries
+            row_dict = dict(obj._mapping)
+            # Convert Enum fields (like Account.role) to their string representation
+            
+            for key, value in row_dict.items():
+                if isinstance(value, Enum):
+                    row_dict[key] = value.value  # Get the string or integer value of the Enum
+            return row_dict
+        return super().default(obj)
