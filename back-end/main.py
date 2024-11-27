@@ -40,8 +40,4 @@ if __name__ == '__main__':
     from database import db
     db.init_app(app)
     create_database()
-    with app.app_context():
-        additional_claims = {"role": AccountType.admin.name, "name": "Test"}  # Chuyển role thành string nếu là enum hello
-        access_token = create_access_token(identity=16, additional_claims=additional_claims)
-        print(access_token)
     app.run(debug=True)
