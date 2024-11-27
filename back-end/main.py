@@ -3,11 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_restful import Api
 
+from flask_jwt_extended import create_access_token
+from models.accountDB import AccountType
+
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass
 from controllers.flightC import DepartureArrival
 from services.__init__ import init_app
 from controllers.__init__ import init_app
-from controllers.adminC import AddAccount
+from controllers.adminC import *
 from controllers.flightC import FlightSearch
 
 app = Flask(__name__)
@@ -25,6 +28,8 @@ api.add_resource(DepartureArrival, '/departure-arrival')
 api.add_resource(FlightSearch, '/flight-search')
 
 api.add_resource(AddAccount, '/addaccount')
+api.add_resource(EditAccount, '/editaccount')
+api.add_resource(DeleteAccount, '/deleteaccount')
 
 def create_database():
     with app.app_context():
@@ -35,4 +40,8 @@ if __name__ == '__main__':
     from database import db
     db.init_app(app)
     create_database()
+    with app.app_context():
+        additional_claims = {"role": AccountType.admin.name, "name": "Test"}  # Chuyển role thành string nếu là enum hello
+        access_token = create_access_token(identity=16, additional_claims=additional_claims)
+        print(access_token)
     app.run(debug=True)
