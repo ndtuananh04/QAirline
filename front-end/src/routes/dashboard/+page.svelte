@@ -1,12 +1,22 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { writable, get } from 'svelte/store';
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
 
 	let splideElement;
 	let splideInstance;
 	let showHiddenForm = false;
+	let departures = writable([]);
+	let arrivals = writable([]);
+	let fromInput = '';
+	let toInput = '';
+	let showDepartureSuggestions = false;
+	let showArrivalSuggestions = false;
+	let filteredDepartures = writable([]);
+	let filteredArrivals = writable([]);
+	let tripType = 'round-trip';
 
 	onMount(() => {
 		splideInstance = new Splide(splideElement, {
@@ -20,10 +30,57 @@
 		document.addEventListener('click', handleClickOutside);
 	});
 
+	onMount(async () => {
+		const response = await fetch('http://127.0.0.1:5000/departure-arrival');
+		const data = await response.json();
+		departures.set(data.departure);
+		arrivals.set(data.arrival);
+	});
+
+	function removeDiacritics(str) {
+		return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+	}
+
+	function suggest(input, suggestions) {
+		const value = removeDiacritics(input.toLowerCase());
+		const suggestionsArray = get(suggestions);
+		const filteredSuggestions = suggestionsArray.filter((suggestion) => {
+			const normalizedSuggestion = removeDiacritics(suggestion.toLowerCase());
+			return normalizedSuggestion.includes(value);
+		});
+		return filteredSuggestions;
+	}
+
+	function handleFromInput(event) {
+		fromInput = event.target.value;
+		filteredDepartures.set(suggest(fromInput, departures));
+		showDepartureSuggestions = true;
+	}
+
+	function handleToInput(event) {
+		toInput = event.target.value;
+		filteredArrivals.set(suggest(toInput, arrivals));
+		showArrivalSuggestions = true;
+	}
+
+	function selectDeparture(suggestion, event) {
+		event.stopPropagation();
+		fromInput = suggestion;
+		showDepartureSuggestions = false;
+	}
+
+	function selectArrival(suggestion, event) {
+		event.stopPropagation();
+		toInput = suggestion;
+		showArrivalSuggestions = false;
+	}
+
 	function handleClickOutside(event) {
 		const form = document.querySelector('.booking-form');
 		if (form && !form.contains(event.target)) {
 			showHiddenForm = false;
+			showDepartureSuggestions = false;
+			showArrivalSuggestions = false;
 		}
 	}
 
@@ -54,24 +111,51 @@
 	<div class="slick__form">
 		<div class="booking-tabs">
 			<button class="active">Đặt Vé</button>
-			<button>Làm Thủ Tục</button>
-			<button>Đặt Chỗ Của Tôi</button>
 		</div>
 
 		<div class="booking-form" on:click={toggleHiddenForm}>
 			<form on:submit={handleSubmit}>
 				<div class="booking__basic row">
 					<div class="trip-type col-4">
-						<label><input type="radio" name="trip" value="one-way" checked /> Một chiều</label>
-						<label><input type="radio" name="trip" value="round-trip" /> Khứ hồi</label>
+						<label
+							><input
+								type="radio"
+								name="trip"
+								value="one-way"
+								on:change={() => (tripType = 'one-way')}
+							/> Một chiều</label
+						>
+						<label
+							><input
+								type="radio"
+								name="trip"
+								value="round-trip"
+								checked
+								on:change={() => (tripType = 'round-trip')}
+							/> Khứ hồi</label
+						>
 					</div>
-					<div class="form-group col-4">
+					<div class="form-group col-4 suggested">
 						<label for="from">Điểm đi</label>
-						<input type="text" id="from" value="Hà Nội (HAN)" />
+						<input type="text" id="from" bind:value={fromInput} on:input={handleFromInput} />
+						{#if fromInput && showDepartureSuggestions && $filteredDepartures.length > 0}
+							<ul class="suggestions">
+								{#each $filteredDepartures as suggestion}
+									<li on:click={(event) => selectDeparture(suggestion, event)}>{suggestion}</li>
+								{/each}
+							</ul>
+						{/if}
 					</div>
-					<div class="form-group col-4">
+					<div class="form-group col-4 suggested">
 						<label for="to">Điểm đến</label>
-						<input type="text" id="to" value="TP. Hồ Chí Minh (SGN)" />
+						<input type="text" id="to" bind:value={toInput} on:input={handleToInput} />
+						{#if toInput && showArrivalSuggestions && $filteredArrivals.length > 0}
+							<ul class="suggestions">
+								{#each $filteredArrivals as suggestion}
+									<li on:click={(event) => selectArrival(suggestion, event)}>{suggestion}</li>
+								{/each}
+							</ul>
+						{/if}
 					</div>
 				</div>
 				<div class="booking__hiden {showHiddenForm ? 'show' : 'd-none'}">
@@ -80,10 +164,12 @@
 							<label for="departure">Ngày đi</label>
 							<input type="date" id="departure" />
 						</div>
-						<div class="form-group col-4">
-							<label for="return">Ngày về</label>
-							<input type="date" id="return" />
-						</div>
+						{#if tripType === 'round-trip'}
+							<div class="form-group col-4">
+								<label for="return-date">Ngày về</label>
+								<input type="date" id="return-date" />
+							</div>
+						{/if}
 						<div class="form-group col-4">
 							<label for="passengers">Số người</label>
 							<input type="number" id="passengers" value="1" />
