@@ -61,38 +61,7 @@ class DeleteAccount(Resource):
         return getUsers()
     
     @jwt_required()
-<<<<<<< HEAD
     @authorized_required(roles=["admin"])
-=======
-    def post(self):
-
-        current_user_id = get_jwt_identity()
-        account = Account.find_account_id(current_user_id)
-
-        if not account:
-            return {'msg': 'Account not found'}, 400
-        
-        if account.role != AccountType.admin:
-            return {'msg': 'Access forbidden: Only admins can delete accounts'}, 400
-        
-        data = DeleteAccount.parser.parse_args()
-        account_id = data['account_id']
-        user = Account.find_account_id(account_id)
-        user.delete_from_db()
-        return getUsers()
-
-class EditAccount(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument('account_id', type=int, required=True, help="This field cannot be left blank")
-    parser.add_argument('email', type=str, required=True, help="This field cannot be left blank")
-    parser.add_argument('password', type=str, required=True, help="This field cannot be left blank")
-
-    @jwt_required()
-    def get(self):
-        return getUsers()
-    
-    @jwt_required()
->>>>>>> 44ddecdeccea87e05a726edbb0154be259609c03
     def post(self):
         current_user_id = get_jwt_identity()
         account = Account.find_account_id(current_user_id)
