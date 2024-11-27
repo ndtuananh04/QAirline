@@ -54,7 +54,7 @@ class AddAccount(Resource):
     
 class DeleteAccount(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('account_id', type=int, required=True, help="This field cannot be left blank")
+    parser.add_argument('email', type=str, required=True, help="This field cannot be left blank")
 
     @jwt_required()
     def get(self):
@@ -74,12 +74,3 @@ class DeleteAccount(Resource):
         user = Account.find_email(email)
         user.delete_from_db()
         return getUsers()
-
-
-
-    
-
-
-
-
-
