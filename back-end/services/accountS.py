@@ -1,4 +1,4 @@
-from models.accountDB import Account
+from models.accountDB import Account, AccountType
 import re
 import random
 import string
@@ -56,10 +56,8 @@ class AccountS:
     
     @classmethod
     def area_name_of_acc(cls, user):
-        name = ""
-        if user.role == 1:
-            name = "Admin"
-        elif user.role == 2:
-            name = "Customer"
-        return name
-    
+        if user.role == AccountType.admin:
+            return "admin"
+        elif user.role == AccountType.customer:
+            return "customer"
+        return ""

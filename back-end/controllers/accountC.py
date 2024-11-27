@@ -9,6 +9,7 @@ from flask_mail import Message
 from services.accountS import AccountS
 from database import db
 from services import my_mail
+from datetime import timedelta
 
 class AccountLogin(Resource):
     parser = reqparse.RequestParser()
@@ -28,21 +29,20 @@ class AccountLogin(Resource):
 
         if user is None:
             return {'msg': "Incorrect email or password"}, 400
-
-        # Kiểm tra mật khẩu
-        if not check_password_hash(user.password, password):
-            return {"msg": "Incorrect username or password"}, 401
-        
-        # Lấy tên người dùng từ AccountS
         name = AccountS.area_name_of_acc(user)
 
-        role = user.role.name if hasattr(user.role, 'name') else user.role
+        # Kiểm tra mật khẩu
+        if check_password_hash(user.password, password):
+            additional_claim = {"role": user.role.name, "name": name}
+            access_token = create_access_token(identity=user.account_id, additional_claims=additional_claim)
 
-        # Tạo access token với thông tin bổ sung (bao gồm account_id, role, name)
-        additional_claims = {"role": user.role.name, "name": name}  # Lấy role từ enum hoặc string
-        access_token = create_access_token(identity=user.account_id, additional_claims=additional_claims)
+            # return jwt to FE
+            try:
+                return jsonify(access_token=access_token)
+            except:
+                return jsonify(access_token=access_token)
 
-        return jsonify(access_token=access_token, role=role)
+        return {"msg": "Incorrect username or password"}, 401
     
     def delete(self):
         return {'msg': 'Not allowed'}, 404

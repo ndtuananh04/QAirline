@@ -5,6 +5,7 @@ from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
 from models.flightsDB import Flights, FlightDelay
 from models.airplanesDB import Airplanes
+from core.auth import authorized_required
 from database import db
 from flask import jsonify
 
@@ -55,6 +56,7 @@ class FlightSearch(Resource):
     flight_parser.add_argument('airplane_id', type=str, required=True, help="Airplane ID is required")
 
     @jwt_required()
+    @authorized_required(roles=["admin"])
     def post(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
@@ -62,9 +64,6 @@ class FlightSearch(Resource):
 
         if not account:
             return {'msg': 'Account not found'}, 400
-        
-        if account.role != AccountType.ADMIN:
-            return {'msg': 'Access forbidden: Only admins can add flights'}, 400
         
         data = FlightSearch.flight_parser.parse_args()
 
@@ -91,6 +90,7 @@ class FlightSearch(Resource):
     parser_delete.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
 
     @jwt_required()
+    @authorized_required(roles=["admin"])
     def delete(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
@@ -98,9 +98,6 @@ class FlightSearch(Resource):
 
         if not account:
             return {'msg': 'Account not found'}, 400
-        
-        if account.role != AccountType.ADMIN:
-            return {'msg': 'Access forbidden: Only admins can delete flights'}, 400
 
         # Lấy flight_id từ request
         data = FlightSearch.parser.parse_args()
@@ -130,6 +127,7 @@ class FlightSearch(Resource):
     update_parser.add_argument('airplane_id', type=str, help="Airplane ID")
 
     @jwt_required()
+    @authorized_required(roles=["admin"])
     def put(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
@@ -138,9 +136,6 @@ class FlightSearch(Resource):
         if not account:
             return {'msg': 'Account not found'}, 400
         
-        if account.role != AccountType.ADMIN:
-            return {'msg': 'Access forbidden: Only admins can update flights'}, 400
-
         # Lấy dữ liệu từ request
         data = FlightSearch.update_parser.parse_args()
 

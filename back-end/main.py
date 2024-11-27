@@ -28,7 +28,6 @@ api.add_resource(DepartureArrival, '/departure-arrival')
 api.add_resource(FlightSearch, '/flight-search')
 
 api.add_resource(AddAccount, '/addaccount')
-api.add_resource(EditAccount, '/editaccount')
 api.add_resource(DeleteAccount, '/deleteaccount')
 
 def create_database():

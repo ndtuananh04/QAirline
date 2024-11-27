@@ -10,8 +10,8 @@ import enum
 
 # Lựa chọn cho tài khoản admin hoăc user
 class AccountType(enum.Enum):
-    admin = 1
-    customer = 2
+    admin = "admin"
+    customer = "customer"
 
 class Account(db.Model):
     __tablename__ = 'account'

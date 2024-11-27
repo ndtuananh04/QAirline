@@ -27,7 +27,7 @@ def authorized_required(roles):
                 user = Account.find_account_id(user_id)
                 ok = False
                 for x in roles:
-                    if user.role == x:
+                    if user.role.name == x:
                         ok = True
                         break
                 if not ok:

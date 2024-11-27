@@ -10,7 +10,7 @@ class GenderType(enum.Enum):
 class UserInfo(db.Model):
     __tablename__ = 'user_info'
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    account_id = db.Column(db.Integer, db.ForeignKey('account.account_id'), nullable=False, onupdate="CASCADE")
+    account_id = db.Column(db.Integer, db.ForeignKey('account.account_id', onupdate="CASCADE", ondelete='CASCADE'), nullable=False)
     identification = db.Column(db.String(20), unique=True, nullable=False)
     family_name = db.Column(db.String(60), nullable=False)
     given_name = db.Column(db.String(60), nullable=False)

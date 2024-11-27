@@ -6,6 +6,7 @@ from database import db
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
 from models.airplanesDB import  Airplanes
+from core.auth import authorized_required
 
 class AirplaneSearch(Resource):
     parser = reqparse.RequestParser()
@@ -24,6 +25,7 @@ class AirplaneSearch(Resource):
     airplane_parser.add_argument('capacity', type=int, required=True, help="Capacity is required")
 
     @jwt_required()
+    @authorized_required(roles=["admin"])
     def post(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
@@ -31,9 +33,6 @@ class AirplaneSearch(Resource):
 
         if not account:
             return {'msg': 'Account not found'}, 400
-        
-        if account.role != AccountType.ADMIN:
-            return {'msg': 'Access forbidden: Only admins can add airplanes'}, 400
         
         data = AirplaneSearch.airplane_parser.parse_args()
         name_airplane = data['name_airplane']
@@ -65,6 +64,7 @@ class AirplaneSearch(Resource):
     delete_parser.add_argument('name_airplane', type=str, required=True, help="Airplane name is required")
     
     @jwt_required()
+    @authorized_required(roles=["admin"])
     def delete(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
@@ -72,9 +72,6 @@ class AirplaneSearch(Resource):
 
         if not account:
             return {'msg': 'Account not found'}, 400
-        
-        if account.role != AccountType.ADMIN:
-            return {'msg': 'Access forbidden: Only admins can delete airplanes'}, 400
         
         data = AirplaneSearch.parser.parse_args()
         name_airplane = data['name_airplane']
@@ -94,6 +91,7 @@ class AirplaneSearch(Resource):
     update_parser.add_argument('capacity', type=int, required=True, help="Capacity is required")
     
     @jwt_required()
+    @authorized_required(roles=["admin"])
     def put(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
@@ -101,9 +99,6 @@ class AirplaneSearch(Resource):
 
         if not account:
             return {'msg': 'Account not found'}, 400
-        
-        if account.role != AccountType.ADMIN:
-            return {'msg': 'Access forbidden: Only admins can update airplanes'}, 400
         
         data = AirplaneSearch.update_parser.parse_args()
         name_airplane = data['name_airplane']
