@@ -36,11 +36,13 @@ class AccountLogin(Resource):
         # Lấy tên người dùng từ AccountS
         name = AccountS.area_name_of_acc(user)
 
+        role = user.role.name if hasattr(user.role, 'name') else user.role
+
         # Tạo access token với thông tin bổ sung (bao gồm account_id, role, name)
-        additional_claims = {"role": user.role.name, "name": name}  # Chuyển role thành string nếu là enum hello
+        additional_claims = {"role": user.role.name, "name": name}  # Lấy role từ enum hoặc string
         access_token = create_access_token(identity=user.account_id, additional_claims=additional_claims)
 
-        return jsonify(access_token=access_token)
+        return jsonify(access_token=access_token, role=role)
     
     def delete(self):
         return {'msg': 'Not allowed'}, 404
