@@ -18,9 +18,8 @@ class DepartureArrival(Resource):
             "departure": [d[0] for d in departure],
             "arrival": [a[0] for a in arrival]
         })
-
+    
 class FlightSearch(Resource):
-    #Tìm kiếm chuyến bay dựa trên các tham số
     parser = reqparse.RequestParser()
     parser.add_argument('departure', type=str, required=True, help="Departure location is required")
     parser.add_argument('arrival', type=str, required=True, help="Arrival location is required")
@@ -44,6 +43,15 @@ class FlightSearch(Resource):
             return flights
         else:
             return jsonify({"message": "No flights found"}), 404
+
+
+class FlightAdmin(Resource):
+    #Admin xem tất cả chuyến bay
+    @jwt_required()
+    @authorized_required(roles=["admin"])
+    def get(self):
+        flights = Flights.get_all_flights()
+        return flights
 
     #Admin thêm chuyến bay mới
     flight_parser = reqparse.RequestParser()
@@ -85,23 +93,11 @@ class FlightSearch(Resource):
 
         return jsonify({"msg": "Flight added successfully", "flight": new_flight.to_json()}), 200
 
-    #Admin xóa chuyến bay
-    parser_delete = reqparse.RequestParser()
-    parser_delete.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
-
     @jwt_required()
     @authorized_required(roles=["admin"])
-    def delete(self):
+    def delete(self, flight_id):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
-        account = Account.find_account_id(current_user['account_id'])
-
-        if not account:
-            return {'msg': 'Account not found'}, 400
-
-        # Lấy flight_id từ request
-        data = FlightSearch.parser.parse_args()
-        flight_id = data['flight_id']
 
         # Kiểm tra xem chuyến bay có tồn tại hay không
         flight = Flights.query.filter_by(flight_id=flight_id).first()
@@ -113,7 +109,8 @@ class FlightSearch(Resource):
         db.session.delete(flight)
         db.session.commit()
 
-        return jsonify({"msg": "Flight deleted successfully"}), 200
+        new_flights = Flights.get_all_flights()
+        return new_flights
 
     #Admin cập nhật thông tin chuyến bay
     update_parser = reqparse.RequestParser()

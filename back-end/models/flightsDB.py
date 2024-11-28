@@ -69,6 +69,37 @@ class Flights(db.Model):
             arrival=arrival,
             departure_time=departure_time
         ).all()
+    
+    '''
+    Trả về tất cả chuyến bay hiển thị ở admin
+    '''
+    @classmethod
+    def get_all_flights(cls):
+    # Truy vấn tất cả các chuyến bay với các trường cần thiết
+        flights = db.session.query(
+            Flights.flight_id,
+            Flights.flight_number,
+            Flights.departure_time,
+            Flights.departure_hour_time,
+            Flights.arrival_hour_time,
+            Flights.terminal,
+            Flights.status,
+        ).all()
+        # Chuyển đổi kết quả thành danh sách các từ điển để dễ dàng trả về dưới dạng JSON
+        flights_list = []
+        for flight in flights:
+            flight_data = {
+                "flight_id": flight.flight_id,
+                "flight_number": flight.flight_number,
+                "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
+                "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
+                "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
+                "terminal": flight.terminal,
+                "status": flight.status.name
+            }
+            flights_list.append(flight_data)
+        # Trả về kết quả dưới dạng JSON
+        return jsonify(flights_list)
 
     '''
     Tìm chuyến bay dựa trên điểm khởi hành, điểm đến và thời gian khởi hành
@@ -121,9 +152,13 @@ class Flights(db.Model):
             # Kiểm tra xem hạng ghế này đã có trong seats chưa
             if seat not in flight_dict[flight.flight_number]["seats"]:
                 flight_dict[flight.flight_number]["seats"].append(seat)
-            results = list(flight_dict.values())
 
+        # Chuyển đổi flight_dict thành danh sách các kết quả
+        results = list(flight_dict.values())
+
+        # Trả về kết quả dưới dạng JSON
         return jsonify(results)
+
     
     @classmethod
     def find_flight_id(cls, flight_id):

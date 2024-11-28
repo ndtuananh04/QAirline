@@ -7,11 +7,11 @@ from flask_jwt_extended import create_access_token
 from models.accountDB import AccountType
 
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass
-from controllers.flightC import DepartureArrival
+from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin
 from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import *
-from controllers.flightC import FlightSearch
+
 
 app = Flask(__name__)
 CORS(app)
@@ -24,11 +24,13 @@ api.add_resource(AccountLogin, '/login')
 api.add_resource(AccountRegister, '/register')
 api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
-api.add_resource(DepartureArrival, '/departure-arrival')
-api.add_resource(FlightSearch, '/flight-search')
 
 api.add_resource(AddAccount, '/addaccount')
 api.add_resource(DeleteAccount, '/deleteaccount')
+
+api.add_resource(DepartureArrival, '/departure-arrival')
+api.add_resource(FlightSearch, '/flights-search')
+api.add_resource(FlightAdmin, '/flights', '/flights/<int:flight_id>')
 
 def create_database():
     with app.app_context():
