@@ -8,6 +8,7 @@ from models.accountDB import AccountType
 
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass
 from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin
+from controllers.airplaneC import AirplaneSearch
 from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import *
@@ -31,6 +32,8 @@ api.add_resource(DeleteAccount, '/deleteaccount')
 api.add_resource(DepartureArrival, '/departure-arrival')
 api.add_resource(FlightSearch, '/flights-search')
 api.add_resource(FlightAdmin, '/flights', '/flights/<int:flight_id>')
+
+api.add_resource(AirplaneSearch, '/airplanes', '/airplanes/<int:airplane_id>')
 
 def create_database():
     with app.app_context():
