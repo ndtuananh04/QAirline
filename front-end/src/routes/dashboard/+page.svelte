@@ -12,11 +12,13 @@
 	let arrivals = writable([]);
 	let fromInput = '';
 	let toInput = '';
+	let tripType = 'round-trip';
+	let departureDate = '';
+	let returnDate = '';
 	let showDepartureSuggestions = false;
 	let showArrivalSuggestions = false;
 	let filteredDepartures = writable([]);
 	let filteredArrivals = writable([]);
-	let tripType = 'round-trip';
 
 	onMount(() => {
 		splideInstance = new Splide(splideElement, {
@@ -87,11 +89,6 @@
 	function toggleHiddenForm() {
 		showHiddenForm = true;
 	}
-
-	function handleSubmit(event) {
-		event.preventDefault();
-		goto('/book/availability');
-	}
 </script>
 
 <div class="slick">
@@ -114,30 +111,32 @@
 		</div>
 
 		<div class="booking-form" on:click={toggleHiddenForm}>
-			<form on:submit={handleSubmit}>
+			<form method="GET" action="/book/availability">
 				<div class="booking__basic row">
-					<div class="trip-type col-4">
+					<div class="trip-type col-12 col-md-4">
 						<label
-							><input
-								type="radio"
-								name="trip"
-								value="one-way"
-								on:change={() => (tripType = 'one-way')}
-							/> Một chiều</label
+							><input type="radio" name="tripType" value="one-way" bind:group={tripType} /> Một chiều</label
 						>
 						<label
 							><input
 								type="radio"
-								name="trip"
+								name="tripType"
 								value="round-trip"
 								checked
-								on:change={() => (tripType = 'round-trip')}
+								bind:group={tripType}
 							/> Khứ hồi</label
 						>
 					</div>
-					<div class="form-group col-4 suggested">
+					<div class="form-group col-12 col-md-4 suggested">
 						<label for="from">Điểm đi</label>
-						<input type="text" id="from" bind:value={fromInput} on:input={handleFromInput} />
+						<input
+							type="text"
+							id="from"
+							name="fromInput"
+							bind:value={fromInput}
+							on:input={handleFromInput}
+							required
+						/>
 						{#if fromInput && showDepartureSuggestions && $filteredDepartures.length > 0}
 							<ul class="suggestions">
 								{#each $filteredDepartures as suggestion}
@@ -146,9 +145,16 @@
 							</ul>
 						{/if}
 					</div>
-					<div class="form-group col-4 suggested">
+					<div class="form-group col-12 col-md-4 suggested">
 						<label for="to">Điểm đến</label>
-						<input type="text" id="to" bind:value={toInput} on:input={handleToInput} />
+						<input
+							type="text"
+							id="to"
+							name="toInput"
+							bind:value={toInput}
+							on:input={handleToInput}
+							required
+						/>
 						{#if toInput && showArrivalSuggestions && $filteredArrivals.length > 0}
 							<ul class="suggestions">
 								{#each $filteredArrivals as suggestion}
@@ -158,19 +164,31 @@
 						{/if}
 					</div>
 				</div>
-				<div class="booking__hiden {showHiddenForm ? 'show' : 'd-none'}">
+				<div class="booking__hiden {showHiddenForm ? 'show' : 'hiden'}">
 					<div class="row">
-						<div class="form-group col-4">
+						<div class="form-group col-12 col-md-4">
 							<label for="departure">Ngày đi</label>
-							<input type="date" id="departure" />
+							<input
+								type="date"
+								id="departure"
+								name="departureDate"
+								bind:value={departureDate}
+								required
+							/>
 						</div>
 						{#if tripType === 'round-trip'}
-							<div class="form-group col-4">
+							<div class="form-group col-12 col-md-4">
 								<label for="return-date">Ngày về</label>
-								<input type="date" id="return-date" />
+								<input
+									type="date"
+									id="return-date"
+									name="returnDate"
+									bind:value={returnDate}
+									required
+								/>
 							</div>
 						{/if}
-						<div class="form-group col-4">
+						<div class="form-group col-12 col-md-4">
 							<label for="passengers">Số người</label>
 							<input type="number" id="passengers" value="1" />
 						</div>
