@@ -17,7 +17,7 @@ def getUsers():
     
     accounts_json = json.dumps(accounts, cls=AlchemyEncoder)
 
-    return jsonify({"accounts": accounts_json})
+    return json.loads(accounts_json)
 
 class AddAccount(Resource):
     parser = reqparse.RequestParser()

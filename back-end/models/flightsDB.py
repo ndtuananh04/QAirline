@@ -34,7 +34,7 @@ class Flights(db.Model):
     available_seats = db.Column(db.Integer, nullable=False)
     airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
 
-    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, terminal, status, available_seats):
+    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, terminal, status, available_seats, airplane_id):
         self.flight_number = flight_number
         self.departure = departure
         self.code_departure = code_departure
@@ -46,6 +46,7 @@ class Flights(db.Model):
         self.terminal = terminal
         self.status = FlightType.from_string(status.upper())
         self.available_seats = available_seats
+        self.airplane_id = airplane_id
 
     def to_json(self):
         return {
@@ -85,7 +86,6 @@ class Flights(db.Model):
             Flights.terminal,
             Flights.status,
         ).all()
-        # Chuyển đổi kết quả thành danh sách các từ điển để dễ dàng trả về dưới dạng JSON
         flights_list = []
         for flight in flights:
             flight_data = {
@@ -98,7 +98,6 @@ class Flights(db.Model):
                 "status": flight.status.name
             }
             flights_list.append(flight_data)
-        # Trả về kết quả dưới dạng JSON
         return jsonify(flights_list)
 
     '''

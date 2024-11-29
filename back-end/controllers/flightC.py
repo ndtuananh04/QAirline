@@ -9,6 +9,20 @@ from core.auth import authorized_required
 from database import db
 from flask import jsonify
 
+def valid_date(date_str):
+    """Kiểm tra định dạng ngày (YYYY-MM-DD)"""
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError("Date must be in format YYYY-MM-DD")
+
+def valid_time(time_str):
+    """Kiểm tra định dạng giờ (HH:MM)"""
+    try:
+        return datetime.strptime(time_str, "%H:%M").time()
+    except ValueError:
+        raise ValueError("Time must be in format HH:MM")
+
 class DepartureArrival(Resource):
     def get(self):
         departure = Flights.query.with_entities(Flights.departure).distinct().all()
@@ -57,23 +71,21 @@ class FlightAdmin(Resource):
     flight_parser = reqparse.RequestParser()
     flight_parser.add_argument('flight_number', type=str, required=True, help="Flight number is required")
     flight_parser.add_argument('departure', type=str, required=True, help="Departure location is required")
+    flight_parser.add_argument('code_departure', type=str, required=True, help="Code departure is required")
     flight_parser.add_argument('arrival', type=str, required=True, help="Arrival location is required")
-    flight_parser.add_argument('departure_time', type=str, required=True, help="Departure time (format: YYYY-MM-DD)")
+    flight_parser.add_argument('code_arrival', type=str, required=True, help="Code arrival is required")
+    flight_parser.add_argument('departure_time', type=valid_date, required=True, help="Departure time (format: YYYY-MM-DD)")
+    flight_parser.add_argument('departure_hour_time', type=valid_time, required=True, help="Departure time (format: HH:MM)")
+    flight_parser.add_argument('arrival_hour_time', type=valid_time, required=True, help="Arrival time (format: HH:MM)")
+    flight_parser.add_argument('terminal', type=int, required=True, help="Terminal is required")
     flight_parser.add_argument('status', type=str, required=True, help="Flight status is required")
     flight_parser.add_argument('available_seats', type=int, required=True, help="Available seats are required")
-    flight_parser.add_argument('airplane_id', type=str, required=True, help="Airplane ID is required")
+    flight_parser.add_argument('airplane_id', type=int, required=True, help="Airplane ID is required")
 
     @jwt_required()
     @authorized_required(roles=["admin"])
     def post(self):
-        # Kiểm tra quyền quản trị
-        current_user = get_jwt_identity()
-        account = Account.find_account_id(current_user['account_id'])
-
-        if not account:
-            return {'msg': 'Account not found'}, 400
-        
-        data = FlightSearch.flight_parser.parse_args()
+        data = FlightAdmin.flight_parser.parse_args()
 
         airplane = Airplanes.find_airplane_id(data['airplane_id'])
         if not airplane:
@@ -83,22 +95,25 @@ class FlightAdmin(Resource):
         new_flight = Flights(
             flight_number=data['flight_number'],
             departure=data['departure'],
+            code_departure=data['code_departure'],
             arrival=data['arrival'],
+            code_arrival=data['code_arrival'],
             departure_time=data['departure_time'],
+            departure_hour_time=data['departure_hour_time'],
+            arrival_hour_time=data['arrival_hour_time'],
+            terminal=data['terminal'],
             status=data['status'],
             available_seats=data['available_seats'],
             airplane_id=data['airplane_id']
         )
         new_flight.save_to_db()
-
-        return jsonify({"msg": "Flight added successfully", "flight": new_flight.to_json()}), 200
+        db.session.commit()
+        new_flights = Flights.get_all_flights()
+        return new_flights
 
     @jwt_required()
     @authorized_required(roles=["admin"])
     def delete(self, flight_id):
-        # Kiểm tra quyền quản trị
-        current_user = get_jwt_identity()
-
         # Kiểm tra xem chuyến bay có tồn tại hay không
         flight = Flights.query.filter_by(flight_id=flight_id).first()
 
@@ -114,7 +129,6 @@ class FlightAdmin(Resource):
 
     #Admin cập nhật thông tin chuyến bay
     update_parser = reqparse.RequestParser()
-    update_parser.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
     update_parser.add_argument('flight_number', type=str, help="Flight number")
     update_parser.add_argument('departure', type=str, help="Departure location")
     update_parser.add_argument('arrival', type=str, help="Arrival location")
@@ -163,5 +177,5 @@ class FlightAdmin(Resource):
 
         # Lưu thay đổi vào cơ sở dữ liệu
         db.session.commit()
-
-        return jsonify({"msg": "Flight updated successfully", "flight": flight.to_json()}), 200
+        new_flights = Flights.get_all_flights()
+        return new_flights

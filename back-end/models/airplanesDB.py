@@ -1,13 +1,14 @@
 from datetime import date
 from database import db
 from sqlalchemy.sql import func
+from flask import jsonify
 
 class Airplanes(db.Model):
     __tablename__ = 'airplanes'
     airplane_id = db.Column(db.Integer, primary_key=True)
     name_airplane = db.Column(db.String(45), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
-    is_locked = db.Column(db.Boolean, default=False)
+    is_locked = db.Column(db.Integer, default=0)
 
     def __init__(self, name_airplane, capacity, is_locked):
         self.name_airplane = name_airplane
@@ -21,23 +22,34 @@ class Airplanes(db.Model):
             "is_locked": self.is_locked
         }
     
-    # Lọc chỉ những airplane chưa khóa
     @classmethod
     def get_all_airplanes(cls):
-        airplanes = cls.query.filter_by(is_locked=False).all()
-        return [airplane.to_json() for airplane in airplanes]
+        airplanes = db.session.query(
+            Airplanes.airplane_id,
+            Airplanes.name_airplane,
+            Airplanes.capacity
+        ).filter(Airplanes.is_locked != 0).all()
+        airplanes_list = []
+        for airplane in airplanes:
+            airplane_data = {
+                "airplane_id": airplane.airplane_id,
+                "name_airplane": airplane.name_airplane,
+                "capacity": airplane.capacity
+            }
+            airplanes_list.append(airplane_data)
+        return jsonify(airplanes_list)
     
     @classmethod
     def find_airplane_id(cls, airplane_id):
-        return cls.query.filter_by(airplane_id=airplane_id, is_locked=False).first()
+        return cls.query.filter_by(airplane_id=airplane_id, is_locked=0).first()
     
     @classmethod
     def find_name_airplane(cls, name_airplane):
         return cls.query.filter_by(name_airplane=name_airplane).first()
 
     @classmethod
-    def find_name_airplane_with_locked(cls, name_airplane):
-        return cls.query.filter_by(name_airplane=name_airplane, is_locked=False).first()
+    def find_name_airplane_with_locked(cls, airplane_id):
+        return cls.query.filter_by(airplane_id=airplane_id, is_locked=0).first()
 
     def save_to_db(self):
         db.session.add(self)
