@@ -111,7 +111,7 @@
 		</div>
 
 		<div class="booking-form" on:click={toggleHiddenForm}>
-			<form method="GET" action="/book/availability">
+			<form method="GET" action="/user/book/availability">
 				<div class="booking__basic row">
 					<div class="trip-type col-12 col-md-4">
 						<label

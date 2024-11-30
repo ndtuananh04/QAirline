@@ -94,7 +94,22 @@
         background-color: #EC8305;
     }
 
+    .selected {
+        border: 2px solid rgb(180, 68, 68);
+    }
+
     &__aside {
         flex: 1;
+        padding-left: 15px;
+    }
+
+    &__aheader {
+        background-color: $pastel-orange;
+        margin-top: 40px;
+    }
+
+    &__price {
+        padding: 10px;
+        box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.1);
     }
 }

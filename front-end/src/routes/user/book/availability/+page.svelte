@@ -1,56 +1,96 @@
 <script>
-	let flights = [
-		{
-			arrival: 'Thanh Hoa',
-			arrival_hour_time: '15:00',
-			code_arrival: 'THD',
-			code_departure: 'HAN',
-			departure: 'Ha Noi',
-			departure_hour_time: '11:00',
-			departure_time: '2024-11-28',
-			flight_number: '123321QAL',
-			seats: [
-				{
-					price: 100.0,
-					seat_class: 'BUSINESS'
+	import { onMount } from 'svelte';
+
+	let flights = [];
+	let flightsReturn = [];
+	let departure = '';
+	let arrival = '';
+	let departureDate = '';
+	let returnDate = '';
+
+	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+		const tripType = params.get('tripType');
+		departure = params.get('fromInput');
+		arrival = params.get('toInput');
+		departureDate = params.get('departureDate');
+		returnDate = params.get('returnDate');
+		console.log(departure, arrival, departureDate, returnDate);
+		fetchDeparture(departure, arrival, departureDate);
+		fetchReturn(arrival, departure, returnDate);
+	});
+
+	async function fetchDeparture(departure, arrival, departureDate) {
+		const payload = {
+			departure: departure,
+			arrival: arrival,
+			departure_time: departureDate
+		};
+
+		try {
+			const response = await fetch('http://127.0.0.1:5000/flights-search', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
 				},
-				{
-					price: 10.0,
-					seat_class: 'ECONOMY'
-				},
-				{
-					price: 50.0,
-					seat_class: 'SKYBOSS'
-				}
-			],
-			terminal: 1
-		},
-		{
-			arrival: 'Thanh Hoa',
-			arrival_hour_time: '15:00',
-			code_arrival: 'THD',
-			code_departure: 'HAN',
-			departure: 'Ha Noi',
-			departure_hour_time: '11:08',
-			departure_time: '2024-11-28',
-			flight_number: '123321QAL',
-			seats: [
-				{
-					price: 100.0,
-					seat_class: 'BUSINESS'
-				},
-				{
-					price: 10.0,
-					seat_class: 'ECONOMY'
-				},
-				{
-					price: 50.0,
-					seat_class: 'SKYBOSS'
-				}
-			],
-			terminal: 1
+				body: JSON.stringify(payload)
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			flights = data;
+			console.log(flightss);
+		} catch (error) {
+			console.error('Error fetching flights:', error);
 		}
-	];
+	}
+
+	async function fetchReturn(departure, arrival, departureDate) {
+		const payload = {
+			departure: departure,
+			arrival: arrival,
+			departure_time: departureDate
+		};
+
+		try {
+			const response = await fetch('http://127.0.0.1:5000/flights-search', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			flightsReturn = data;
+			console.log(flightss);
+		} catch (error) {
+			console.error('Error fetching flights:', error);
+		}
+	}
+
+	let selectedDepartureSeat = null;
+	let departurePrice = 0;
+	let selectedReturnSeat = null;
+	let returnPrice = 0;
+
+	// Function to handle selecting a seat
+	function selectDepartureSeat(seat) {
+		selectedDepartureSeat = seat;
+		departurePrice = seat.price;
+	}
+
+	function selectReturnSeat(seat) {
+		selectedReturnSeat = seat;
+		returnPrice = seat.price;
+	}
 
 	function calculateDuration(departureTime, arrivalTime) {
 		const [departureHours, departureMinutes] = departureTime.split(':').map(Number);
@@ -93,18 +133,18 @@
 							<div class="location d-flex">
 								<i class="fa-solid fa-plane-departure" style="font-size: 50px;"></i>
 								<div class="city">
-									<h3>{flights[0].departure}</h3>
-									<h4>{flights[0].code_departure}</h4>
+									<h3>{departure}</h3>
+									<!-- <h4>{flights[0].code_departure}</h4> -->
 								</div>
 								<i class="fa-solid fa-arrow-right" style="font-size: 50px; "></i>
 								<div class="city">
-									<h3>{flights[0].arrival}</h3>
-									<h4>{flights[0].code_arrival}</h4>
+									<h3>{arrival}</h3>
+									<!-- <h4>{flights[0].code_arrival}</h4> -->
 								</div>
 							</div>
 							<div class="time text-right">
 								<i class="fa-solid fa-calendar-days" style="font-size: 30px;"></i>
-								<p style="font-weight: 700; font-size: 20px;">{flights[0].departure_time}</p>
+								<p style="font-weight: 700; font-size: 20px;">{departureDate}</p>
 							</div>
 						</div>
 						<div class="flight__list">
@@ -135,7 +175,11 @@
 									</div>
 									<div class="flight__seats d-flex">
 										{#each flight.seats as seat}
-											<div class="flight__seat aligncenter {seat.seat_class.toLowerCase()}">
+											<div
+												class="flight__seat aligncenter {seat.seat_class.toLowerCase()} 
+                                                {selectedDepartureSeat === seat ? 'selected' : ''}"
+												on:click={() => selectDepartureSeat(seat)}
+											>
 												<div class="flight__seat--class">
 													<b>{seat.seat_class}</b>
 												</div>
@@ -156,22 +200,22 @@
 								<i class="fa-solid fa-plane-departure fa-flip-horizontal" style="font-size: 50px;"
 								></i>
 								<div class="city">
-									<h3>{flights[0].arrival}</h3>
-									<h4>{flights[0].code_arrival}</h4>
+									<h3>{arrival}</h3>
+									<!-- <h4>{flights[0].code_arrival}</h4> -->
 								</div>
 								<i class="fa-solid fa-arrow-right" style="font-size: 50px; "></i>
 								<div class="city">
-									<h3>{flights[0].departure}</h3>
-									<h4>{flights[0].code_departure}</h4>
+									<h3>{departure}</h3>
+									<!-- <h4>{flights[0].code_departure}</h4> -->
 								</div>
 							</div>
 							<div class="time text-right">
 								<i class="fa-solid fa-calendar-days" style="font-size: 30px;"></i>
-								<p style="font-weight: 700; font-size: 20px;">{flights[0].departure_time}</p>
+								<p style="font-weight: 700; font-size: 20px;">{returnDate}</p>
 							</div>
 						</div>
 						<div class="flight__list">
-							{#each flights as flight}
+							{#each flightsReturn as flight}
 								<div class="flight__item d-flex">
 									<div class="flight__time d-flex">
 										<div class="flight__time--exact aligncenter">
@@ -197,8 +241,12 @@
 										</div>
 									</div>
 									<div class="flight__seats d-flex">
-										{#each flight.seats as seat}
-											<div class="flight__seat aligncenter {seat.seat_class.toLowerCase()}">
+										{#each flight.seats as seat, index}
+											<div
+												class="flight__seat aligncenter {seat.seat_class.toLowerCase()}
+												{selectedReturnSeat === seat ? 'selected' : ''}"
+												on:click={() => selectReturnSeat(seat)}
+											>
 												<div class="flight__seat--class">
 													<b>{seat.seat_class}</b>
 												</div>
@@ -214,7 +262,24 @@
 					</div>
 				</div>
 				<div class="flight__aside">
-					
+					<div class="flight__aheader">
+						<h3>Thông tin đặt vé</h3>
+					</div>
+					<div class="flight__price d-flex justify-content-between">
+						<p>Chuyến đi</p>
+						<p>{departurePrice}</p>
+					</div>
+					<div class="flight__price d-flex justify-content-between">
+						<p>Chuyến về</p>
+						<p>{returnPrice}</p>
+					</div>
+					<div class="flight__price d-flex justify-content-between">
+						<p>Tổng tiền</p>
+						<p>{departurePrice + returnPrice}</p>
+					</div>
+					<div class="flight__button">
+						<button class="btn btn-primary">Đi tiếp</button>
+					</div>
 				</div>
 			</div>
 		</div>
