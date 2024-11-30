@@ -21,7 +21,7 @@ class FlightType(enum.Enum):
 class Flights(db.Model):
     __tablename__ = 'flights'
     flight_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    flight_number = db.Column(db.String(45), unique=True, nullable=False)
+    flight_number = db.Column(db.String(10), unique=True, nullable=False)
     departure = db.Column(db.String(60), nullable=False)
     code_departure = db.Column(db.String(60), nullable=False)
     arrival = db.Column(db.String(10), nullable=False)

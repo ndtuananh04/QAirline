@@ -6,7 +6,7 @@ from flask import jsonify
 class Airplanes(db.Model):
     __tablename__ = 'airplanes'
     airplane_id = db.Column(db.Integer, primary_key=True)
-    name_airplane = db.Column(db.String(45), unique=True, nullable=False)
+    name_airplane = db.Column(db.String(10), unique=True, nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     is_locked = db.Column(db.Integer, default=0)
 

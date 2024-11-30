@@ -39,7 +39,7 @@ class FlightSearch(Resource):
     parser.add_argument('arrival', type=str, required=True, help="Arrival location is required")
     parser.add_argument('departure_time', type=str, required=True, help="Departure time is required")
 
-    def get(self):
+    def post(self):
         data = FlightSearch.parser.parse_args()
         departure = data['departure']
         arrival = data['arrival']
