@@ -4,8 +4,8 @@ from sqlalchemy.sql import func
 import enum
 
 class GenderType(enum.Enum):
-    male = 1
-    female = 2
+    male = "male"
+    female = "female"
 
 class UserInfo(db.Model):
     __tablename__ = 'user_info'
@@ -17,7 +17,7 @@ class UserInfo(db.Model):
     gender = db.Column(db.Enum(GenderType), nullable=False)
     nationality = db.Column(db.String(60), nullable=False)
     date_of_birth = db.Column(db.Date, nullable=False)
-    phone_number = db.Column(db.String(45), nullable=False)
+    phone_number = db.Column(db.String(20), nullable=False)
 
     def __init__(self, account_id, identification, family_name, given_name, gender, nationality, date_of_birth, phone_number):
         self.account_id = account_id

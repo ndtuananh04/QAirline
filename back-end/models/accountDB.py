@@ -1,11 +1,11 @@
 from datetime import date
 from database import db
 from sqlalchemy.sql import func
-from models.ticketsDB import Tickets
 from models.flightsDB import Flights
 from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
 from models.userInfoDB import UserInfo
+from sqlalchemy.orm import aliased
 import enum
 
 # Lựa chọn cho tài khoản admin hoăc user
@@ -40,25 +40,6 @@ class Account(db.Model):
     @classmethod
     def find_account_id(cls, account_id):
         return cls.query.filter_by(account_id=account_id).first()
-    
-    @classmethod
-    def get_all_ticket(cls, account_id):
-        return db.session.query(
-                UserInfo.family_name,
-                UserInfo.given_name, 
-                Tickets.ticket_number, 
-                Flights.departure, 
-                Flights.arrival, 
-                Flights.departure_time, 
-                Seats.seat_class
-            ) \
-            .join(UserInfo, UserInfo.account_id == Account.account_id) \
-            .join(Tickets, Tickets.ticket_id == Account.account_id) \
-            .join(Flights, Flights.flight_id == Tickets.flight_id) \
-            .join(Airplanes, Flights.airplane_id == Airplanes.airplane_id) \
-            .join(Seats, Seats.airplane_id == Airplanes.airplane_id) \
-            .filter(Account.account_id == account_id) \
-            .all()
 
     def save_to_db(self):
         db.session.add(self)

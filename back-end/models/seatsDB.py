@@ -19,13 +19,14 @@ class SeatClass(enum.Enum):
 class Seats(db.Model):
     __tablename__ = 'seats'
     seat_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    airplane_id = db.Column(db.String(60), db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
-    seat_number = db.Column(db.String(45), nullable=False)
+    airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
+    seat_number = db.Column(db.String(10), nullable=False)
     seat_class = db.Column(db.Enum(SeatClass), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     seat_info = db.Column(db.Text, nullable=False)
 
-    def __init__(self, seat_number, seat_class, price, seat_info):
+    def __init__(self, airplane_id, seat_number, seat_class, price, seat_info):
+        self.airplane_id = airplane_id
         self.seat_number = seat_number
         self.seat_class = SeatClass.from_string(seat_class.upper())
         self.price = price
@@ -33,6 +34,7 @@ class Seats(db.Model):
 
     def to_json(self):
         return {
+            "airplane_id": self.airplane_id,
             "seat_number": self.seat_number,
             "seat_class": self.seat_class.name,
             "price": self.price,

@@ -6,15 +6,86 @@ from models.accountDB import Account, AccountType
 from models.flightsDB import Flights, FlightDelay
 from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
-from models.ticketsDB import Tickets
+from models.ticketsDB import Tickets, TicketUser, StatusClass
 from core.auth import authorized_required
 
+
 from services.ticketS import TicketS
-#from services.flightS import FlightS
 from database import db
 from flask import jsonify
 
-class TicketSearch(Resource):
+# Customer xem vé, mua vé, hủy vé
+class TicketCustomer(Resource):
+    @jwt_required()
+    @authorized_required(roles=["customer"])
+    def get(self):
+        account_id = get_jwt_identity()
+        tickets = Tickets.get_all_ticket_account_id(account_id)
+        
+        if tickets:
+            return jsonify(tickets)
+        else:
+            return {"message": "No tickets found"}, 400
+        
+    parser = reqparse.RequestParser()
+    parser.add_argument('identification', type=str, required=True, help="Indentification number is required")
+    parser.add_argument('family_name', type=str, required=True, help="Family name is required")
+    parser.add_argument('given_name', type=str, required=True, help="Given name is required")
+    parser.add_argument('gender', type=str, required=True, help="Gender is required")
+    parser.add_argument('nationality', type=str, required=True, help="Nationality is required")
+    parser.add_argument('phone_number', type=str, required=True, help="Phone number is required")
+    parser.add_argument('email', type=str, required=True, help="Email is required")
+    
+    @jwt_required()
+    @authorized_required(roles=["customer"])
+    def post(self):
+        account_id = get_jwt_identity()
+        data = self.parser.parse_args()
+        
+        new_ticket = Tickets(
+            account_id=account_id,
+            flight_id=2,
+            ticket_number=TicketS.generate_custom_random_string(),
+            seat_number=None,
+            seat_class="skyboss",
+            booking_time=datetime.now(),
+            status="scheduled"
+        )
+        db.session.add(new_ticket)
+        db.session.commit()
+
+        new_ticket_user = TicketUser(
+            ticket_id=new_ticket.ticket_id,
+            identification=data['identification'],
+            family_name=data['family_name'],
+            given_name=data['given_name'],
+            gender=data['gender'],
+            nationality=data['nationality'],
+            phone_number=data['phone_number'],
+            email=data['email']
+        )
+        db.session.add(new_ticket_user)
+        db.session.commit()
+
+        return {"msg": "Account created successfully"}, 200
+
+    @jwt_required()
+    @authorized_required(roles=["customer"])
+    def put(self, ticket_id):
+        account_id = get_jwt_identity()
+        ticket = Tickets.find_ticket_id(ticket_id)
+        
+        if not ticket:
+            return {'msg': 'Ticket not found'}, 400
+        
+        if ticket.account_id != account_id:
+            return {'msg': 'Unauthorized'}, 401
+        
+        ticket.status = StatusClass.cancelled
+        db.session.commit()
+        return {'msg': 'Ticket cancelled successfully'}, 200
+
+class TicketAdmin(Resource):
     parser = reqparse.RequestParser()
     @jwt_required()
     @authorized_required(roles=["admin"])
@@ -42,7 +113,7 @@ class TicketSearch(Resource):
         if not account:
             return {'msg': 'Account not found'}, 400
 
-        data = TicketSearch.parser.parse_args()
+        data = TicketAdmin.parser.parse_args()
         
         flight_id = data['flight_number']
         if not Flights.find_flight_id(flight_id):
@@ -70,7 +141,7 @@ class TicketSearch(Resource):
         if not account:
             return {'msg': 'Account not found'}, 400
         
-        data = TicketSearch.parser_delete.parse_args()
+        data = TicketAdmin.parser_delete.parse_args()
         
         ticket_id = data['ticket_id']
         ticket = Tickets.find_ticket_id(ticket_id)
@@ -98,7 +169,7 @@ class TicketSearch(Resource):
         if not account:
             return {'msg': 'Account not found'}, 400
         
-        data = TicketSearch.parser_update.parse_args()
+        data = TicketAdmin.parser_update.parse_args()
         
         ticket_id = data['ticket_id']
         ticket = Tickets.find_ticket_id(ticket_id)
