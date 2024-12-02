@@ -7,7 +7,7 @@ from models.flightsDB import Flights, FlightDelay
 from models.airplanesDB import Airplanes
 from core.auth import authorized_required
 from database import db
-from flask import jsonify
+from flask import jsonify, session, request
 
 def valid_date(date_str):
     """Kiểm tra định dạng ngày (YYYY-MM-DD)"""
@@ -33,12 +33,12 @@ class DepartureArrival(Resource):
             "arrival": [a[0] for a in arrival]
         })
     
+SEAT_ORDER = ["BUSINESS", "SKYBOSS", "ECONOMY"]
 class FlightSearch(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('departure', type=str, required=True, help="Departure location is required")
     parser.add_argument('arrival', type=str, required=True, help="Arrival location is required")
     parser.add_argument('departure_time', type=str, required=True, help="Departure time is required")
-
     def post(self):
         data = FlightSearch.parser.parse_args()
         departure = data['departure']
@@ -50,14 +50,18 @@ class FlightSearch(Resource):
         except ValueError:
             return jsonify({"message": "Invalid departure time format"}), 400
 
-        # Tìm kiếm chuyến bay dựa trên các tham số
         flights = Flights.find_flights_with_seats(departure, arrival, departure_time)
 
         if flights:
+            for flight in flights:
+                flight["seats"] = sorted(
+                    flight["seats"],
+                    key=lambda seat: SEAT_ORDER.index(seat["seat_class"])
+                )
+            session['flights'] = flights
             return flights
         else:
             return jsonify({"message": "No flights found"}), 404
-
 
 class FlightAdmin(Resource):
     #Admin xem tất cả chuyến bay
