@@ -5,49 +5,37 @@
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
 
-	let familyName = '';
-	let givenName = '';
+	let family_name = '';
+	let given_name = '';
 	let nationality = '';
 	let gender = '';
-	let dateOfBirth = '';
+	let date_of_birth = '';
 	let identification = '';
-	let phoneNumber = '';
+	let phone_number = '';
 	let email = '';
 	let password = '';
 	let errorMessages = {
-		familyName: '',
-		givenName: '',
+		family_name: '',
+		given_name: '',
 		email: '',
 		nationality: '',
-		phoneNumber: '',
+		phone_number: '',
 		identification: ''
 	};
 
-	onMount(() => {
-		splideInstance = new Splide(splideElement, {
-			type: 'loop',
-			autoplay: true,
-			interval: 5000,
-			arrows: false,
-			pagination: true
-		}).mount();
-
-		document.addEventListener('click', handleClickOutside);
-	});
-
-	onMount(async () => {
-		const response = await fetch('http://127.0.0.1:5000/register');
-		const data = await response.json();
-		email.set(data.email);
-		password.set(data.password);
-		identification.set(data.identification);
-		familyName.set(data.familyName);
-		givenName.set(data.givenName);
-		gender.set(data.gender);
-		nationality.set(data.nationality);
-		dateOfBirth.set(data.dateOfBirth);
-		phoneNumber.set(data.phoneNumber);
-	});
+	// onMount(async () => {
+	// 	const response = await fetch('http://127.0.0.1:5000/register');
+	// 	const data = await response.json();
+	// 	email.set(data.email);
+	// 	password.set(data.password);
+	// 	identification.set(data.identification);
+	// 	familyName.set(data.familyName);
+	// 	given_name.set(data.given_name);
+	// 	gender.set(data.gender);
+	// 	nationality.set(data.nationality);
+	// 	dateOfBirth.set(data.dateOfBirth);
+	// 	phone_number.set(data.phone_number);
+	// });
 
 	// Check định dạng email
 	const handleEmailInput = (e) => {
@@ -65,14 +53,15 @@
 	const handleTextInput = (field, e) => {
 		let value = e.target.value;
 		if (/[^a-zA-Z\s]/.test(value)) {
-			errorMessages[field] = `${field === 'familyName' ? 'Họ' : field === 'givenName' ? 'Tên đệm & Tên' : 'Quốc tịch'} không được nhập ký tự đặc biệt hoặc số.`;
+			errorMessages[field] =
+				`${field === 'family_name' ? 'Họ' : field === 'given_name' ? 'Tên đệm & Tên' : 'Quốc tịch'} không được nhập ký tự đặc biệt hoặc số.`;
 		} else {
 			value = value.toUpperCase();
 			errorMessages[field] = '';
-			if (field === 'familyName') {
-				familyName = value;
-			} else if (field === 'givenName') {
-				givenName = value;
+			if (field === 'family_name') {
+				family_name = value;
+			} else if (field === 'given_name') {
+				given_name = value;
 			} else if (field === 'nationality') {
 				nationality = value;
 			}
@@ -83,218 +72,284 @@
 	const handleInput = (field, e) => {
 		const value = e.target.value;
 		if (!/^\d*$/.test(value)) {
-			errorMessages[field] = `${field === 'phoneNumber' ? 'Số điện thoại' : 'CMND/CCCD'} chỉ được nhập số.`;
+			errorMessages[field] =
+				`${field === 'phone_number' ? 'Số điện thoại' : 'CMND/CCCD'} chỉ được nhập số.`;
 		} else {
 			errorMessages[field] = '';
-			if (field === 'phoneNumber') {
-				phoneNumber = value;
+			if (field === 'phone_number') {
+				phone_number = value;
 			} else {
 				identification = value;
 			}
+		}
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		const userData = {
+			email: email,
+			password: password,
+			identification: identification,
+			family_name: family_name,
+			given_name: given_name,
+			gender: gender,
+			nationality: nationality,
+			date_of_birth: date_of_birth,
+			phone_number: phone_number
+		};
+		console.log(userData.email);
+		console.log(userData.password);
+		console.log(userData.identification);
+		console.log(userData.family_name);
+		console.log(userData.given_name);
+		console.log(userData.gender);
+		console.log(userData.nationality);
+		console.log(userData.date_of_birth);
+		console.log(userData.phone_number);
+
+		try {
+			const response = await fetch('http://127.0.0.1:5000/register', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(userData)
+			});
+
+			if (!response.ok) {
+				throw new Error(`Failed to register: ${response.statusText}`);
+			}
+
+			// Show success notification
+			alert('Đăng ký thành công');
+
+			// Navigate to login page
+			goto('/user/login');
+		} catch (error) {
+			console.error('Error registering user:', error);
+			alert('Registration failed. Please try again.');
 		}
 	};
 </script>
 
 <div class="signup">
 	<div class="container">
-	  <div class="signup__content">
-		<div class="signup__form">
-		  <div class="form-header">
-			<img src="/images/logo.png" alt="QAirline Logo" class="logo" style="width: 120px; height: auto" />
-			<h2>Bạn đã sẵn sàng đăng ký tài khoản tại QAirline? Hãy bắt đầu ngay!</h2>
-			<p>Vui lòng điền đầy đủ thông tin cá nhân giống trên CMND/CCCD của bạn.</p>
-		  </div>
-		  <fieldset class="personal-info">
-			<legend>Thông tin cá nhân</legend>
-			<div class="signup__group">
-				<div class="form-group">
-					<label for="family_name">Họ</label>
-					<input
-						type="text"
-						id="family_name"
-						name="family_name"
-						placeholder="Ví dụ: NGUYEN"
-						bind:value={familyName}
-						on:input={(e) => handleTextInput('familyName', e)}
-						class={errorMessages.familyName ? 'input-error' : ''}
+		<div class="signup__content">
+			<form class="signup__form" on:submit={handleSubmit}>
+				<div class="form-header">
+					<img
+						src="/images/logo.png"
+						alt="QAirline Logo"
+						class="logo"
+						style="width: 120px; height: auto"
 					/>
-					{#if errorMessages.familyName}
-					  	<div class="error-message">
-							<span class="error-icon">⚠️</span>
-							<span>{errorMessages.familyName}</span>
-					  	</div>
-					{/if}
+					<h2>Bạn đã sẵn sàng đăng ký tài khoản tại QAirline? Hãy bắt đầu ngay!</h2>
+					<p>Vui lòng điền đầy đủ thông tin cá nhân giống trên CMND/CCCD của bạn.</p>
+				</div>
+				<fieldset class="personal-info">
+					<legend>Thông tin cá nhân</legend>
+					<div class="signup__group">
+						<div class="form-group">
+							<label for="family_name">Họ</label>
+							<input
+								type="text"
+								id="family_name"
+								name="family_name"
+								placeholder="Ví dụ: NGUYEN"
+								bind:value={family_name}
+								on:input={(e) => handleTextInput('family_name', e)}
+								class={errorMessages.family_name ? 'input-error' : ''}
+							/>
+							{#if errorMessages.family_name}
+								<div class="error-message">
+									<span class="error-icon">⚠️</span>
+									<span>{errorMessages.family_name}</span>
+								</div>
+							{/if}
+						</div>
+						<div class="form-group">
+							<label for="given-name">Tên đệm & Tên</label>
+							<input
+								type="text"
+								id="given-name"
+								name="given-name"
+								placeholder="Ví dụ: VAN A"
+								bind:value={given_name}
+								on:input={(e) => handleTextInput('given_name', e)}
+								class={errorMessages.given_name ? 'input-error' : ''}
+							/>
+							{#if errorMessages.given_name}
+								<div class="error-message">
+									<span class="error-icon">⚠️</span>
+									<span>{errorMessages.given_name}</span>
+								</div>
+							{/if}
+						</div>
 					</div>
+
+					<div class="signup__group">
+						<div class="form-group">
+							<label for="date_of_birth">Ngày, Tháng, Năm Sinh</label>
+							<input
+								type="date"
+								id="date_of_birth"
+								bind:value={date_of_birth}
+								name="date_of_birth"
+							/>
+						</div>
+
+						<div class="form-group">
+							<label for="gender">Giới tính</label>
+							<select id="gender" name="gender" bind:value={gender}>
+								<option value="" disabled selected hidden>Giới tính</option>
+								<option value="male">Nam</option>
+								<option value="female">Nữ</option>
+								<option value="other">Khác</option>
+							</select>
+						</div>
+					</div>
+
 					<div class="form-group">
-						<label for="given-name">Tên đệm & Tên</label>
+						<label for="nationality">Quốc tịch</label>
 						<input
 							type="text"
-							id="given-name"
-							name="given-name"
-							placeholder="Ví dụ: VAN A"
-							bind:value={givenName}
-							on:input={(e) => handleTextInput('givenName', e)}
-							class={errorMessages.givenName ? 'input-error' : ''}
+							id="nationality"
+							name="nationality"
+							placeholder="Quốc tịch"
+							bind:value={nationality}
+							on:input={(e) => handleTextInput('nationality', e)}
+							class={errorMessages.nationality ? 'input-error' : ''}
 						/>
-					{#if errorMessages.givenName}
-						<div class="error-message">
-							<span class="error-icon">⚠️</span>
-							<span>{errorMessages.givenName}</span>
-						</div>
-					{/if}
+						{#if errorMessages.nationality}
+							<div class="error-message">
+								<span class="error-icon">⚠️</span>
+								<span>{errorMessages.nationality}</span>
+							</div>
+						{/if}
+					</div>
+
+					<div class="form-group">
+						<label for="identification">CMND/CCCD</label>
+						<input
+							type="text"
+							id="identification"
+							bind:value={identification}
+							on:input={(e) => handleInput('identification', e)}
+							placeholder="CMND/CCCD"
+							class={errorMessages.identification ? 'input-error' : ''}
+						/>
+						{#if errorMessages.identification}
+							<div class="error-message">
+								<span class="error-icon">⚠️</span>
+								<span>{errorMessages.identification}</span>
+							</div>
+						{/if}
+					</div>
+				</fieldset>
+
+				<fieldset class="contact-info">
+					<legend>Thông tin liên hệ</legend>
+					<div class="form-group">
+						<label for="email">Email</label>
+						<input
+							type="email"
+							id="email"
+							name="email"
+							placeholder="Email của bạn"
+							bind:value={email}
+							on:input={handleEmailInput}
+							class={errorMessages.email ? 'input-error' : ''}
+						/>
+						{#if errorMessages.email}
+							<div class="error-message">
+								<span class="error-icon">⚠️</span>
+								<span>{errorMessages.email}</span>
+							</div>
+						{/if}
+					</div>
+
+					<div class="form-group">
+						<label for="phone_number">Số điện thoại</label>
+						<input
+							type="text"
+							id="phone_number"
+							bind:value={phone_number}
+							on:input={(e) => handleInput('phone_number', e)}
+							placeholder="Số điện thoại"
+							class={errorMessages.phone_number ? 'input-error' : ''}
+						/>
+						{#if errorMessages.phone_number}
+							<div class="error-message">
+								<span class="error-icon">⚠️</span>
+								<span>{errorMessages.phone_number}</span>
+							</div>
+						{/if}
+					</div>
+
+					<div class="form-group">
+						<label for="password">Mật khẩu</label>
+						<input
+							type="password"
+							id="password"
+							bind:value={password}
+							name="password"
+							placeholder="Mật khẩu"
+						/>
+					</div>
+				</fieldset>
+
+				<div class="form-group checkbox-group">
+					<input type="checkbox" id="terms" name="terms" />
+					<label for="terms"
+						>Tôi đã đọc và đồng ý với các điều khoản và điều kiện của QAirline.</label
+					>
 				</div>
-			</div>
-  
-			<div class="signup__group">
-			  <div class="form-group">
-				<label for="date_of_birth">Ngày, Tháng, Năm Sinh</label>
-				<input type="date" id="date_of_birth" name="date_of_birth" />
-			  </div>
-  
-			  <div class="form-group">
-				<label for="gender">Giới tính</label>
-				<select id="gender" name="gender">
-				  <option value="" disabled selected hidden>Giới tính</option>
-				  <option value="male">Nam</option>
-				  <option value="female">Nữ</option>
-				  <option value="other">Khác</option>
-				</select>
-			  </div>
-			</div>
-  
-			<div class="form-group">
-				<label for="nationality">Quốc tịch</label>
-				<input
-					type="text"
-					id="nationality"
-					name="nationality"
-					placeholder="Quốc tịch"
-					bind:value={nationality}
-					on:input={(e) => handleTextInput('nationality', e)}
-					class={errorMessages.nationality ? 'input-error' : ''}
-				/>
-				{#if errorMessages.nationality}
-				  	<div class="error-message">
-						<span class="error-icon">⚠️</span>
-						<span>{errorMessages.nationality}</span>
-				  	</div>
-				{/if}
-			</div>
 
-			<div class="form-group">
-				<label for="identification">CMND/CCCD</label>
-				<input
-					type="text"
-					id="identification"
-					bind:value={identification}
-					on:input={(e) => handleInput('identification', e)}
-					placeholder="CMND/CCCD"
-					class={errorMessages.identification ? 'input-error' : ''}
-				/>
-				{#if errorMessages.identification}
-					<div class="error-message">
-						<span class="error-icon">⚠️</span>
-						<span>{errorMessages.identification}</span>
-					</div>
-				{/if}
-			</div>
-		  </fieldset>
-  
-		  <fieldset class="contact-info">
-			<legend>Thông tin liên hệ</legend>
-			<div class="form-group">
-				<label for="email">Email</label>
-				<input
-					type="email"
-					id="email"
-					name="email"
-					placeholder="Email của bạn"
-					bind:value={email}
-					on:input={handleEmailInput}
-					class={errorMessages.email ? 'input-error' : ''}
-				/>
-				{#if errorMessages.email}
-				  	<div class="error-message">
-						<span class="error-icon">⚠️</span>
-						<span>{errorMessages.email}</span>
-				  	</div>
-				{/if}
-			</div>
-
-			<div class="form-group">
-				<label for="phone_number">Số điện thoại</label>
-				<input
-					type="text"
-					id="phone_number"
-					bind:value={phoneNumber}
-					on:input={(e) => handleInput('phoneNumber', e)}
-					placeholder="Số điện thoại"
-					class={errorMessages.phoneNumber ? 'input-error' : ''}
-				/>
-				{#if errorMessages.phoneNumber}
-					<div class="error-message">
-						<span class="error-icon">⚠️</span>
-						<span>{errorMessages.phoneNumber}</span>
-					</div>
-				{/if}
-			</div>
-  
-			<div class="form-group">
-			  <label for="password">Mật khẩu</label>
-			  <input type="text" id="password" name="password" placeholder="Mật khẩu" />
-			</div>
-		  </fieldset>
-  
-		  <div class="form-group checkbox-group">
-			<input type="checkbox" id="terms" name="terms" />
-			<label for="terms">Tôi đã đọc và đồng ý với các điều khoản và điều kiện của QAirline.</label>
-		  </div>
-  
-		  <button type="submit" class="submit-btn">Đăng ký</button>
+				<button type="submit" class="submit-btn">Đăng ký</button>
+			</form>
+			<div class="signup__image"></div>
 		</div>
-		<div class="signup__image"></div>
-	  </div>
 	</div>
-  </div>
+</div>
 
-  <style>
+<style>
 	.form-group {
-	  margin-bottom: 20px;
+		margin-bottom: 20px;
 	}
-  
+
 	input {
-	  width: 100%;
-	  padding: 10px;
-	  font-size: 1rem;
-	  border: 1px solid #ccc;
-	  border-radius: 4px;
-	  transition: border-color 0.3s ease;
+		width: 100%;
+		padding: 10px;
+		font-size: 1rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		transition: border-color 0.3s ease;
 	}
-  
+
 	input:focus {
-	  border-color: #007bff;
-	  outline: none;
+		border-color: #007bff;
+		outline: none;
 	}
-  
+
 	input.input-error {
-	  border-color: #dc3545;
+		border-color: #dc3545;
 	}
-  
+
 	.error-message {
-	  display: flex;
-	  align-items: center;
-	  margin-top: 5px;
-	  color: #dc3545;
-	  font-size: 0.9rem;
-	  background-color: #ffe4e6;
-	  padding: 8px 12px;
-	  border-radius: 4px;
-	  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		display: flex;
+		align-items: center;
+		margin-top: 5px;
+		color: #dc3545;
+		font-size: 0.9rem;
+		background-color: #ffe4e6;
+		padding: 8px 12px;
+		border-radius: 4px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
-  
+
 	.error-icon {
-	  margin-right: 8px;
-	  font-size: 1.2rem;
+		margin-right: 8px;
+		font-size: 1.2rem;
 	}
-  </style>
-  
+</style>
