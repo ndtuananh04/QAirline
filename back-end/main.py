@@ -52,8 +52,10 @@ if __name__ == '__main__':
     from database import db
     db.init_app(app)
     create_database()
+    '''
     with app.app_context():
         additional_claim = {"role": AccountType.admin.name, "name": "admin"}
         access_token = create_access_token(identity=16, additional_claims=additional_claim)
         print(access_token)
+    '''
     app.run(debug=True)
