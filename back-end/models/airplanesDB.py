@@ -27,17 +27,22 @@ class Airplanes(db.Model):
         airplanes = db.session.query(
             Airplanes.airplane_id,
             Airplanes.name_airplane,
-            Airplanes.capacity
-        ).filter(Airplanes.is_locked != 0).all()
-        airplanes_list = []
+            Airplanes.capacity,
+            Airplanes.is_locked
+        ).all()
+
+        airplanes_list = {}
+
         for airplane in airplanes:
-            airplane_data = {
-                "airplane_id": airplane.airplane_id,
-                "name_airplane": airplane.name_airplane,
-                "capacity": airplane.capacity
-            }
-            airplanes_list.append(airplane_data)
-        return jsonify(airplanes_list)
+            if airplane.airplane_id not in airplanes_list:
+                airplanes_list[airplane.airplane_id] = {
+                    "airplane_id": airplane.airplane_id,
+                    "name_airplane": airplane.name_airplane,
+                    "capacity": airplane.capacity,
+                    "is_locked": airplane.is_locked
+                }
+            results = list(airplanes_list.values())
+        return results
     
     @classmethod
     def find_airplane_id(cls, airplane_id):

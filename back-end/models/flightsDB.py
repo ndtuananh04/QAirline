@@ -87,19 +87,20 @@ class Flights(db.Model):
             Flights.terminal,
             Flights.status,
         ).all()
-        flights_list = []
+        flights_list = {}
         for flight in flights:
-            flight_data = {
-                "flight_id": flight.flight_id,
-                "flight_number": flight.flight_number,
-                "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
-                "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
-                "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
-                "terminal": flight.terminal,
-                "status": flight.status.name
-            }
-            flights_list.append(flight_data)
-        return jsonify(flights_list)
+            if flight.flight_id not in flights_list:
+                flights_list[flight.flight_id] = {
+                    "flight_id": flight.flight_id,
+                    "flight_number": flight.flight_number,
+                    "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
+                    "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
+                    "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
+                    "terminal": flight.terminal,
+                    "status": flight.status.name
+                }
+            results = list(flights_list.values())
+        return results
 
     '''
     Tìm chuyến bay dựa trên điểm khởi hành, điểm đến và thời gian khởi hành

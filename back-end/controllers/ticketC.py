@@ -77,7 +77,7 @@ class TicketCustomer(Resource):
         tickets = Tickets.get_all_ticket_account_id(account_id)
         
         if tickets:
-            return jsonify(tickets)
+            return tickets
         else:
             return {"message": "No tickets found"}, 400
         
@@ -132,7 +132,9 @@ class TicketCustomer(Resource):
         db.session.add(new_ticket_user)
         db.session.commit()
 
-        return {"msg": "Ticket created successfully"}, 200
+        new_ticket_user = Tickets.get_all_ticket_account_id(account_id)
+
+        return {"msg": "Ticket created successfully", "ticket": new_ticket_user}, 200
 
     @jwt_required()
     @authorized_required(roles=["customer"])

@@ -129,22 +129,23 @@ class Tickets(db.Model):
         
         print(f"Tickets found: {len(tickets)}")
 
-        results = []
+        ticket_list = {}
 
         for ticket in tickets:
-            results.append({
-                "ticket_number": ticket.ticket_number,
-                "status": ticket.status.value, 
-                "seat_class": ticket.seat_class.value,
-                "family_name": ticket.family_name,
-                "given_name": ticket.given_name,
-                "nationality": ticket.nationality,
-                "departure": ticket.departure,
-                "arrival": ticket.arrival,
-                "departure_time": ticket.departure_time.strftime('%Y-%m-%d'),
-                "departure_hour_time": ticket.departure_hour_time.strftime('%H:%M'),
-            })
-
+            if ticket.ticket_number not in ticket_list:
+                ticket_list[ticket.ticket_number] = {
+                    "ticket_number": ticket.ticket_number,
+                    "status": ticket.status.value, 
+                    "seat_class": ticket.seat_class.value,
+                    "family_name": ticket.family_name,
+                    "given_name": ticket.given_name,
+                    "nationality": ticket.nationality,
+                    "departure": ticket.departure,
+                    "arrival": ticket.arrival,
+                    "departure_time": ticket.departure_time.strftime('%Y-%m-%d'),
+                    "departure_hour_time": ticket.departure_hour_time.strftime('%H:%M'),
+                }
+            results = list(ticket_list.values())
         return results
     
     @classmethod

@@ -1,5 +1,6 @@
 <script>
 	import Icon from "@iconify/svelte";
+  import Footer from '$lib/components/Footer.svelte';
 </script>
 
 <header class="header">
@@ -23,3 +24,4 @@
   </div>
 </header>
 <slot />
+<Footer />

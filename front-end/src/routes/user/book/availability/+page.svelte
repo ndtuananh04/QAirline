@@ -45,7 +45,7 @@
 
 			const data = await response.json();
 			flights = data;
-			console.log(flightss);
+			console.log(flights);
 		} catch (error) {
 			console.error('Error fetching flights:', error);
 		}
@@ -306,3 +306,4 @@
 		</div>
 	</div>
 </div>
+
