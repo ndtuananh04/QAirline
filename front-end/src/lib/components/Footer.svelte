@@ -16,7 +16,7 @@
 				<div class="col-12 col-lg-3 col-sm-6">
 					<h4>Thông tin về QAirline</h4>
 					<div class="footer__links">
-						<a href="/info/general">Thông tin chung</a>
+						<a href="/user/info/general">Thông tin chung</a>
 						<a href="/">Key Features</a>
 					</div>
 				</div>
@@ -30,7 +30,7 @@
 				<div class="col-12 col-lg-3 col-sm-6">
 					<h4>Điều khoản & Điều kiện</h4>
 					<div class="footer__links">
-						<a href="/info/conditions">Điều khoản & Điều kiện về đặt chỗ & xuất vé</a>
+						<a href="/user/info/conditions">Điều khoản & Điều kiện về đặt chỗ & xuất vé</a>
 						<a href="/">Điều kiện hợp đồng</a>
 					</div>
 				</div>

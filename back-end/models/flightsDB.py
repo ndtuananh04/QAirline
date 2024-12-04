@@ -5,6 +5,7 @@ import enum
 from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
 from flask import jsonify
+from collections import OrderedDict
 
 class FlightType(enum.Enum):
     SCHEDULED = "scheduled"
@@ -107,6 +108,7 @@ class Flights(db.Model):
     @classmethod
     def find_flights_with_seats(cls, departure, arrival, departure_time):
         flights = db.session.query(
+            Flights.flight_id,
             Flights.flight_number,
             Flights.departure,
             Flights.code_departure,
@@ -129,8 +131,9 @@ class Flights(db.Model):
         flight_dict = {}
 
         for flight in flights:
-            if flight.flight_number not in flight_dict:
-                flight_dict[flight.flight_number] = {
+            if flight.flight_id not in flight_dict:
+                flight_dict[flight.flight_id] = {
+                    "flight_id": flight.flight_id,
                     "flight_number": flight.flight_number,
                     "departure": flight.departure,
                     "code_departure": flight.code_departure,
@@ -149,14 +152,14 @@ class Flights(db.Model):
             }
 
             # Kiểm tra xem hạng ghế này đã có trong seats chưa
-            if seat not in flight_dict[flight.flight_number]["seats"]:
-                flight_dict[flight.flight_number]["seats"].append(seat)
+            if seat not in flight_dict[flight.flight_id]["seats"]:
+                flight_dict[flight.flight_id]["seats"].append(seat)
 
         # Chuyển đổi flight_dict thành danh sách các kết quả
         results = list(flight_dict.values())
 
-        # Trả về kết quả dưới dạng JSON
-        return jsonify(results)
+        # Trả về danh sách thay vì dùng jsonify
+        return results
 
     
     @classmethod

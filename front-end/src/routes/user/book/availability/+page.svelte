@@ -7,17 +7,20 @@
 	let arrival = '';
 	let departureDate = '';
 	let returnDate = '';
+	let tripType = '';
 
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
-		const tripType = params.get('tripType');
+		tripType = params.get('tripType');
 		departure = params.get('fromInput');
 		arrival = params.get('toInput');
 		departureDate = params.get('departureDate');
 		returnDate = params.get('returnDate');
 		console.log(departure, arrival, departureDate, returnDate);
 		fetchDeparture(departure, arrival, departureDate);
-		fetchReturn(arrival, departure, returnDate);
+		if (tripType === 'round-trip') {
+			fetchReturn(arrival, departure, returnDate);
+		}
 	});
 
 	async function fetchDeparture(departure, arrival, departureDate) {
@@ -147,119 +150,135 @@
 								<p style="font-weight: 700; font-size: 20px;">{departureDate}</p>
 							</div>
 						</div>
-						<div class="flight__list">
-							{#each flights as flight}
-								<div class="flight__item d-flex">
-									<div class="flight__time d-flex">
-										<div class="flight__time--exact aligncenter">
-											<p class="code">{flight.flight_number}</p>
-											<div class="d-flex">
-												<div class="text-center">
-													<h3>{flight.departure_hour_time}</h3>
-													<p>{flight.code_departure}</p>
+						{#if flights.length > 0}
+							<div class="flight__list">
+								{#each flights as flight}
+									<div class="flight__item d-flex">
+										<div class="flight__time d-flex">
+											<div class="flight__time--exact aligncenter">
+												<p class="code">{flight.flight_number}</p>
+												<div class="d-flex">
+													<div class="text-center">
+														<h3>{flight.departure_hour_time}</h3>
+														<p>{flight.code_departure}</p>
+													</div>
+													đến
+													<div class="text-center">
+														<h3>{flight.arrival_hour_time}</h3>
+														<p>{flight.code_arrival}</p>
+													</div>
 												</div>
-												đến
-												<div class="text-center">
-													<h3>{flight.arrival_hour_time}</h3>
-													<p>{flight.code_arrival}</p>
-												</div>
+												<p class="code">Tên mb</p>
 											</div>
-											<p class="code">Tên mb</p>
+											<div class="flight__time--total aligncenter">
+												<p>Thời gian bay dự kiến:</p>
+												<p>
+													{calculateDuration(flight.departure_hour_time, flight.arrival_hour_time)}
+												</p>
+											</div>
 										</div>
-										<div class="flight__time--total aligncenter">
-											<p>Thời gian bay dự kiến:</p>
-											<p>
-												{calculateDuration(flight.departure_hour_time, flight.arrival_hour_time)}
-											</p>
-										</div>
-									</div>
-									<div class="flight__seats d-flex">
-										{#each flight.seats as seat}
-											<div
-												class="flight__seat aligncenter {seat.seat_class.toLowerCase()} 
+										<div class="flight__seats d-flex">
+											{#each flight.seats as seat}
+												<div
+													class="flight__seat aligncenter {seat.seat_class.toLowerCase()} 
                                                 {selectedDepartureSeat === seat ? 'selected' : ''}"
-												on:click={() => selectDepartureSeat(seat)}
-											>
-												<div class="flight__seat--class">
-													<b>{seat.seat_class}</b>
+													on:click={() => selectDepartureSeat(seat)}
+												>
+													<div class="flight__seat--class">
+														<b>{seat.seat_class}</b>
+													</div>
+													<div class="flight__seat--price">
+														<b>{seat.price}</b>
+													</div>
 												</div>
-												<div class="flight__seat--price">
-													<b>{seat.price}</b>
-												</div>
-											</div>
-										{/each}
+											{/each}
+										</div>
 									</div>
-								</div>
-							{/each}
-						</div>
+								{/each}
+							</div>
+						{:else}
+							<div class="flight__out">
+								<h3>Không có chuyến bay nào trong thời gian này</h3>
+							</div>
+						{/if}
 					</div>
-
-					<div class="flight__return">
-						<div class="flight__bar d-flex justify-content-between">
-							<div class="location d-flex">
-								<i class="fa-solid fa-plane-departure fa-flip-horizontal" style="font-size: 50px;"
-								></i>
-								<div class="city">
-									<h3>{arrival}</h3>
-									<!-- <h4>{flights[0].code_arrival}</h4> -->
+					{#if tripType === 'round-trip'}
+						<div class="flight__return">
+							<div class="flight__bar d-flex justify-content-between">
+								<div class="location d-flex">
+									<i class="fa-solid fa-plane-departure fa-flip-horizontal" style="font-size: 50px;"
+									></i>
+									<div class="city">
+										<h3>{arrival}</h3>
+										<!-- <h4>{flights[0].code_arrival}</h4> -->
+									</div>
+									<i class="fa-solid fa-arrow-right" style="font-size: 50px; "></i>
+									<div class="city">
+										<h3>{departure}</h3>
+										<!-- <h4>{flights[0].code_departure}</h4> -->
+									</div>
 								</div>
-								<i class="fa-solid fa-arrow-right" style="font-size: 50px; "></i>
-								<div class="city">
-									<h3>{departure}</h3>
-									<!-- <h4>{flights[0].code_departure}</h4> -->
+								<div class="time text-right">
+									<i class="fa-solid fa-calendar-days" style="font-size: 30px;"></i>
+									<p style="font-weight: 700; font-size: 20px;">{returnDate}</p>
 								</div>
 							</div>
-							<div class="time text-right">
-								<i class="fa-solid fa-calendar-days" style="font-size: 30px;"></i>
-								<p style="font-weight: 700; font-size: 20px;">{returnDate}</p>
-							</div>
-						</div>
-						<div class="flight__list">
-							{#each flightsReturn as flight}
-								<div class="flight__item d-flex">
-									<div class="flight__time d-flex">
-										<div class="flight__time--exact aligncenter">
-											<p class="code">{flight.flight_number}</p>
-											<div class="d-flex">
-												<div class="text-center">
-													<h3>{flight.departure_hour_time}</h3>
-													<p>{flight.code_departure}</p>
+							{#if flightsReturn.length > 0}
+								<div class="flight__list">
+									{#each flightsReturn as flight}
+										<div class="flight__item d-flex">
+											<div class="flight__time d-flex">
+												<div class="flight__time--exact aligncenter">
+													<p class="code">{flight.flight_number}</p>
+													<div class="d-flex">
+														<div class="text-center">
+															<h3>{flight.departure_hour_time}</h3>
+															<p>{flight.code_departure}</p>
+														</div>
+														đến
+														<div class="text-center">
+															<h3>{flight.arrival_hour_time}</h3>
+															<p>{flight.code_arrival}</p>
+														</div>
+													</div>
+													<p class="code">Tên mb</p>
 												</div>
-												đến
-												<div class="text-center">
-													<h3>{flight.arrival_hour_time}</h3>
-													<p>{flight.code_arrival}</p>
+												<div class="flight__time--total aligncenter">
+													<p>Thời gian bay dự kiến:</p>
+													<p>
+														{calculateDuration(
+															flight.departure_hour_time,
+															flight.arrival_hour_time
+														)}
+													</p>
 												</div>
 											</div>
-											<p class="code">Tên mb</p>
-										</div>
-										<div class="flight__time--total aligncenter">
-											<p>Thời gian bay dự kiến:</p>
-											<p>
-												{calculateDuration(flight.departure_hour_time, flight.arrival_hour_time)}
-											</p>
-										</div>
-									</div>
-									<div class="flight__seats d-flex">
-										{#each flight.seats as seat, index}
-											<div
-												class="flight__seat aligncenter {seat.seat_class.toLowerCase()}
+											<div class="flight__seats d-flex">
+												{#each flight.seats as seat, index}
+													<div
+														class="flight__seat aligncenter {seat.seat_class.toLowerCase()}
 												{selectedReturnSeat === seat ? 'selected' : ''}"
-												on:click={() => selectReturnSeat(seat)}
-											>
-												<div class="flight__seat--class">
-													<b>{seat.seat_class}</b>
-												</div>
-												<div class="flight__seat--price">
-													<b>{seat.price}</b>
-												</div>
+														on:click={() => selectReturnSeat(seat)}
+													>
+														<div class="flight__seat--class">
+															<b>{seat.seat_class}</b>
+														</div>
+														<div class="flight__seat--price">
+															<b>{seat.price}</b>
+														</div>
+													</div>
+												{/each}
 											</div>
-										{/each}
-									</div>
+										</div>
+									{/each}
 								</div>
-							{/each}
+							{:else}
+								<div class="flight__out">
+									<h3>Không có chuyến bay nào trong thời gian này</h3>
+								</div>
+							{/if}
 						</div>
-					</div>
+					{/if}
 				</div>
 				<div class="flight__aside">
 					<div class="flight__aheader">
@@ -269,10 +288,12 @@
 						<p>Chuyến đi</p>
 						<p>{departurePrice}</p>
 					</div>
-					<div class="flight__price d-flex justify-content-between">
-						<p>Chuyến về</p>
-						<p>{returnPrice}</p>
-					</div>
+					{#if tripType === 'round-trip'}
+						<div class="flight__price d-flex justify-content-between">
+							<p>Chuyến về</p>
+							<p>{returnPrice}</p>
+						</div>
+					{/if}
 					<div class="flight__price d-flex justify-content-between">
 						<p>Tổng tiền</p>
 						<p>{departurePrice + returnPrice}</p>

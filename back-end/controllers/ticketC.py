@@ -9,12 +9,66 @@ from models.seatsDB import Seats
 from models.ticketsDB import Tickets, TicketUser, StatusClass
 from core.auth import authorized_required
 
-
 from services.ticketS import TicketS
 from database import db
-from flask import jsonify
+from flask import jsonify, session, request
+    
+class SelectTicket(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
+    parser.add_argument('seat_class', type=str, required=True, help="Seat class is required")
+    parser.add_argument('price', type=float, required=True, help="Price is required")
+    parser.add_argument('quantity', type=int, required=True, help="Quantity is required")
 
-# Customer xem vé, mua vé, hủy vé
+    def post(self):
+        data = self.parser.parse_args()
+        flight_id = data['flight_id']
+        seat_class = data['seat_class']
+        price = data['price']
+        quantity = data['quantity']
+
+        # Kiểm tra thông tin chuyến bay trong session
+        flights = session.get('flights', [])
+        if not flights:
+            return {"message": "No flight data in session"}, 400
+        
+        # Tìm kiếm chuyến bay và loại ghế
+        selected_flight = next((flight for flight in flights if flight['flight_id'] == flight_id), None)
+        if not selected_flight:
+            return {"message": f"Flight ID {flight_id} not found"}, 404
+        
+        selected_seat = next(
+            (seat for seat in selected_flight.get("seats", []) if seat["seat_class"].upper() == seat_class.upper()),
+            None
+        )
+        if not selected_seat:
+            return {"message": f"Seat class '{seat_class}' not found in flight {flight_id}"}, 404
+        
+        total_price = price * quantity
+        vat = total_price * 0.1
+        grand_total = total_price + vat
+
+        # Lưu thông tin vào session
+        session['selected_ticket'] = {
+            'flight_id': flight_id,
+            'seat_class': seat_class,
+            'price': price,
+            'quantity': quantity,
+            'total_price': total_price,
+            'vat': vat,
+            'grand_total': grand_total
+        }
+
+        return {
+            "message": "Seat selected successfully",
+            "details": {
+                "total_price": total_price,
+                "vat": vat,
+                "grand_total": grand_total
+            }
+        }, 200
+                
+# Customer xem vé, điền thông tin vé, hủy vé
 class TicketCustomer(Resource):
     @jwt_required()
     @authorized_required(roles=["customer"])
@@ -41,13 +95,24 @@ class TicketCustomer(Resource):
     def post(self):
         account_id = get_jwt_identity()
         data = self.parser.parse_args()
+
+        # Kiểm tra và lấy flight_id và seat_class từ session
+        selected_ticket = session.get('selected_ticket')
+        if not selected_ticket:
+            return {"message": "No selected ticket information found in session"}, 400
+
+        flight_id = selected_ticket.get('flight_id')
+        seat_class = selected_ticket.get('seat_class')
+
+        if not flight_id or not seat_class:
+            return {"message": "Incomplete flight information in session"}, 400
         
         new_ticket = Tickets(
             account_id=account_id,
-            flight_id=2,
+            flight_id=flight_id,
             ticket_number=TicketS.generate_custom_random_string(),
             seat_number=None,
-            seat_class="skyboss",
+            seat_class=seat_class,
             booking_time=datetime.now(),
             status="scheduled"
         )
@@ -67,7 +132,7 @@ class TicketCustomer(Resource):
         db.session.add(new_ticket_user)
         db.session.commit()
 
-        return {"msg": "Account created successfully"}, 200
+        return {"msg": "Ticket created successfully"}, 200
 
     @jwt_required()
     @authorized_required(roles=["customer"])

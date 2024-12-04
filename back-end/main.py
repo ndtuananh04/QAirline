@@ -9,7 +9,8 @@ from models.accountDB import AccountType
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass
 from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin
 from controllers.airplaneC import AirplaneSearch
-from controllers.ticketC import TicketCustomer, TicketAdmin
+from controllers.ticketC import TicketCustomer, TicketAdmin, SelectTicket
+from controllers.promotionC import PromotionPrice, PromotionAdmin
 from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import *
@@ -36,7 +37,11 @@ api.add_resource(FlightAdmin, '/flights', '/flights/<int:flight_id>')
 
 api.add_resource(AirplaneSearch, '/airplanes', '/airplanes/<int:airplane_id>')
 
+api.add_resource(SelectTicket, '/select-ticket')
 api.add_resource(TicketCustomer, '/ticket-customer', '/ticket-customer/<int:ticket_id>')
+
+api.add_resource(PromotionPrice, '/promotion-search')
+api.add_resource(PromotionAdmin, '/promotions', '/promotions/<int:promotion_id>')
 
 def create_database():
     with app.app_context():
