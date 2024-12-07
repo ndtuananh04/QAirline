@@ -14,6 +14,7 @@
 	let phone_number = '';
 	let email = '';
 	let password = '';
+	
 	let errorMessages = {
 		family_name: '',
 		given_name: '',
@@ -22,20 +23,6 @@
 		phone_number: '',
 		identification: ''
 	};
-
-	// onMount(async () => {
-	// 	const response = await fetch('http://127.0.0.1:5000/register');
-	// 	const data = await response.json();
-	// 	email.set(data.email);
-	// 	password.set(data.password);
-	// 	identification.set(data.identification);
-	// 	familyName.set(data.familyName);
-	// 	given_name.set(data.given_name);
-	// 	gender.set(data.gender);
-	// 	nationality.set(data.nationality);
-	// 	dateOfBirth.set(data.dateOfBirth);
-	// 	phone_number.set(data.phone_number);
-	// });
 
 	// Check định dạng email
 	const handleEmailInput = (e) => {
@@ -98,18 +85,9 @@
 			date_of_birth: date_of_birth,
 			phone_number: phone_number
 		};
-		console.log(userData.email);
-		console.log(userData.password);
-		console.log(userData.identification);
-		console.log(userData.family_name);
-		console.log(userData.given_name);
-		console.log(userData.gender);
-		console.log(userData.nationality);
-		console.log(userData.date_of_birth);
-		console.log(userData.phone_number);
 
 		try {
-			const response = await fetch('http://127.0.0.1:5000/register', {
+			const response = await fetch('http://localhost:5000/register', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -160,6 +138,7 @@
 								bind:value={family_name}
 								on:input={(e) => handleTextInput('family_name', e)}
 								class={errorMessages.family_name ? 'input-error' : ''}
+								required
 							/>
 							{#if errorMessages.family_name}
 								<div class="error-message">
@@ -178,6 +157,7 @@
 								bind:value={given_name}
 								on:input={(e) => handleTextInput('given_name', e)}
 								class={errorMessages.given_name ? 'input-error' : ''}
+								required
 							/>
 							{#if errorMessages.given_name}
 								<div class="error-message">
@@ -196,6 +176,7 @@
 								id="date_of_birth"
 								bind:value={date_of_birth}
 								name="date_of_birth"
+								required
 							/>
 						</div>
 
@@ -220,6 +201,7 @@
 							bind:value={nationality}
 							on:input={(e) => handleTextInput('nationality', e)}
 							class={errorMessages.nationality ? 'input-error' : ''}
+							required
 						/>
 						{#if errorMessages.nationality}
 							<div class="error-message">
@@ -238,6 +220,7 @@
 							on:input={(e) => handleInput('identification', e)}
 							placeholder="CMND/CCCD"
 							class={errorMessages.identification ? 'input-error' : ''}
+							required
 						/>
 						{#if errorMessages.identification}
 							<div class="error-message">
@@ -260,6 +243,7 @@
 							bind:value={email}
 							on:input={handleEmailInput}
 							class={errorMessages.email ? 'input-error' : ''}
+							required
 						/>
 						{#if errorMessages.email}
 							<div class="error-message">
@@ -278,6 +262,7 @@
 							on:input={(e) => handleInput('phone_number', e)}
 							placeholder="Số điện thoại"
 							class={errorMessages.phone_number ? 'input-error' : ''}
+							required
 						/>
 						{#if errorMessages.phone_number}
 							<div class="error-message">
@@ -295,6 +280,7 @@
 							bind:value={password}
 							name="password"
 							placeholder="Mật khẩu"
+							required
 						/>
 					</div>
 				</fieldset>
@@ -308,7 +294,6 @@
 
 				<button type="submit" class="submit-btn">Đăng ký</button>
 			</form>
-			<div class="signup__image"></div>
 		</div>
 	</div>
 </div>

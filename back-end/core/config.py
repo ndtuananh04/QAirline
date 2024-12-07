@@ -2,7 +2,7 @@ from datetime import timedelta
 import os
 
 ''' SQLALCHEMY_DATABASE_URI = 'sqlite:///database123.db' '''
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:123456@localhost/qairline'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:19052004@localhost/qairline'
 SECRET_KEY = 'Latinos4PussinBoots'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_POOL_SIZE = 1000   # Để tạm là 300 -> setTimeOutError sqlachemy

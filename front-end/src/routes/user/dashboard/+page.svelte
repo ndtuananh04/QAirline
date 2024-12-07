@@ -4,6 +4,7 @@
 	import { writable, get } from 'svelte/store';
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
+	import { quantity, tripType } from '../store';
 
 	let splideElement;
 	let splideInstance;
@@ -12,28 +13,32 @@
 	let arrivals = writable([]);
 	let fromInput = '';
 	let toInput = '';
-	let tripType = 'round-trip';
 	let departureDate = '';
 	let returnDate = '';
 	let showDepartureSuggestions = false;
 	let showArrivalSuggestions = false;
 	let filteredDepartures = writable([]);
 	let filteredArrivals = writable([]);
+	let localQuantity = 1;
 
 	onMount(() => {
-		splideInstance = new Splide(splideElement, {
+		const splideInstance = new Splide(splideElement, {
 			type: 'loop',
 			autoplay: true,
 			interval: 5000,
+			speed: 1500,
+			easing: 'ease',
 			arrows: false,
-			pagination: true
+			pagination: true,
+			pauseOnHover: false,
+			pauseOnFocus: false
 		}).mount();
 
 		document.addEventListener('click', handleClickOutside);
 	});
 
 	onMount(async () => {
-		const response = await fetch('http://127.0.0.1:5000/departure-arrival');
+		const response = await fetch('http://localhost:5000/departure-arrival');
 		const data = await response.json();
 		departures.set(data.departure);
 		arrivals.set(data.arrival);
@@ -115,7 +120,7 @@
 				<div class="booking__basic row">
 					<div class="trip-type col-12 col-md-4">
 						<label
-							><input type="radio" name="tripType" value="one-way" bind:group={tripType} /> Một chiều</label
+							><input type="radio" name="tripType" value="one-way" bind:group={$tripType} /> Một chiều</label
 						>
 						<label
 							><input
@@ -123,7 +128,7 @@
 								name="tripType"
 								value="round-trip"
 								checked
-								bind:group={tripType}
+								bind:group={$tripType}
 							/> Khứ hồi</label
 						>
 					</div>
@@ -176,7 +181,7 @@
 								required
 							/>
 						</div>
-						{#if tripType === 'round-trip'}
+						{#if $tripType === 'round-trip'}
 							<div class="form-group col-12 col-md-4">
 								<label for="return-date">Ngày về</label>
 								<input
@@ -189,8 +194,15 @@
 							</div>
 						{/if}
 						<div class="form-group col-12 col-md-4">
-							<label for="passengers">Số người</label>
-							<input type="number" id="passengers" value="1" />
+							<label for="quantity">Số người</label>
+							<input 
+								type="number" 
+								id="quantity" 
+								name="quantity" 
+								bind:value={localQuantity} 
+								on:change={() => quantity.set(localQuantity)} 
+								required 
+							/>
 						</div>
 					</div>
 					<div class="form-group submit">

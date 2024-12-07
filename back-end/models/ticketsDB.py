@@ -28,16 +28,18 @@ class TicketUser(db.Model):
     given_name = db.Column(db.String(60), nullable=False)
     gender = db.Column(db.Enum(GenderTypeTicket), nullable=False)
     nationality = db.Column(db.String(60), nullable=False)
+    date_of_birth = db.Column(db.Date, nullable=True)
     phone_number = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(60), nullable=False)
 
-    def __init__(self, ticket_id, identification, family_name, given_name, gender, nationality, phone_number, email):
+    def __init__(self, ticket_id, identification, family_name, given_name, gender, nationality, date_of_birth, phone_number, email):
         self.ticket_id = ticket_id
         self.identification = identification
         self.family_name = family_name
         self.given_name = given_name
         self.gender = gender
         self.nationality = nationality
+        self.date_of_birth = date_of_birth
         self.phone_number = phone_number
         self.email = email
 
@@ -49,6 +51,7 @@ class TicketUser(db.Model):
             "given_name": self.given_name,
             "gender": self.gender,
             "nationality": self.nationality,
+            "date_of_birth": self.date_of_birth,
             "phone_number": self.phone_number,
             "email": self.email
         }

@@ -15,9 +15,8 @@ from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import *
 
-
 app = Flask(__name__)
-CORS(app)
+cors = CORS(app, supports_credentials=True)
 app.config.from_pyfile('core/config.py')
 api = Api(app)
 init_app(app)
@@ -46,7 +45,6 @@ api.add_resource(PromotionAdmin, '/promotions', '/promotions/<int:promotion_id>'
 def create_database():
     with app.app_context():
         db.create_all()
-
 
 if __name__ == '__main__':
     from database import db

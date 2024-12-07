@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+body {
+	font-family: 'Inter', sans-serif;
+}
+.formbold-mb-3 {
+	margin-bottom: 15px;
+}
+.formbold-relative {
+	position: relative;
+}
+.formbold-opacity-0 {
+	opacity: 0;
+}
+.formbold-stroke-current {
+	stroke: currentColor;
+}
+.formbold-form-wrapper {
+	margin: 20px auto;
+	max-width: 600px;
+	width: 100%;
+	padding: 20px;
+	border-radius: 8px;
+	border: 1px solid #dde3ec;
+	background: #ffffff;
+	box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+	transition:
+		transform 0.3s,
+		box-shadow 0.3s,
+		background-color 0.3s;
+}
+
+.formbold-input-flex {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	margin-bottom: 15px;
+}
+
+.formbold-input-flex > div {
+	flex: 1 1 calc(50% - 20px);
+}
+
+.formbold-form-input {
+	text-align: left;
+	padding: 10px 15px;
+	width: 100%;
+	border-radius: 5px;
+	border: 1px solid #dde3ec;
+	background: #ffffff;
+	font-weight: 500;
+	font-size: 16px;
+	color: #536387;
+	outline: none;
+	resize: none;
+}
+
+.formbold-form-input:focus {
+	border-color: #6a64f1;
+	box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Mặc định: Không có màu nền */
+input[type="date"].formbold-form-input {
+    background-color: #ffffff; /* Trắng */
+    border-color: #dde3ec;
+    box-shadow: none;
+}
+
+/* Khi giá trị hợp lệ (người dùng đã chọn ngày) */
+input[type="date"].formbold-form-input:valid {
+    background-color: #eaf0ff; /* Xanh nhạt */
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Hiệu ứng khi đang focus */
+input[type="date"].formbold-form-input:focus {
+    border-color: #6a64f1;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.formbold-form-label {
+	color: #536387;
+	font-size: 14px;
+	line-height: 24px;
+	display: block;
+	margin-bottom: 10px;
+}
+
+.formbold-btn {
+	font-size: 16px;
+	border-radius: 5px;
+	padding: 14px 25px;
+	border: none;
+	font-weight: 500;
+	background-color: #6a64f1;
+	color: white;
+	cursor: pointer;
+	margin-top: 25px;
+}
+
+.formbold-btn:hover {
+	box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.formbold-title-center {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.formbold-title-center p {
+	font-size: 18px;
+	font-weight: bold;
+	color: #536387;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.formbold-input-flex > div {
+		flex: 1 1 100%;
+	}
+	.formbold-form-wrapper {
+		padding: 15px;
+	}
+}
+
+input.input-error {
+	border-color: #dc3545;
+}
+
+.error-message {
+	display: flex;
+	align-items: center;
+	margin-top: 5px;
+	color: #dc3545;
+	font-size: 0.9rem;
+	background-color: #ffe4e6;
+	padding: 8px 12px;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+	margin-right: 8px;
+	font-size: 1.2rem;
+}
+
+.formbold-submit-wrapper {
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
+}
+
+.formbold-btn {
+	font-size: 16px;
+	border-radius: 5px;
+	padding: 14px 25px;
+	border: none;
+	font-weight: 500;
+	background-color: #6a64f1;
+	color: white;
+	cursor: pointer;
+	margin-top: 25px;
+}
+
+.formbold-btn:hover {
+	box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+}

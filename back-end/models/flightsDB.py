@@ -167,6 +167,10 @@ class Flights(db.Model):
     def find_flight_id(cls, flight_id):
         return cls.query.filter_by(flight_id=flight_id).first()
     
+    @classmethod
+    def find_flight_number(cls, flight_number):
+        return cls.query.filter_by(flight_number=flight_number).first()
+    
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
