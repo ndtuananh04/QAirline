@@ -4,7 +4,7 @@
         <img src="https://logodownload.org/wp-content/uploads/2019/05/air-france-logo-1.png"/>
         <h5>BUSINESS CLASS</h5>
       </header>
-      <main>
+      <main class="mainn">
         <div class="barcode">
           <img src="https://www.freepnglogos.com/uploads/barcode-png/barcode-laser-code-vector-graphic-pixabay-3.png" />
         </div>
