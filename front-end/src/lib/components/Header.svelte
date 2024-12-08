@@ -19,7 +19,7 @@
 			<nav class="header__links">
 				<a href="/explore">Khám phá</a>
 				<a href="/booking">Đặt vé</a>
-				<a href="/info">Thông tin hành trình</a>
+				<a href="/user/ticket">Thông tin vé</a>
 			</nav>
 
 			<div class="header__auth">

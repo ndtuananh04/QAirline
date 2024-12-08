@@ -30,12 +30,13 @@ class Flights(db.Model):
     departure_time = db.Column(db.Date, nullable=False)
     departure_hour_time = db.Column(db.Time, nullable=False)
     arrival_hour_time = db.Column(db.Time, nullable=False)
+    boarding_time = db.Column(db.Time, nullable=False)
     terminal = db.Column(db.Integer , nullable=False)
     status = db.Column(db.Enum(FlightType), nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
     airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
 
-    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, terminal, status, available_seats, airplane_id):
+    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, boarding_time, terminal, status, available_seats, airplane_id):
         self.flight_number = flight_number
         self.departure = departure
         self.code_departure = code_departure
@@ -44,6 +45,7 @@ class Flights(db.Model):
         self.departure_time = departure_time
         self.departure_hour_time = departure_hour_time.strftime('%H:%M') if departure_hour_time else None
         self.arrival_hour_time = arrival_hour_time.strftime('%H:%M') if arrival_hour_time else None
+        self.boarding_time = boarding_time.strftime('%H:%M') if boarding_time else None
         self.terminal = terminal
         self.status = FlightType.from_string(status.upper())
         self.available_seats = available_seats
@@ -59,6 +61,7 @@ class Flights(db.Model):
             "departure_time": self.departure_time.strftime('%Y-%m-%d'),
             "departure_hour_time": self.departure_hour_time.strftime('%H:%M'),
             "arrival_hour_time": self.arrival_hour_time.strftime('%H:%M'),
+            "boarding_time": self.boarding_time.strftime('%H:%M'),
             "terminal": self.terminal,
             "status": self.status.name,
             "available_seats": self.available_seats
