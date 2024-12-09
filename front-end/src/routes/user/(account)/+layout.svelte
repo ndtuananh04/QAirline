@@ -1,5 +1,6 @@
 <script>
 	import Icon from "@iconify/svelte";
+  import Footer from '$lib/components/Footer.svelte';
 </script>
 
 <header class="header">
@@ -16,10 +17,11 @@
         <a href="/login" class="login">Đăng nhập</a> |
         <a href="/register" class="register">Đăng ký</a>
       {/if} -->
-      <a href="/login" class="login">Đăng nhập</a> |
-      <a href="/signup" class="register">Đăng ký</a>
+      <a href="/user/login" class="login">Đăng nhập</a> |
+      <a href="/user/signup" class="register">Đăng ký</a>
       <Icon icon="codicon:account" style="font-size: 22px;"/>
     </div>
   </div>
 </header>
 <slot />
+<Footer />

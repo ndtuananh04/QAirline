@@ -19,12 +19,12 @@
 			<nav class="header__links">
 				<a href="/explore">Khám phá</a>
 				<a href="/booking">Đặt vé</a>
-				<a href="/info">Thông tin hành trình</a>
+				<a href="/user/ticket">Thông tin vé</a>
 			</nav>
 
 			<div class="header__auth">
-				<a href="/login" class="login">Đăng nhập</a> |
-				<a href="/signup" class="register">Đăng ký</a>
+				<a href="/user/login" class="login">Đăng nhập</a> |
+				<a href="/user/signup" class="register">Đăng ký</a>
 				<Icon icon="codicon:account" style="font-size: 22px; color: white;" />
 			</div>
 		</div>

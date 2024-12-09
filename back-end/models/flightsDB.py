@@ -30,12 +30,13 @@ class Flights(db.Model):
     departure_time = db.Column(db.Date, nullable=False)
     departure_hour_time = db.Column(db.Time, nullable=False)
     arrival_hour_time = db.Column(db.Time, nullable=False)
+    boarding_time = db.Column(db.Time, nullable=False)
     terminal = db.Column(db.Integer , nullable=False)
     status = db.Column(db.Enum(FlightType), nullable=False)
     available_seats = db.Column(db.Integer, nullable=False)
     airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
 
-    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, terminal, status, available_seats, airplane_id):
+    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, boarding_time, terminal, status, available_seats, airplane_id):
         self.flight_number = flight_number
         self.departure = departure
         self.code_departure = code_departure
@@ -44,6 +45,7 @@ class Flights(db.Model):
         self.departure_time = departure_time
         self.departure_hour_time = departure_hour_time.strftime('%H:%M') if departure_hour_time else None
         self.arrival_hour_time = arrival_hour_time.strftime('%H:%M') if arrival_hour_time else None
+        self.boarding_time = boarding_time.strftime('%H:%M') if boarding_time else None
         self.terminal = terminal
         self.status = FlightType.from_string(status.upper())
         self.available_seats = available_seats
@@ -59,6 +61,7 @@ class Flights(db.Model):
             "departure_time": self.departure_time.strftime('%Y-%m-%d'),
             "departure_hour_time": self.departure_hour_time.strftime('%H:%M'),
             "arrival_hour_time": self.arrival_hour_time.strftime('%H:%M'),
+            "boarding_time": self.boarding_time.strftime('%H:%M'),
             "terminal": self.terminal,
             "status": self.status.name,
             "available_seats": self.available_seats
@@ -87,19 +90,20 @@ class Flights(db.Model):
             Flights.terminal,
             Flights.status,
         ).all()
-        flights_list = []
+        flights_list = {}
         for flight in flights:
-            flight_data = {
-                "flight_id": flight.flight_id,
-                "flight_number": flight.flight_number,
-                "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
-                "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
-                "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
-                "terminal": flight.terminal,
-                "status": flight.status.name
-            }
-            flights_list.append(flight_data)
-        return jsonify(flights_list)
+            if flight.flight_id not in flights_list:
+                flights_list[flight.flight_id] = {
+                    "flight_id": flight.flight_id,
+                    "flight_number": flight.flight_number,
+                    "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
+                    "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
+                    "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
+                    "terminal": flight.terminal,
+                    "status": flight.status.name
+                }
+            results = list(flights_list.values())
+        return results
 
     '''
     Tìm chuyến bay dựa trên điểm khởi hành, điểm đến và thời gian khởi hành
@@ -165,6 +169,10 @@ class Flights(db.Model):
     @classmethod
     def find_flight_id(cls, flight_id):
         return cls.query.filter_by(flight_id=flight_id).first()
+    
+    @classmethod
+    def find_flight_number(cls, flight_number):
+        return cls.query.filter_by(flight_number=flight_number).first()
     
     def save_to_db(self):
         db.session.add(self)

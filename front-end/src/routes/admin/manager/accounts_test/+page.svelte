@@ -6,7 +6,7 @@
 	onMount(async () => {
 		try {
 			token = localStorage.getItem('jwt');
-			const response = await fetch('http://127.0.0.1:5000/addaccount', {
+			const response = await fetch('http://localhost:5000/addaccount', {
 				method: 'GET', // Confirm with your backend if this is the correct method
 				headers: {
 					Authorization: `Bearer ${token}` // Fix template literal interpolation

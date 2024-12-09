@@ -113,7 +113,7 @@ class FlightAdmin(Resource):
         new_flight.save_to_db()
         db.session.commit()
         new_flights = Flights.get_all_flights()
-        return new_flights
+        return {'msg': 'Flight added successfully', 'flights': new_flights}, 201
 
     @jwt_required()
     @authorized_required(roles=["admin"])
@@ -129,7 +129,7 @@ class FlightAdmin(Resource):
         db.session.commit()
 
         new_flights = Flights.get_all_flights()
-        return new_flights
+        return {'msg': 'Flight delete successfully', 'flights': new_flights}, 201
 
     #Admin cập nhật thông tin chuyến bay
     update_parser = reqparse.RequestParser()

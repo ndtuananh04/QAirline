@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 import enum
 from models.accountDB import Account
 from models.flightsDB import Flights
-from models.airplanesDB import Airplanes    
+from models.airplanesDB import Airplanes
 
 class StatusClass(enum.Enum):
     scheduled = "scheduled"
@@ -28,16 +28,18 @@ class TicketUser(db.Model):
     given_name = db.Column(db.String(60), nullable=False)
     gender = db.Column(db.Enum(GenderTypeTicket), nullable=False)
     nationality = db.Column(db.String(60), nullable=False)
+    date_of_birth = db.Column(db.Date, nullable=True)
     phone_number = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(60), nullable=False)
 
-    def __init__(self, ticket_id, identification, family_name, given_name, gender, nationality, phone_number, email):
+    def __init__(self, ticket_id, identification, family_name, given_name, gender, nationality, date_of_birth, phone_number, email):
         self.ticket_id = ticket_id
         self.identification = identification
         self.family_name = family_name
         self.given_name = given_name
         self.gender = gender
         self.nationality = nationality
+        self.date_of_birth = date_of_birth
         self.phone_number = phone_number
         self.email = email
 
@@ -49,6 +51,7 @@ class TicketUser(db.Model):
             "given_name": self.given_name,
             "gender": self.gender,
             "nationality": self.nationality,
+            "date_of_birth": self.date_of_birth,
             "phone_number": self.phone_number,
             "email": self.email
         }
@@ -110,16 +113,21 @@ class Tickets(db.Model):
     @classmethod
     def get_all_ticket_account_id(cls, account_id):
         tickets = db.session.query(
+            Tickets.ticket_id,
             Tickets.ticket_number,
             Tickets.status,
             Tickets.seat_class,
             TicketUser.family_name,
             TicketUser.given_name,
-            TicketUser.nationality,
             Flights.departure,
+            Flights.code_departure,
             Flights.arrival,
+            Flights.code_arrival,
             Flights.departure_time,
             Flights.departure_hour_time,
+            Flights.arrival_hour_time,
+            Flights.boarding_time,
+            Flights.terminal,
         ).select_from(Tickets) \
             .join(Account, Account.account_id == Tickets.account_id) \
             .join(TicketUser, TicketUser.ticket_id == Tickets.ticket_id) \
@@ -129,22 +137,28 @@ class Tickets(db.Model):
         
         print(f"Tickets found: {len(tickets)}")
 
-        results = []
+        ticket_list = {}
 
         for ticket in tickets:
-            results.append({
-                "ticket_number": ticket.ticket_number,
-                "status": ticket.status.value, 
-                "seat_class": ticket.seat_class.value,
-                "family_name": ticket.family_name,
-                "given_name": ticket.given_name,
-                "nationality": ticket.nationality,
-                "departure": ticket.departure,
-                "arrival": ticket.arrival,
-                "departure_time": ticket.departure_time.strftime('%Y-%m-%d'),
-                "departure_hour_time": ticket.departure_hour_time.strftime('%H:%M'),
-            })
-
+            if ticket.ticket_number not in ticket_list:
+                ticket_list[ticket.ticket_number] = {
+                    "ticket_id": ticket.ticket_id,
+                    "ticket_number": ticket.ticket_number,
+                    "status": ticket.status.value, 
+                    "seat_class": ticket.seat_class.value,
+                    "family_name": ticket.family_name,
+                    "given_name": ticket.given_name,
+                    "departure": ticket.departure,
+                    "code_departure": ticket.code_departure,
+                    "arrival": ticket.arrival,
+                    "code_arrival": ticket.code_arrival,
+                    "departure_time": ticket.departure_time.strftime('%Y-%m-%d'),
+                    "departure_hour_time": ticket.departure_hour_time.strftime('%H:%M'),
+                    "arrival_hour_time": ticket.arrival_hour_time.strftime('%H:%M'),
+                    "boarding_time": ticket.boarding_time.strftime('%H:%M'),
+                    "terminal": ticket.terminal
+                }
+            results = list(ticket_list.values())
         return results
     
     @classmethod

@@ -15,10 +15,11 @@ from flask import jsonify, session, request
     
 class SelectTicket(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('flight_id', type=int, required=True, help="Flight ID is required")
+    parser.add_argument('flight_id', type=int, required=True, help="Flight Number is required")
     parser.add_argument('seat_class', type=str, required=True, help="Seat class is required")
     parser.add_argument('price', type=float, required=True, help="Price is required")
     parser.add_argument('quantity', type=int, required=True, help="Quantity is required")
+    parser.add_argument('trip_type', type=str, required=True, help="Trip type is required")
 
     def post(self):
         data = self.parser.parse_args()
@@ -26,46 +27,35 @@ class SelectTicket(Resource):
         seat_class = data['seat_class']
         price = data['price']
         quantity = data['quantity']
-
-        # Kiểm tra thông tin chuyến bay trong session
-        flights = session.get('flights', [])
-        if not flights:
-            return {"message": "No flight data in session"}, 400
-        
-        # Tìm kiếm chuyến bay và loại ghế
-        selected_flight = next((flight for flight in flights if flight['flight_id'] == flight_id), None)
-        if not selected_flight:
-            return {"message": f"Flight ID {flight_id} not found"}, 404
-        
-        selected_seat = next(
-            (seat for seat in selected_flight.get("seats", []) if seat["seat_class"].upper() == seat_class.upper()),
-            None
-        )
-        if not selected_seat:
-            return {"message": f"Seat class '{seat_class}' not found in flight {flight_id}"}, 404
+        trip_type = data['trip_type']
         
         total_price = price * quantity
-        vat = total_price * 0.1
-        grand_total = total_price + vat
-
-        # Lưu thông tin vào session
-        session['selected_ticket'] = {
+        vat = total_price * 0.15
+        final_price = total_price - vat
+        
+        ticket_info = {
+            'trip_type': trip_type,
             'flight_id': flight_id,
             'seat_class': seat_class,
             'price': price,
             'quantity': quantity,
             'total_price': total_price,
             'vat': vat,
-            'grand_total': grand_total
+            'final_price': final_price
         }
 
+        # Lưu thông tin vào session
+        if 'selected_tickets' not in session:
+            session['selected_tickets'] = {}
+            
+        print("Before session save:", session)
+        session['selected_tickets'][trip_type] = ticket_info
+        session.modified = True
+        print("After session save:", session)
+
         return {
-            "message": "Seat selected successfully",
-            "details": {
-                "total_price": total_price,
-                "vat": vat,
-                "grand_total": grand_total
-            }
+            "message": f"{trip_type.capitalize()} ticket selected successfully",
+            "selected_ticket": ticket_info
         }, 200
                 
 # Customer xem vé, điền thông tin vé, hủy vé
@@ -77,62 +67,152 @@ class TicketCustomer(Resource):
         tickets = Tickets.get_all_ticket_account_id(account_id)
         
         if tickets:
-            return jsonify(tickets)
+            return tickets
         else:
             return {"message": "No tickets found"}, 400
         
-    parser = reqparse.RequestParser()
-    parser.add_argument('identification', type=str, required=True, help="Indentification number is required")
-    parser.add_argument('family_name', type=str, required=True, help="Family name is required")
-    parser.add_argument('given_name', type=str, required=True, help="Given name is required")
-    parser.add_argument('gender', type=str, required=True, help="Gender is required")
-    parser.add_argument('nationality', type=str, required=True, help="Nationality is required")
-    parser.add_argument('phone_number', type=str, required=True, help="Phone number is required")
-    parser.add_argument('email', type=str, required=True, help="Email is required")
-    
     @jwt_required()
     @authorized_required(roles=["customer"])
     def post(self):
         account_id = get_jwt_identity()
-        data = self.parser.parse_args()
-
-        # Kiểm tra và lấy flight_id và seat_class từ session
-        selected_ticket = session.get('selected_ticket')
-        if not selected_ticket:
-            return {"message": "No selected ticket information found in session"}, 400
-
-        flight_id = selected_ticket.get('flight_id')
-        seat_class = selected_ticket.get('seat_class')
-
-        if not flight_id or not seat_class:
-            return {"message": "Incomplete flight information in session"}, 400
+        data = request.get_json()
         
-        new_ticket = Tickets(
-            account_id=account_id,
-            flight_id=flight_id,
-            ticket_number=TicketS.generate_custom_random_string(),
-            seat_number=None,
-            seat_class=seat_class,
-            booking_time=datetime.now(),
-            status="scheduled"
-        )
-        db.session.add(new_ticket)
-        db.session.commit()
+        if not data or not data.get('passengers') or not isinstance(data['passengers'], list):
+            print('Invalid or missing passengers data')
+            return {"message": "Invalid or missing passengers data"}, 400
+        
+        trip_type = data.get('trip_type')
+        passengers = data['passengers']
+        
+        if not passengers:
+            print('Passengers list is required')
+            return {"message": "Passengers list is required"}, 400
 
-        new_ticket_user = TicketUser(
-            ticket_id=new_ticket.ticket_id,
-            identification=data['identification'],
-            family_name=data['family_name'],
-            given_name=data['given_name'],
-            gender=data['gender'],
-            nationality=data['nationality'],
-            phone_number=data['phone_number'],
-            email=data['email']
-        )
-        db.session.add(new_ticket_user)
-        db.session.commit()
+        if trip_type not in ["one-way", "round-trip"]:
+            print('Invalid trip type')
+            return {"message": "Invalid trip type"}, 400
+        
+        print("Session cookies:", request.cookies)  # Debugging cookie data
+        print("Session on /ticket-customer:", session)  # Debugging session state
+        
+        # Debugging session log
+        if 'selected_tickets' in session:
+            print("Found session selected_tickets: ", session['selected_tickets'])
+        else:
+            print("No tickets in session!")
 
-        return {"msg": "Ticket created successfully"}, 200
+        selected_tickets = session.get('selected_tickets')
+        if not selected_tickets:
+            print('No selected ticket information found in session')
+            return {"message": "No selected ticket information found in session"}, 400
+        
+        print(f"Selected Tickets: {selected_tickets}")
+        
+        quantity = selected_tickets.get(trip_type, {}).get('quantity')
+        if not quantity:
+            print('No quantity information found for the selected trip type')
+            return {"message": "No quantity information found for the selected trip type"}, 400
+
+        tickets_created = []  
+        for passenger in passengers:
+            if trip_type == 'one-way':
+                flight_id = selected_tickets['one-way']['flight_id']
+                seat_class = selected_tickets['one-way']['seat_class']
+                new_ticket = Tickets(
+                    account_id=account_id,
+                    flight_id=flight_id,
+                    ticket_number=TicketS.generate_custom_random_string(),
+                    seat_number=None,
+                    seat_class=seat_class,
+                    booking_time=datetime.now(),
+                    status="scheduled"
+                )
+                db.session.add(new_ticket)
+                db.session.commit()
+
+                new_ticket_user = TicketUser(
+                    ticket_id=new_ticket.ticket_id,
+                    identification=passenger['identification'],
+                    family_name=passenger['family_name'],
+                    given_name=passenger['given_name'],
+                    gender=passenger['gender'],
+                    nationality=passenger['nationality'],
+                    date_of_birth=passenger['date_of_birth'],
+                    phone_number=passenger['phone_number'],
+                    email=passenger['email']
+                )
+                db.session.add(new_ticket_user)
+                db.session.commit()
+
+                tickets_created.append(new_ticket)
+            elif trip_type == 'round-trip':
+                # Tạo vé cho chuyến đi (one-way)
+                flight_id_one_way = selected_tickets['one-way']['flight_id']
+                seat_class_one_way = selected_tickets['one-way']['seat_class']
+
+                # Tạo vé cho chuyến về (round-trip)
+                flight_id_round_trip = selected_tickets['round-trip']['flight_id']
+                seat_class_round_trip = selected_tickets['round-trip']['seat_class']
+
+                # Vé cho chuyến đi
+                ticket_one_way = Tickets(
+                    account_id=account_id,
+                    flight_id=flight_id_one_way,
+                    ticket_number=TicketS.generate_custom_random_string(),
+                    seat_number=None,
+                    seat_class=seat_class_one_way,
+                        booking_time=datetime.now(),
+                        status="scheduled"
+                    )
+                db.session.add(ticket_one_way)
+                db.session.commit()
+
+                new_ticket_user_one_way = TicketUser(
+                    ticket_id=ticket_one_way.ticket_id,
+                    identification=passenger['identification'],
+                    family_name=passenger['family_name'],
+                    given_name=passenger['given_name'],
+                    gender=passenger['gender'],
+                    nationality=passenger['nationality'],
+                    date_of_birth=passenger['date_of_birth'],
+                    phone_number=passenger['phone_number'],
+                    email=passenger['email']
+                )
+                db.session.add(new_ticket_user_one_way)
+                db.session.commit()
+
+                tickets_created.append(ticket_one_way)
+
+                # Vé cho chuyến về
+                ticket_round_trip = Tickets(
+                    account_id=account_id,
+                    flight_id=flight_id_round_trip,
+                    ticket_number=TicketS.generate_custom_random_string(),
+                    seat_number=None,
+                    seat_class=seat_class_round_trip,
+                    booking_time=datetime.now(),
+                    status="scheduled"
+                )
+                db.session.add(ticket_round_trip)
+                db.session.commit()
+                
+                new_ticket_user_round_trip = TicketUser(
+                    ticket_id=ticket_round_trip.ticket_id,
+                    identification=passenger['identification'],
+                    family_name=passenger['family_name'],
+                    given_name=passenger['given_name'],
+                    gender=passenger['gender'],
+                    nationality=passenger['nationality'],
+                    date_of_birth=passenger['date_of_birth'],
+                    phone_number=passenger['phone_number'],
+                    email=passenger['email']
+                )
+                db.session.add(new_ticket_user_round_trip)
+                db.session.commit()
+                    
+                tickets_created.append(ticket_round_trip)
+
+        return {"msg": f"{len(tickets_created)} tickets created successfully"}, 200
 
     @jwt_required()
     @authorized_required(roles=["customer"])

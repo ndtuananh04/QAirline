@@ -1,5 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
+	import { quantity, tripType } from '../../store';
+	import { goto } from '$app/navigation';
 
 	let flights = [];
 	let flightsReturn = [];
@@ -7,18 +9,23 @@
 	let arrival = '';
 	let departureDate = '';
 	let returnDate = '';
-	let tripType = '';
+	let selectedDepartureSeat = null;
+	let departurePrice = 0;
+	let selectedReturnSeat = null;
+	let returnPrice = 0;
+	let vatDeparture = 0;
+	let vatReturn = 0;
+	let final_price = 0;
 
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
-		tripType = params.get('tripType');
 		departure = params.get('fromInput');
 		arrival = params.get('toInput');
 		departureDate = params.get('departureDate');
 		returnDate = params.get('returnDate');
 		console.log(departure, arrival, departureDate, returnDate);
 		fetchDeparture(departure, arrival, departureDate);
-		if (tripType === 'round-trip') {
+		if ($tripType === 'round-trip') {
 			fetchReturn(arrival, departure, returnDate);
 		}
 	});
@@ -31,7 +38,7 @@
 		};
 
 		try {
-			const response = await fetch('http://127.0.0.1:5000/flights-search', {
+			const response = await fetch('http://localhost:5000/flights-search', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -45,7 +52,7 @@
 
 			const data = await response.json();
 			flights = data;
-			console.log(flightss);
+			console.log(flights);
 		} catch (error) {
 			console.error('Error fetching flights:', error);
 		}
@@ -59,7 +66,7 @@
 		};
 
 		try {
-			const response = await fetch('http://127.0.0.1:5000/flights-search', {
+			const response = await fetch('http://localhost:5000/flights-search', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -73,26 +80,98 @@
 
 			const data = await response.json();
 			flightsReturn = data;
-			console.log(flightss);
+			console.log(flights);
 		} catch (error) {
 			console.error('Error fetching flights:', error);
 		}
 	}
 
-	let selectedDepartureSeat = null;
-	let departurePrice = 0;
-	let selectedReturnSeat = null;
-	let returnPrice = 0;
-
-	// Function to handle selecting a seat
-	function selectDepartureSeat(seat) {
+	async function selectDepartureSeat(seat, flight_id) {
 		selectedDepartureSeat = seat;
-		departurePrice = seat.price;
+		try {
+			const payload = {
+				flight_id: flight_id,
+				seat_class: seat.seat_class,
+				price: seat.price,
+				quantity: $quantity,
+				trip_type: 'one-way'
+			};
+
+			const response = await fetch('http://localhost:5000/select-ticket', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+				credentials: 'include'
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			departurePrice = data.selected_ticket.total_price;
+			vatDeparture = data.selected_ticket.vat;
+		} catch (error) {
+			console.error('Error selecting departure seat:', error);
+		}
 	}
 
-	function selectReturnSeat(seat) {
+	async function selectReturnSeat(seat, flight_id) {
 		selectedReturnSeat = seat;
-		returnPrice = seat.price;
+		try {
+			const payload = {
+				flight_id: flight_id,
+				seat_class: seat.seat_class,
+				price: seat.price,
+				quantity: $quantity,
+				trip_type: $tripType
+			};
+
+			const response = await fetch('http://localhost:5000/select-ticket', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+				credentials: 'include'
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			returnPrice = data.selected_ticket.total_price;
+			vatReturn = data.selected_ticket.vat;
+		} catch (error) {
+			console.error('Error selecting return seat:', error);
+		}
+	}
+
+	async function checkPromotion(code_promotion, total_price) {
+		try {
+			const payload = {
+				code_promotion: code_promotion,
+				total_price: total_price
+			};
+
+			const response = await fetch('http://localhost:5000/promotion-search', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			final_price = data.final_price;
+		} catch (error) {
+			console.error('Error selecting code promotion:', error);
+		}
+	}
+
+	function goToTicketInfo() {
+		goto('/user/book/ticketinfo');
 	}
 
 	function calculateDuration(departureTime, arrivalTime) {
@@ -182,7 +261,7 @@
 												<div
 													class="flight__seat aligncenter {seat.seat_class.toLowerCase()} 
                                                 {selectedDepartureSeat === seat ? 'selected' : ''}"
-													on:click={() => selectDepartureSeat(seat)}
+													on:click={() => selectDepartureSeat(seat, flight.flight_id)}
 												>
 													<div class="flight__seat--class">
 														<b>{seat.seat_class}</b>
@@ -202,7 +281,7 @@
 							</div>
 						{/if}
 					</div>
-					{#if tripType === 'round-trip'}
+					{#if $tripType === 'round-trip'}
 						<div class="flight__return">
 							<div class="flight__bar d-flex justify-content-between">
 								<div class="location d-flex">
@@ -257,8 +336,8 @@
 												{#each flight.seats as seat, index}
 													<div
 														class="flight__seat aligncenter {seat.seat_class.toLowerCase()}
-												{selectedReturnSeat === seat ? 'selected' : ''}"
-														on:click={() => selectReturnSeat(seat)}
+														{selectedReturnSeat === seat ? 'selected' : ''}"
+														on:click={() => selectReturnSeat(seat, flight.flight_id)}
 													>
 														<div class="flight__seat--class">
 															<b>{seat.seat_class}</b>
@@ -288,18 +367,30 @@
 						<p>Chuyến đi</p>
 						<p>{departurePrice}</p>
 					</div>
-					{#if tripType === 'round-trip'}
+					<div class="flight__price d-flex justify-content-between">
+						<p>VAT</p>
+						<p>{vatDeparture}</p>
+					</div>
+					{#if $tripType === 'round-trip'}
 						<div class="flight__price d-flex justify-content-between">
 							<p>Chuyến về</p>
 							<p>{returnPrice}</p>
 						</div>
+						<div class="flight__price d-flex justify-content-between">
+							<p>VAT</p>
+							<p>{vatReturn}</p>
+						</div>
 					{/if}
 					<div class="flight__price d-flex justify-content-between">
 						<p>Tổng tiền</p>
-						<p>{departurePrice + returnPrice}</p>
+						<p>{departurePrice + returnPrice - vatDeparture - vatReturn}</p>
+					</div>
+					<div class="flight__price d-flex justify-content-between">
+						<p>Khuyến Mại</p>
+						<input type="text" class="form-control" placeholder="" />
 					</div>
 					<div class="flight__button">
-						<button class="btn btn-primary">Đi tiếp</button>
+						<button class="btn btn-primary" on:click={goToTicketInfo}>Đi tiếp</button>
 					</div>
 				</div>
 			</div>

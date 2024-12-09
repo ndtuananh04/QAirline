@@ -15,9 +15,8 @@ from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import *
 
-
 app = Flask(__name__)
-CORS(app)
+cors = CORS(app, supports_credentials=True)
 app.config.from_pyfile('core/config.py')
 api = Api(app)
 init_app(app)
@@ -48,15 +47,8 @@ def create_database():
     with app.app_context():
         db.create_all()
 
-
 if __name__ == '__main__':
     from database import db
     db.init_app(app)
     create_database()
-    '''
-    with app.app_context():
-        additional_claim = {"role": AccountType.admin.name, "name": "admin"}
-        access_token = create_access_token(identity=16, additional_claims=additional_claim)
-        print(access_token)
-    '''
     app.run(debug=True)
