@@ -19,7 +19,7 @@
 		} else {
 			const data = await response.json();
 			localStorage.setItem('jwt', data.access_token);
-			goto('/admin/dashboard/1'); // Redirect to a secure page after login
+			goto('/admin/dashboard'); // Redirect to a secure page after login
 		}
 	}
 </script>
