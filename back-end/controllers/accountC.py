@@ -23,12 +23,20 @@ class AccountLogin(Resource):
         data = AccountLogin.parser.parse_args()
         email = data['email']
         password = data['password']  
+        
+        if not AccountS.validate_email(email):
+            print("Email không hợp lệ. Vui lòng kiểm tra và thử lại.")
+            return {'msg': "Email không hợp lệ. Vui lòng kiểm tra và thử lại."}, 400
+        
+        if not AccountS.validate_password(password):
+            print("Mật khẩu phải tối thiểu 8 ký tự phải có ít nhất 1 chữ hoa, 1 ký tự đặc biệt, 1 số")
+            return {'msg': "Mật khẩu phải tối thiểu 8 ký tự phải có ít nhất 1 chữ hoa, 1 ký tự đặc biệt, 1 số"}, 400
 
         # Tìm tài khoản theo email
         user = Account.find_email(email)
 
         if user is None:
-            return {'msg': "Incorrect email or password"}, 400
+            return {'msg': "Tên người dùng hoặc mật khẩu không chính xác."}, 400
         name = AccountS.area_name_of_acc(user)
 
         # Kiểm tra mật khẩu
@@ -42,7 +50,7 @@ class AccountLogin(Resource):
             except:
                 return jsonify(access_token=access_token)
 
-        return {"msg": "Incorrect username or password"}, 401
+        return {"msg": "Tên người dùng hoặc mật khẩu không chính xác."}, 401
     
     def delete(self):
         return {'msg': 'Not allowed'}, 404
@@ -55,7 +63,7 @@ class AccountRegister(Resource):
     parser.add_argument('email', type=str, required=True, help="This field cannot be left blank")
     parser.add_argument('password', type=str, required=True, help="This field cannot be left blank")
 
-    parser.add_argument('identification', type=int, required=True, help="This field cannot be left blank")
+    parser.add_argument('identification', type=str, required=True, help="This field cannot be left blank")
     parser.add_argument('family_name', type=str, required=True, help="This field cannot be left blank")
     parser.add_argument('given_name', type=str, required=True, help="This field cannot be left blank")
     parser.add_argument('gender', type=str, required=True, help="This field cannot be left blank")
@@ -72,17 +80,35 @@ class AccountRegister(Resource):
         password = data['password']
         identification = data['identification']
         phone_number = data['phone_number']
+        print(f"Received identification: {identification}, Type: {type(identification)}")
+        
+        if not AccountS.validate_email(email):
+            print("Email không hợp lệ. Vui lòng kiểm tra và thử lại.")
+            return {'msg': "Email không hợp lệ. Vui lòng kiểm tra và thử lại."}, 400
+        
+        if not AccountS.validate_password(password):
+            print("Mật khẩu phải tối thiểu 8 ký tự phải có ít nhất 1 chữ hoa, 1 ký tự đặc biệt, 1 số")
+            return {'msg': "Mật khẩu phải tối thiểu 8 ký tự phải có ít nhất 1 chữ hoa, 1 ký tự đặc biệt, 1 số"}, 400
+        
+        if not AccountS.validate_identification(identification):
+            print("Số chứng minh nhân dân phải đúng 12 số")
+            return {'msg': "Số chứng minh nhân dân phải đúng 12 số"}, 400
+        
+        if not AccountS.validate_phone_number(phone_number):
+            print("Số điện thoại phải đúng 10 số")
+            return {'msg': "Số điện thoại phải đúng 10 số"}, 400
 
         # Kiểm tra xem email đã tồn tại chưa
         if Account.find_email(email):
-            return {'msg': "Email already exists"}, 400
+            print("Email đã tồn tại.")
+            return {'msg': "Email đã tồn tại."}, 400
 
         # Kiểm tra xem identification đã tồn tại trong bảng user_infor chưa
         if UserInfo.query.filter_by(identification=identification).first():
-            return {'msg': "Identification already exists"}, 400
+            return {'msg': "CMND/CCCD đã tồn tại."}, 400
 
         if UserInfo.query.filter_by(phone_number=phone_number).first():
-            return {'msg': "Phone already exists"}, 400
+            return {'msg': "Số điện thoại đã tồn tại"}, 400
 
         # Mã hóa mật khẩu
         hashed_password = generate_password_hash(password)
@@ -106,7 +132,7 @@ class AccountRegister(Resource):
         db.session.add(new_user_info)
         db.session.commit()
 
-        return {"msg": "Account created successfully"}, 200
+        return {"msg": "Đăng ký tài khoản thành công!"}, 200
     
 class UserLogoutAccess(Resource):
     """

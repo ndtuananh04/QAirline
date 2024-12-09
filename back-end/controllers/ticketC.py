@@ -1,18 +1,19 @@
 import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
 from models.flightsDB import Flights, FlightDelay
 from models.airplanesDB import Airplanes
 from models.seatsDB import Seats
-from models.ticketsDB import Tickets, TicketUser, StatusClass
+from models.ticketsDB import Tickets, TicketUser, StatusClass, Cancellations
 from core.auth import authorized_required
 
 from services.ticketS import TicketS
 from database import db
 from flask import jsonify, session, request
     
+#  Chọn vé và hiển thị giá tiền, lưu data vào session
 class SelectTicket(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('flight_id', type=int, required=True, help="Flight Number is required")
@@ -92,8 +93,8 @@ class TicketCustomer(Resource):
             print('Invalid trip type')
             return {"message": "Invalid trip type"}, 400
         
-        print("Session cookies:", request.cookies)  # Debugging cookie data
-        print("Session on /ticket-customer:", session)  # Debugging session state
+        print("Session cookies:", request.cookies)
+        print("Session on /ticket-customer:", session)
         
         # Debugging session log
         if 'selected_tickets' in session:
@@ -221,14 +222,42 @@ class TicketCustomer(Resource):
         ticket = Tickets.find_ticket_id(ticket_id)
         
         if not ticket:
-            return {'msg': 'Ticket not found'}, 400
+            print('Ticket not found')
+            return {'msg': 'Không tìm thấy vé.'}, 400
         
         if ticket.account_id != account_id:
-            return {'msg': 'Unauthorized'}, 401
+            return {'msg': 'Không có quyền truy cập.'}, 401
+        
+        data = request.get_json()
+        reason = data.get('reason', '').strip()
+        
+        if not reason:
+            print('Reason is required to cancel the ticket')
+            return {'msg': 'Lý do hủy vé là bắt buộc.'}, 400
+        
+        # Lấy departure_time của chuyến bay
+        departure_time = Tickets.find_departure_time(ticket_id)
+        print('Departure Time:', departure_time)
+        
+        if not departure_time:
+            return {'msg': 'Không thể tìm thấy thông tin khởi hành.'}, 400
+        
+        current_date = datetime.now().date()
+        departure_date = departure_time
+        if departure_date - current_date < timedelta(days=7):
+            return {'msg': 'Vé không thể hủy ít hơn 7 ngày trước thời ngày khởi hành'}, 400
         
         ticket.status = StatusClass.cancelled
         db.session.commit()
-        return {'msg': 'Ticket cancelled successfully'}, 200
+        
+        new_cancellation = Cancellations(
+            ticket_id=ticket_id,
+            reason=data['reason'],
+            cancellation_date=datetime.now()
+        )
+        new_cancellation.save_to_db()
+        
+        return {'msg': 'Vé đã được hủy thành công!'}, 200
 
 class TicketAdmin(Resource):
     parser = reqparse.RequestParser()

@@ -8,20 +8,7 @@ from models.airplanesDB import Airplanes
 from core.auth import authorized_required
 from database import db
 from flask import jsonify, session, request
-
-def valid_date(date_str):
-    """Kiểm tra định dạng ngày (YYYY-MM-DD)"""
-    try:
-        return datetime.strptime(date_str, "%Y-%m-%d")
-    except ValueError:
-        raise ValueError("Date must be in format YYYY-MM-DD")
-
-def valid_time(time_str):
-    """Kiểm tra định dạng giờ (HH:MM)"""
-    try:
-        return datetime.strptime(time_str, "%H:%M").time()
-    except ValueError:
-        raise ValueError("Time must be in format HH:MM")
+from services.flightS import valid_date, valid_time
 
 class DepartureArrival(Resource):
     def get(self):
@@ -112,8 +99,8 @@ class FlightAdmin(Resource):
         )
         new_flight.save_to_db()
         db.session.commit()
-        new_flights = Flights.get_all_flights()
-        return {'msg': 'Flight added successfully', 'flights': new_flights}, 201
+
+        return {'msg': 'Flight added successfully'}, 201
 
     @jwt_required()
     @authorized_required(roles=["admin"])
@@ -131,7 +118,7 @@ class FlightAdmin(Resource):
         new_flights = Flights.get_all_flights()
         return {'msg': 'Flight delete successfully', 'flights': new_flights}, 201
 
-    #Admin cập nhật thông tin chuyến bay
+    
     update_parser = reqparse.RequestParser()
     update_parser.add_argument('flight_number', type=str, help="Flight number")
     update_parser.add_argument('departure', type=str, help="Departure location")
@@ -140,7 +127,7 @@ class FlightAdmin(Resource):
     update_parser.add_argument('status', type=str, help="Flight status (SCHEDULED, DELAYED, CANCELLED)")
     update_parser.add_argument('available_seats', type=int, help="Available seats")
     update_parser.add_argument('airplane_id', type=str, help="Airplane ID")
-
+    #Admin cập nhật thông tin chuyến bay
     @jwt_required()
     @authorized_required(roles=["admin"])
     def put(self):
@@ -181,5 +168,4 @@ class FlightAdmin(Resource):
 
         # Lưu thay đổi vào cơ sở dữ liệu
         db.session.commit()
-        new_flights = Flights.get_all_flights()
-        return new_flights
+        return {'msg': 'Flight updated successfully'}, 201

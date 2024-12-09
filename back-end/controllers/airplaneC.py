@@ -47,8 +47,8 @@ class AirplaneSearch(Resource):
             is_locked=False
         )
         new_airplanes.save_to_db()
-        new_airplanes = Airplanes.get_all_airplanes()
-        return {'msg': 'Airplane added successfully', 'airplanes': new_airplanes}, 201
+        
+        return {'msg': 'Airplane added successfully'}, 201
     
     '''Admin xóa airplane'''    
     @jwt_required()
@@ -60,8 +60,8 @@ class AirplaneSearch(Resource):
 
         airplane.is_locked = 1
         db.session.commit()
-        new_airplanes = Airplanes.get_all_airplanes()
-        return {'msg': 'Airplane deleted successfully', 'airplanes': new_airplanes}, 201
+
+        return {'msg': 'Airplane deleted successfully'}, 201
     
     '''Admin cập nhật thông tin airplane'''
     update_parser = reqparse.RequestParser()

@@ -18,6 +18,37 @@ class SeatClass(enum.Enum):
     economy = "economy"
     business = "business"
     skyboss = "skyboss"
+    
+class Cancellations(db.Model):
+    __tablename__ = 'cancellations'
+    cancellation_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('tickets.ticket_id'), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    cancellation_date = db.Column(db.DateTime, default=func.now())
+    
+    def __init__(self, ticket_id, reason, cancellation_date):
+        self.ticket_id = ticket_id
+        self.reason = reason
+        self.cancellation_date = cancellation_date
+        
+    def to_json(self):
+        return {
+            "ticket_id": self.ticket_id,
+            "reason": self.reason,
+            "cancellation_date": self.cancellation_date
+        }
+        
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def commit_to_db(self):
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+    
 
 class TicketUser(db.Model):
     __tablename__ = 'ticket_user'
@@ -83,7 +114,7 @@ class Tickets(db.Model):
     ticket_number = db.Column(db.String(20), unique=True, nullable=False)
     seat_class = db.Column(db.Enum(SeatClass), nullable=False)
     seat_number = db.Column(db.String(10), nullable=True)
-    booking_time = db.Column(db.DateTime, default=func.now())
+    booking_time = db.Column(db.Date, default=func.now())
     status = db.Column(db.Enum(StatusClass), nullable=False)
 
     def __init__(self, account_id, flight_id, ticket_number, seat_class, seat_number, booking_time, status):
@@ -110,6 +141,18 @@ class Tickets(db.Model):
     def find_ticket_id(cls, ticket_id):
         return cls.query.filter_by(ticket_id=ticket_id).first()
     
+    # Trả về departure_time để so sánh với current_time
+    @classmethod
+    def find_departure_time(cls, ticket_id):
+        results = db.session.query(
+            Flights.departure_time
+        ).select_from(Tickets) \
+            .join(Flights, Flights.flight_id == Tickets.flight_id) \
+            .filter(Tickets.ticket_id == ticket_id) \
+            .first()
+        return results.departure_time
+    
+    # Trả về danh sách vé theo account
     @classmethod
     def get_all_ticket_account_id(cls, account_id):
         tickets = db.session.query(

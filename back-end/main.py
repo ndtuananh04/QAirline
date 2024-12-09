@@ -11,6 +11,8 @@ from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin
 from controllers.airplaneC import AirplaneSearch
 from controllers.ticketC import TicketCustomer, TicketAdmin, SelectTicket
 from controllers.promotionC import PromotionPrice, PromotionAdmin
+from controllers.postC import PostCustomer, PostAdmin, PostDetail
+
 from services.__init__ import init_app
 from controllers.__init__ import init_app
 from controllers.adminC import *
@@ -41,6 +43,10 @@ api.add_resource(TicketCustomer, '/ticket-customer', '/ticket-customer/<int:tick
 
 api.add_resource(PromotionPrice, '/promotion-search')
 api.add_resource(PromotionAdmin, '/promotions', '/promotions/<int:promotion_id>')
+
+api.add_resource(PostCustomer, '/post-customer')
+api.add_resource(PostAdmin, '/post-admin', '/post-admin/<int:post_id>')
+api.add_resource(PostDetail, '/post-detail/<int:post_id>')
 
 def create_database():
     with app.app_context():
