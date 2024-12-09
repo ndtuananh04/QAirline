@@ -39,6 +39,7 @@ api.add_resource(AirplaneSearch, '/airplanes', '/airplanes/<int:airplane_id>')
 
 api.add_resource(SelectTicket, '/select-ticket')
 api.add_resource(TicketCustomer, '/ticket-customer', '/ticket-customer/<int:ticket_id>')
+api.add_resource(TicketAdmin, '/ticket-admin', '/ticket-customer/<int:ticket_id>')
 
 api.add_resource(PromotionPrice, '/promotion-search')
 api.add_resource(PromotionAdmin, '/promotions', '/promotions/<int:promotion_id>')

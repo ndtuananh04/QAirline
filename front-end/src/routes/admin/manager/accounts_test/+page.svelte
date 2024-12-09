@@ -35,7 +35,7 @@
 	<tbody>
 		{#each $accounts as account}
 			<tr>
-				<th scope="row">1</th>
+				<th scope="row">{account.account_id}</th>
 				<td>{account.email}</td>
 				<td>{account.password}</td>
 				<td>{account.role}</td>
