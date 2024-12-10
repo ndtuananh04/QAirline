@@ -15,7 +15,7 @@
 		});
 		if (!response.ok) {
 			const errorData = await response.json();
-			throw new Error(errorData.message || 'Login failed');
+			throw new Error(errorData.msg || 'Login failed');
 		} else {
 			const data = await response.json();
 			localStorage.setItem('jwt', data.access_token);

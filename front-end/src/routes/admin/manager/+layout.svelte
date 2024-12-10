@@ -1,5 +1,5 @@
 <script>
-    import '../../../lib/styles/main.scss';
+    import 'bootstrap/dist/js/bootstrap.bundle.min.js';
   </script>
-  <slot />
   
+<slot />
