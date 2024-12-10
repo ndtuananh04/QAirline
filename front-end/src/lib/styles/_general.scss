@@ -66,12 +66,22 @@ a {
 }
 
 .admin-dashboard {
+    &__logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 30px;
+
+        img {
+            width: 160px;
+        }
+    }
+
     &__menu {
-        width: 200px;
+        width: 220px;
         height: 100vh;
         position: fixed;
         background-color: $dark-blue;
-        
 
         a {
             color: $light-gray;
@@ -87,7 +97,7 @@ a {
         }
     }
     &__content {
-        margin-left: 200px;
+        margin-left: 220px;
         padding: 20px;
     }
 }
