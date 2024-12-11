@@ -1,0 +1,63 @@
+.containerr {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align items to the top of the container */
+    gap: 20px; /* Optional: adds space between the form and the plane */
+    max-width: 100%; /* Ensure it doesn't exceed the container's width */
+}
+
+.checkin-form {
+	max-width: 400px;
+	margin: auto;
+	font-family: Arial, sans-serif;
+	text-align: center;
+
+	.info-text {
+		font-size: 14px;
+		color: #333;
+		margin-bottom: 20px;
+		margin-top: 50px;
+	}
+
+	.form {
+		.form-group {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 15px;
+
+			.input-group {
+				width: 48%; /* Set width for each input group */
+				text-align: left;
+
+				label {
+					font-size: 14px;
+					color: #333;
+					display: block;
+					margin-bottom: 5px;
+				}
+
+				input {
+					width: 100%;
+					padding: 10px;
+					font-size: 14px;
+					border: 1px solid #ccc;
+					border-radius: 5px;
+				}
+			}
+		}
+
+		.submit-button {
+			padding: 10px 15px;
+			font-size: 14px;
+			background-color: #d4a017;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+
+			&:hover {
+				background-color: #b38e14;
+			}
+		}
+	}
+}

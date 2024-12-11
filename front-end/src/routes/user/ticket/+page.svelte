@@ -2,6 +2,19 @@
 	import { onMount, tick } from 'svelte';
 	let tickets = [];
 	let error = '';
+	let showModal = false;
+	let reason = '';
+	let select_ticket_id = '';
+
+	function openModal(ticket_id) {
+		select_ticket_id = ticket_id;
+		showModal = true;
+  	}
+
+	function closeModal() {
+		showModal = false;
+		reason = '';
+	}
 
 	// Hàm gọi API để lấy thông tin vé
 	const fetchTickets = async () => {
@@ -33,14 +46,24 @@
 	});
 
 	const cancelTicket = async (ticket_id) => {
+		if (!reason.trim()) {
+			alert('Vui lòng nhập lý do hủy vé.');
+			return;
+		}
 		const token = localStorage.getItem('jwt');
+
+		const payload = {
+			reason
+		};
+
 		try {
 			const response = await fetch(`http://localhost:5000/ticket-customer/${ticket_id}`, {
 				method: 'PUT',
 				headers: {
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json'
-				}
+				},
+				body: JSON.stringify(payload)
 			});
 
 			const result = await response.json();
@@ -48,12 +71,13 @@
 			if (response.ok) {
 				alert(result.msg);
 				fetchTickets();
+				closeModal();
 			} else {
 				alert(result.msg);
 			}
 		} catch (error) {
 			console.error('Error canceling ticket:', error);
-			alert('An error occurred while canceling the ticket.');
+			alert('An error occurred.');
 		}
 	};
 </script>
@@ -72,11 +96,13 @@
 						/>
 					</div>
 					<div class="cancel-ticket">
-						<button class="cancel-btn" on:click={() => cancelTicket(ticket.ticket_id)}> Hủy vé </button>
+						<button class="cancel-btn" on:click={() => openModal(ticket.ticket_id)} >
+							Hủy vé
+						</button>
 					</div>
 					<div class="flight">
-						<small>flight number</small>
-						<strong id="flight-number">{ticket.ticket_number}</strong>
+						<small>ticket number</small>
+						<strong id="ticket_number">{ticket.ticket_number}</strong>
 					</div>
 				</div>
 
@@ -106,7 +132,7 @@
 						</div>
 						<div class="box">
 							<small>Seat</small>
-							<strong id="seat_number">14B</strong>
+							<strong id="seat_number">{ticket.seat_number}</strong>
 						</div>
 						<div class="box">
 							<small>Class</small>
@@ -157,7 +183,79 @@
 	{:else}
 		<p>No tickets found.</p>
 	{/if}
+
+	<!-- Modal lý do hủy vé rồi nhấn đồng ý thì mới hủy -->
+	{#if showModal}
+		<div class="modal">
+			<div class="modal-content">
+				<h2>Hủy vé</h2>
+				<p>Vui lòng nhập lý do hủy vé:</p>
+				<textarea
+					bind:value={reason}
+					placeholder="Nhập lý do hủy vé..."
+				></textarea>
+				<div class="modal-actions">
+					<button on:click={closeModal} class="cancel-btn">Đóng</button>
+					<button on:click={() => cancelTicket(select_ticket_id)} class="submit-btn">Đồng ý</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>
+
+<style>
+	.modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.modal-content {
+		background: white;
+		padding: 20px;
+		border-radius: 8px;
+		width: 400px;
+		text-align: center;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	textarea {
+		width: 100%;
+		height: 100px;
+		margin-bottom: 15px;
+		padding: 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+
+	.modal-actions {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.submit-btn, .cancel-btn {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.submit-btn {
+		background-color: #007bff;
+		color: white;
+	}
+
+	.cancel-btn {
+		background-color: #f44336;
+		color: white;
+	}
+</style>
 
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" display="none">
 	<symbol id="alitalia" viewBox="0 0 80 17">

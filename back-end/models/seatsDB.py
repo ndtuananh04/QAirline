@@ -22,7 +22,7 @@ class Seats(db.Model):
     airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
     seat_number = db.Column(db.String(10), nullable=False)
     seat_class = db.Column(db.Enum(SeatClass), nullable=False)
-    price = db.Column(db.Numeric(10, 2), nullable=False)
+    price = db.Column(db.Numeric(10, 0), nullable=False)
     seat_info = db.Column(db.Text, nullable=False)
 
     def __init__(self, airplane_id, seat_number, seat_class, price, seat_info):

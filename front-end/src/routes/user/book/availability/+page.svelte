@@ -15,7 +15,9 @@
 	let returnPrice = 0;
 	let vatDeparture = 0;
 	let vatReturn = 0;
-	let final_price = 0;
+	let promotionCode = ""; // Lưu trữ mã khuyến mãi người dùng nhập
+    let finalPrice = null; // Giá cuối cùng sau khuyến mãi
+    $: totalPrice = departurePrice + returnPrice + vatDeparture + vatReturn;
 
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -116,6 +118,14 @@
 		}
 	}
 
+	function formatCurrency(value) {
+		return new Intl.NumberFormat('vi-VN', {
+			style: 'currency',
+			currency: 'VND',
+			maximumFractionDigits: 0 // Loại bỏ số thập phân
+		}).format(value).replace('₫', '').trim(); // Xóa ký hiệu ₫ nếu không cần
+	}
+
 	async function selectReturnSeat(seat, flight_id) {
 		selectedReturnSeat = seat;
 		try {
@@ -146,29 +156,32 @@
 		}
 	}
 
-	async function checkPromotion(code_promotion, total_price) {
-		try {
-			const payload = {
-				code_promotion: code_promotion,
-				total_price: total_price
-			};
+	async function applyPromotion() {
+        try {
+            const response = await fetch('http://localhost:5000/promotion-search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    code_promotion: promotionCode,
+                    total_price: totalPrice,
+                }),
+            });
 
-			const response = await fetch('http://localhost:5000/promotion-search', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(payload)
-			});
+            const result = await response.json();
 
-			if (!response.ok) {
-				throw new Error(`HTTP error! Status: ${response.status}`);
-			}
-
-			const data = await response.json();
-			final_price = data.final_price;
-		} catch (error) {
-			console.error('Error selecting code promotion:', error);
-		}
-	}
+            if (response.ok) {
+                finalPrice = result.final_price;
+                alert("Khuyến mãi được áp dụng thành công!");
+            } else {
+                alert(result.message || "Không thể áp dụng mã khuyến mãi.");
+            }
+        } catch (error) {
+            alert("Đã xảy ra lỗi khi gọi API.");
+            console.error(error);
+        }
+    }
 
 	function goToTicketInfo() {
 		goto('/user/book/ticketinfo');
@@ -247,7 +260,7 @@
 														<p>{flight.code_arrival}</p>
 													</div>
 												</div>
-												<p class="code">Tên mb</p>
+												<p class="code">{flight.name_airplane}</p>
 											</div>
 											<div class="flight__time--total aligncenter">
 												<p>Thời gian bay dự kiến:</p>
@@ -267,7 +280,7 @@
 														<b>{seat.seat_class}</b>
 													</div>
 													<div class="flight__seat--price">
-														<b>{seat.price}</b>
+														<b>{formatCurrency(seat.price)}</b>
 													</div>
 												</div>
 											{/each}
@@ -320,7 +333,7 @@
 															<p>{flight.code_arrival}</p>
 														</div>
 													</div>
-													<p class="code">Tên mb</p>
+													<p class="code">{flight.name_airplane}</p>
 												</div>
 												<div class="flight__time--total aligncenter">
 													<p>Thời gian bay dự kiến:</p>
@@ -343,7 +356,7 @@
 															<b>{seat.seat_class}</b>
 														</div>
 														<div class="flight__seat--price">
-															<b>{seat.price}</b>
+															<b>{formatCurrency(seat.price)}</b>
 														</div>
 													</div>
 												{/each}
@@ -365,32 +378,56 @@
 					</div>
 					<div class="flight__price d-flex justify-content-between">
 						<p>Chuyến đi</p>
-						<p>{departurePrice}</p>
+						<p>{formatCurrency(departurePrice)}</p>
 					</div>
 					<div class="flight__price d-flex justify-content-between">
 						<p>VAT</p>
-						<p>{vatDeparture}</p>
+						<p>{formatCurrency(vatDeparture)}</p>
 					</div>
 					{#if $tripType === 'round-trip'}
 						<div class="flight__price d-flex justify-content-between">
 							<p>Chuyến về</p>
-							<p>{returnPrice}</p>
+							<p>{formatCurrency(returnPrice)}</p>
 						</div>
 						<div class="flight__price d-flex justify-content-between">
 							<p>VAT</p>
-							<p>{vatReturn}</p>
+							<p>{formatCurrency(vatReturn)}</p>
 						</div>
 					{/if}
 					<div class="flight__price d-flex justify-content-between">
 						<p>Tổng tiền</p>
-						<p>{departurePrice + returnPrice - vatDeparture - vatReturn}</p>
+						<p>{formatCurrency(totalPrice)}</p>
 					</div>
 					<div class="flight__price d-flex justify-content-between">
 						<p>Khuyến Mại</p>
-						<input type="text" class="form-control" placeholder="" />
+						<input
+							type="text"
+							class="form-control"
+							placeholder="Nhập mã khuyến mãi"
+							bind:value={promotionCode}
+						/>
+					</div>
+					<div class="flight__price d-flex justify-content-between">
+						{#if finalPrice !== null}
+							<p>Giá sau khuyến mãi</p>
+							<p>{formatCurrency(finalPrice)}</p>
+						{/if}
 					</div>
 					<div class="flight__button">
-						<button class="btn btn-primary" on:click={goToTicketInfo}>Đi tiếp</button>
+						<button class="btn btn-primary" on:click={applyPromotion}>Áp dụng khuyến mãi</button>
+					</div>
+					<div class="flight__button">
+						<button 
+							class="btn btn-primary"
+							on:click={() => {
+								const confirmPurchase = window.confirm(`Bạn có chắc chắn muốn mua vé với số tiền ${formatCurrency(finalPrice || totalPrice)}?`);
+								if (confirmPurchase) {
+									goToTicketInfo();
+								}
+							}}
+						>
+							Tiếp tục
+						</button>
 					</div>
 				</div>
 			</div>

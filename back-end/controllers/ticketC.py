@@ -21,6 +21,10 @@ class SelectTicket(Resource):
     parser.add_argument('price', type=float, required=True, help="Price is required")
     parser.add_argument('quantity', type=int, required=True, help="Quantity is required")
     parser.add_argument('trip_type', type=str, required=True, help="Trip type is required")
+    
+    def format_currency(self, value):
+        """Format a number to Vietnamese currency style (e.g., 1.000.000,00)"""
+        return f"{value:,.0f}".replace(",", ".")
 
     def post(self):
         data = self.parser.parse_args()
@@ -32,7 +36,7 @@ class SelectTicket(Resource):
         
         total_price = price * quantity
         vat = total_price * 0.15
-        final_price = total_price - vat
+        final_price = total_price + vat
         
         ticket_info = {
             'trip_type': trip_type,

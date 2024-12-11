@@ -3,13 +3,15 @@ from flask_restful import Resource, reqparse
 from models.accountDB import Account, RevokedTokenModel
 from models.userInfoDB import UserInfo
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import jsonify
+from flask import jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_mail import Message
 from services.accountS import AccountS
 from database import db
 from services import my_mail
 from datetime import timedelta
+import random
+from itsdangerous import URLSafeTimedSerializer
 
 class AccountLogin(Resource):
     parser = reqparse.RequestParser()

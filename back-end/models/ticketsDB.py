@@ -141,6 +141,20 @@ class Tickets(db.Model):
     def find_ticket_id(cls, ticket_id):
         return cls.query.filter_by(ticket_id=ticket_id).first()
     
+    @classmethod
+    def find_ticket_number(cls, ticket_number):
+        return cls.query.filter_by(ticket_number=ticket_number).first()
+    
+    @classmethod
+    def find_phone_number(cls, ticket_id, phone_number):
+        ticket_user = TicketUser.query.filter_by(ticket_id=ticket_id, phone_number=phone_number).first()
+        return ticket_user
+    
+    @classmethod
+    def find_seat_number(cls, ticket_id, seat_number):
+        ticket = Tickets.query.filter_by(ticket_id=ticket_id, seat_number=seat_number).first()
+        return ticket
+
     # Trả về departure_time để so sánh với current_time
     @classmethod
     def find_departure_time(cls, ticket_id):
@@ -160,6 +174,7 @@ class Tickets(db.Model):
             Tickets.ticket_number,
             Tickets.status,
             Tickets.seat_class,
+            Tickets.seat_number,
             TicketUser.family_name,
             TicketUser.given_name,
             Flights.departure,
@@ -189,6 +204,7 @@ class Tickets(db.Model):
                     "ticket_number": ticket.ticket_number,
                     "status": ticket.status.value, 
                     "seat_class": ticket.seat_class.value,
+                    "seat_number": ticket.seat_number,
                     "family_name": ticket.family_name,
                     "given_name": ticket.given_name,
                     "departure": ticket.departure,
@@ -207,10 +223,6 @@ class Tickets(db.Model):
     @classmethod
     def find_flight_id(cls, flight_id):
         return cls.query.filter_by(flight_id=flight_id).first()
-    
-    @classmethod
-    def find_seat_number(cls, seat_number):
-        return cls.query.filter_by(seat_number=seat_number).first()
     
     @classmethod
     def find_ticket_number(cls, ticket_number):

@@ -122,6 +122,7 @@ class Flights(db.Model):
             Flights.departure_hour_time,
             Flights.arrival_hour_time,
             Flights.terminal,
+            Airplanes.name_airplane,
             Seats.seat_class,
             Seats.price
         ).select_from(Flights). \
@@ -146,6 +147,7 @@ class Flights(db.Model):
                     "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
                     "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
                     "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
+                    "name_airplane": flight.name_airplane,
                     "terminal": flight.terminal,
                     "seats": []
                 }

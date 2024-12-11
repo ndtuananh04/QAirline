@@ -17,8 +17,8 @@
 
 		<div class="header__pcpart">
 			<nav class="header__links">
-				<a href="/explore">Khám phá</a>
-				<a href="/booking">Đặt vé</a>
+				<a href="/user/dashboard#news-section">Khám phá</a>
+				<a href="/user/checkin">Làm thủ tục</a>
 				<a href="/user/ticket">Thông tin vé</a>
 			</nav>
 

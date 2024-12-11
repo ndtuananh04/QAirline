@@ -21,6 +21,88 @@
 	let filteredArrivals = writable([]);
 	let localQuantity = 1;
 
+	let posts = []; // Dữ liệu tin tức
+	let visiblePosts = []; // Tin tức hiển thị
+	let currentIndex = 0; // Chỉ số tin tức hiện tại hiển thị (3 tin mỗi lần)
+
+	let showModal = false; // Hiển thị modal
+	let selectedPost = null; // Dữ liệu bài viết được chọn
+
+	const imageList = [
+		'/images/1.png',
+		'/images/1.png',
+		'/images/1.png',
+		'/images/1.png',
+		'/images/1.png'
+	];
+
+	// Gọi API để lấy thông tin tin tức
+	async function fetchPosts() {
+		try {
+			const response = await fetch('http://localhost:5000/post-customer');
+			if (response.ok) {
+				const data = await response.json();
+				posts = data.map((post) => ({
+					...post,
+					image_url: getRandomImage() // Gán ảnh ngẫu nhiên
+				}));
+			} else {
+				console.error('Failed to fetch posts:', response.status);
+			}
+		} catch (error) {
+			console.error('Error loading posts:', error);
+		}
+	}
+
+	// Hàm gọi API lấy chi tiết bài viết
+	async function fetchPostDetail(post_id) {
+		try {
+			console.log('Fetching post detail for ID:', post_id); // Debug
+			const response = await fetch(`http://localhost:5000/post-detail/${post_id}`);
+			if (response.ok) {
+				const data = await response.json();
+				console.log('Post detail fetched:', data); // Debug
+				selectedPost = data; // Lưu thông tin bài viết chi tiết
+				showModal = true; // Hiển thị modal
+			} else {
+				console.error('Failed to fetch post detail:', response.status);
+			}
+		} catch (error) {
+			console.error('Error loading post detail:', error);
+		}
+	}
+
+	// Hàm chọn ảnh ngẫu nhiên
+	function getRandomImage() {
+		const randomIndex = Math.floor(Math.random() * imageList.length);
+		return imageList[randomIndex];
+	}
+
+	onMount(() => {
+		fetchPosts();
+	});
+
+	// Duyệt sang tin tức tiếp theo
+	function goNext() {
+		if (currentIndex + 3 < posts.length) {
+			currentIndex += 1;
+		}
+	}
+
+	// Duyệt ngược về tin tức trước đó
+	function goPrevious() {
+		if (currentIndex > 0) {
+			currentIndex -= 1;
+		}
+	}
+
+	function closeModal() {
+		showModal = false;
+	}
+
+	// Lấy 3 tin tức cần hiển thị dựa vào currentIndex
+	$: visiblePosts = posts.slice(currentIndex, currentIndex + 3);
+
 	onMount(() => {
 		const splideInstance = new Splide(splideElement, {
 			type: 'loop',
@@ -195,13 +277,13 @@
 						{/if}
 						<div class="form-group col-12 col-md-4">
 							<label for="quantity">Số người</label>
-							<input 
-								type="number" 
-								id="quantity" 
-								name="quantity" 
-								bind:value={localQuantity} 
-								on:change={() => quantity.set(localQuantity)} 
-								required 
+							<input
+								type="number"
+								id="quantity"
+								name="quantity"
+								bind:value={localQuantity}
+								on:change={() => quantity.set(localQuantity)}
+								required
 							/>
 						</div>
 					</div>
@@ -214,52 +296,109 @@
 	</div>
 </div>
 
-<section class="news">
+<section id="news-section" class="news">
 	<div class="container">
-		<div class="padding-tb">
-			<div class="news__header">
-				<h2 class="news__title">Tin Tức và Thông Báo</h2>
-				<button class="news__view-all">View All</button>
-			</div>
+		<div class="news__header">
+			<h2 class="news__title">Tin Tức và Thông Báo</h2>
+			<button class="news__view-all">View All</button>
+		</div>
+		<div class="news__controls">
+			<button on:click={goPrevious} class="news__nav">←</button>
 			<div class="news__list">
-				<div class="news__item">
-					<img class="news__image" src="image1.jpg" alt="Tin tức 1" />
-					<div class="news__content">
-						<h3 class="news__item-title">The 16th World Chinese Entrepreneurs Convention (WCEC)</h3>
-						<p class="news__description">
-							Thai Airways International and Thai-Chinese Chamber of Commerce have signed a
-							Memorandum of Understanding...
-						</p>
-						<span class="news__date">24 April 2023</span>
+				{#each visiblePosts as post}
+					<div class="news__item" on:click={() => fetchPostDetail(post.post_id)}>
+						<img
+							class="news__image"
+							src={post.image_url || 'https://via.placeholder.com/150'}
+							alt={post.title}
+						/>
+						<div class="news__content">
+							<h3 class="news__item-title">{post.title}</h3>
+							<p class="news__description">{post.block_1}</p>
+							<span class="news__date">{post.post_date}</span>
+						</div>
 					</div>
-				</div>
-				<div class="news__item">
-					<img class="news__image" src="image2.jpg" alt="Tin tức 2" />
-					<div class="news__content">
-						<h3 class="news__item-title">
-							The Central Bankruptcy Court granted THAI’s business reorganization petition...
-						</h3>
-						<p class="news__description">
-							Mr. Chansin Treenuchagron, Director and Acting President of Thai Airways International
-							Public Company...
-						</p>
-						<span class="news__date">14 September 2020</span>
-					</div>
-				</div>
-				<div class="news__item">
-					<img class="news__image" src="image3.jpg" alt="Tin tức 3" />
-					<div class="news__content">
-						<h3 class="news__item-title">
-							THAI Operates as Usual While Implementing Reform Plan...
-						</h3>
-						<p class="news__description">
-							Mr. Chakrit Parapuntakul, Second Vice Chairman of the Board of Directors of Thai
-							Airways International...
-						</p>
-						<span class="news__date">19 May 2020</span>
-					</div>
-				</div>
+				{/each}
 			</div>
+			<button on:click={goNext} class="news__nav">→</button>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	{#if showModal}
+		<div class="modal" on:click={closeModal}>
+			<div class="modal__content" on:click|stopPropagation>
+				<button class="modal__close" on:click|stopPropagation={closeModal}>×</button>
+				<h2>{selectedPost.title}</h2>
+				<p>{selectedPost.block_1}</p>
+				<p>{selectedPost.block_2}</p>
+				<p>{selectedPost.block_3}</p>
+				<p>{selectedPost.block_4}</p>
+				<p>{selectedPost.block_5}</p>
+				<p>{selectedPost.post_date}</p>
+			</div>
+		</div>
+	{/if}
 </section>
+
+<style>
+	.modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+		display: flex; /* Căn chỉnh chính giữa */
+		justify-content: center; /* Căn giữa theo chiều ngang */
+		align-items: center; /* Căn giữa theo chiều dọc */
+		z-index: 999;
+	}
+
+	.modal__content {
+		background: white;
+		padding: 20px;
+		border-radius: 10px;
+		width: 900px; /* Kích thước cố định chiều rộng */
+		height: 600px; /* Kích thước cố định chiều cao */
+		position: relative;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		overflow-y: auto; /* Bật cuộn nếu nội dung quá dài */
+		word-wrap: break-word; /* Đảm bảo từ dài sẽ xuống dòng */
+	}
+
+	.modal__content h2 {
+		font-size: 24px; /* Tăng kích thước tiêu đề */
+		font-weight: bold;
+		margin-bottom: 20px;
+		text-align: center; /* Căn giữa tiêu đề */
+		color: #333; /* Màu sắc tiêu đề */
+	}
+
+	.modal__content p {
+		font-size: 16px; /* Giữ nội dung ở kích thước trung bình */
+		line-height: 1.5;
+		color: #555;
+		margin-bottom: 10px;
+		white-space: normal; /* Đảm bảo nội dung sẽ xuống dòng khi cần thiết */
+		word-wrap: break-word; /* Đảm bảo từ dài sẽ xuống dòng */
+	}
+
+	.modal__content p:last-child {
+		font-size: 14px; /* Giảm kích thước cho ngày tháng */
+		font-style: italic;
+		color: #777; /* Màu sắc nhạt hơn cho ngày tháng */
+		text-align: right; /* Căn phải ngày tháng */
+		margin-top: 20px;
+	}
+
+	.modal__close {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		background: none;
+		border: none;
+		font-size: 20px;
+		cursor: pointer;
+	}
+</style>
