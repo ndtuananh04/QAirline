@@ -15,14 +15,15 @@
 		});
 		if (!response.ok) {
 			const errorData = await response.json();
-			throw new Error(errorData.message || 'Login failed');
+			throw new Error(errorData.msg || 'Login failed');
 		} else {
 			const data = await response.json();
 			localStorage.setItem('jwt', data.access_token);
-			goto('/admin/dashboard'); // Redirect to a secure page after login
+			goto('/admin/manager/accounts'); // Redirect to a secure page after login
 		}
 	}
 </script>
+
 <main class="login-form">
 	<div class="cotainer">
 		<div class="row justify-content-center">

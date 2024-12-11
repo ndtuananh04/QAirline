@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@iconify/svelte": "^4.0.2",
 		"@splidejs/splide": "^4.1.4",
+		"bootstrap": "^5.3.3",
 		"front-end": "file:"
 	}
 }

@@ -6,13 +6,14 @@
 
     let data = writable([]);
     let token = '';
+    let email = '';
+    let password = '';
+    let retypePassword = '';
 
     const dataType = Object.values(get(page).params)[0];
     console.log(dataType);
 
     onMount(async () => {
-        
-
         try {
             switch (dataType) {
                 case 'accounts':
@@ -60,34 +61,74 @@
             console.error(`Error in getData: ${error.message}`);
         }
     }
+
+    async function submitAccountInput(e) {
+        if (password != retypePassword) {
+            alert('Mật khẩu không giống nhau!');
+            return;
+        }
+
+		const response = await fetch('http://localhost:5000/addaccount', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				email: email,
+				password: password
+			})
+		});
+		if (!response.ok) {
+			const errorData = await response.json();
+            alert(errorData.msg || 'Add Data Failed');
+		} else {
+			const updatedData = await response.json();
+			data.set(updatedData)
+            alert("Thêm thành công");
+		}
+	}
 </script>
 
-
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-    Launch demo modal
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDataModal">
+    Add Data
   </button>
   
   <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal fade" id="addDataModal" tabindex="-1" role="dialog" aria-labelledby="addDataModalCenter" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+          <h5 class="modal-title" id="addDataModalCenter">Add data</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          ...
+            <form on:submit={submitAccountInput}>
+                <div class="form-group">
+                  <label for="newEmail">Email address</label>
+                  <input type="email" class="form-control" id="newEmail" placeholder="Enter email" bind:value={email}>
+                </div>
+                <div class="form-group">
+                  <label for="newPassword">Password</label>
+                  <input type="password" class="form-control" id="newPassword" aria-describedby="passwordHelp" placeholder="Password" bind:value={password}>
+                  <small id="passwordHelp" class="form-text text-muted">Mật khẩu phải có ít nhất 8 ký tự, có ít nhất một chữ viết hoa, 
+                    một chữ viết thường,  
+                    một số và một ký tự đặc biệt</small>
+                    <label for="retypePassword">Retype Password</label>
+                    <input type="password" class="form-control" id="retypePassword" placeholder="Retype Password" bind:value={retypePassword}>
+                </div>
+              </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="submit" class="btn btn-primary" data-dismiss="modal">Save changes</button>
         </div>
       </div>
     </div>
   </div>
+
 
 <hr />
 
