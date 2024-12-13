@@ -1,5 +1,6 @@
 <script>
-	import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+	import 'jquery/dist/jquery.slim.min.js';
+    import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 </script>
 
 <div class="admin-dashboard">
@@ -18,4 +19,3 @@
 		<slot />
 	</div>
 </div>
-<slot />

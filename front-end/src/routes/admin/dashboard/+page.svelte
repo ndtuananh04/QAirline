@@ -2,3 +2,4 @@
 <a href="/admin/manager/airplanes">Airplane Manager</a>
 <a href="/admin/manager/flights">Flight Manager</a>
 <a href="/admin/manager/tickets">Ticket Manager</a>
+<a href = "/admin/manager/seats">Seats Manager</a>

@@ -68,10 +68,12 @@ class FlightAdmin(Resource):
     flight_parser.add_argument('departure_time', type=valid_date, required=True, help="Departure time (format: YYYY-MM-DD)")
     flight_parser.add_argument('departure_hour_time', type=valid_time, required=True, help="Departure time (format: HH:MM)")
     flight_parser.add_argument('arrival_hour_time', type=valid_time, required=True, help="Arrival time (format: HH:MM)")
+    flight_parser.add_argument('boarding_time', type=valid_time, required=True, help="Boarding Time is required")
     flight_parser.add_argument('terminal', type=int, required=True, help="Terminal is required")
     flight_parser.add_argument('status', type=str, required=True, help="Flight status is required")
     flight_parser.add_argument('available_seats', type=int, required=True, help="Available seats are required")
     flight_parser.add_argument('airplane_id', type=int, required=True, help="Airplane ID is required")
+    
 
     @jwt_required()
     @authorized_required(roles=["admin"])
@@ -92,6 +94,7 @@ class FlightAdmin(Resource):
             departure_time=data['departure_time'],
             departure_hour_time=data['departure_hour_time'],
             arrival_hour_time=data['arrival_hour_time'],
+            boarding_time=data['boarding_time'],
             terminal=data['terminal'],
             status=data['status'],
             available_seats=data['available_seats'],
@@ -101,12 +104,15 @@ class FlightAdmin(Resource):
         db.session.commit()
 
         return {'msg': 'Flight added successfully'}, 201
-
+    
+    delete_parser = reqparse.RequestParser()
+    delete_parser.add_argument('flight_id', type=int, help="Flight Id")
     @jwt_required()
     @authorized_required(roles=["admin"])
-    def delete(self, flight_id):
+    def delete(self):
         # Kiểm tra xem chuyến bay có tồn tại hay không
-        flight = Flights.query.filter_by(flight_id=flight_id).first()
+        data = FlightAdmin.delete_parser.parse_args()
+        flight = Flights.query.filter_by(flight_id=data['flight_id']).first()
 
         if not flight:
             return {'msg': 'Flight not found'}, 400
@@ -120,6 +126,7 @@ class FlightAdmin(Resource):
 
     
     update_parser = reqparse.RequestParser()
+    update_parser.add_argument('flight_id', type=str, help="Flight Id")
     update_parser.add_argument('flight_number', type=str, help="Flight number")
     update_parser.add_argument('departure', type=str, help="Departure location")
     update_parser.add_argument('arrival', type=str, help="Arrival location")
@@ -133,13 +140,13 @@ class FlightAdmin(Resource):
     def put(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
-        account = Account.find_account_id(current_user['account_id'])
+        account = Account.find_account_id(current_user)
 
         if not account:
             return {'msg': 'Account not found'}, 400
         
         # Lấy dữ liệu từ request
-        data = FlightSearch.update_parser.parse_args()
+        data = FlightAdmin.update_parser.parse_args()
 
         # Kiểm tra xem chuyến bay có tồn tại không
         flight = Flights.query.filter_by(flight_id=data['flight_id']).first()

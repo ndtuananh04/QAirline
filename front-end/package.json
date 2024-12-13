@@ -13,6 +13,7 @@
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"@types/bootstrap": "^5.2.10",
 		"@types/eslint": "^9.6.0",
 		"eslint": "^9.7.0",
 		"eslint-config-prettier": "^9.1.0",
@@ -28,7 +29,8 @@
 	"dependencies": {
 		"@iconify/svelte": "^4.0.2",
 		"@splidejs/splide": "^4.1.4",
-		"bootstrap": "^5.3.3",
-		"front-end": "file:"
+		"bootstrap": "^4.5.1",
+		"front-end": "file:",
+		"jquery": "^3.5.1"
 	}
 }

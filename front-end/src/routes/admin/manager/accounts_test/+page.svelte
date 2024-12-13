@@ -4,6 +4,7 @@
 	let accounts = writable([]);
 	let token = '';
 	onMount(async () => {
+		import('bootstrap/dist/js/bootstrap.bundle.min.js');
 		try {
 			token = localStorage.getItem('jwt');
 			const response = await fetch('http://localhost:5000/addaccount', {

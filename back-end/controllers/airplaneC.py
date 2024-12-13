@@ -50,10 +50,17 @@ class AirplaneSearch(Resource):
         
         return {'msg': 'Airplane added successfully'}, 201
     
-    '''Admin xóa airplane'''    
+    '''Admin xóa airplane'''  
+
+    delete_parser = reqparse.RequestParser()
+    delete_parser.add_argument('airplane_id', type=int, required=True, help="Airplane Id is required")
+
     @jwt_required()
     @authorized_required(roles=["admin"])
-    def delete(self, airplane_id):
+    def delete(self):
+        data = AirplaneSearch.delete_parser.parse_args()
+        airplane_id = data['airplane_id']
+
         airplane = Airplanes.find_name_airplane_with_locked(airplane_id)
         if not airplane: 
             return {'msg': 'Airplane not found'}, 400
@@ -73,7 +80,7 @@ class AirplaneSearch(Resource):
     def put(self):
         # Kiểm tra quyền quản trị
         current_user = get_jwt_identity()
-        account = Account.find_account_id(current_user['account_id'])
+        account = Account.find_account_id(current_user)
 
         if not account:
             return {'msg': 'Account not found'}, 400

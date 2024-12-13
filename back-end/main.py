@@ -31,8 +31,9 @@ api.add_resource(AccountRegister, '/register')
 api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
 
-api.add_resource(AddAccount, '/addaccount')
-api.add_resource(DeleteAccount, '/deleteaccount')
+api.add_resource(AddAccount, '/add-account-admin')
+api.add_resource(DeleteAccount, '/delete-account-admin')
+api.add_resource(UpdateAccount, '/update-account-admin')
 
 api.add_resource(DepartureArrival, '/departure-arrival')
 api.add_resource(FlightSearch, '/flights-search')
