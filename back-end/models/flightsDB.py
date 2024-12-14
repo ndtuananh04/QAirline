@@ -84,11 +84,12 @@ class Flights(db.Model):
         flights = db.session.query(
             Flights.flight_id,
             Flights.flight_number,
+            Flights.departure,
+            Flights.arrival,
             Flights.departure_time,
             Flights.departure_hour_time,
-            Flights.arrival_hour_time,
-            Flights.terminal,
             Flights.status,
+            Flights.airplane_id
         ).all()
         flights_list = {}
         for flight in flights:
@@ -96,11 +97,12 @@ class Flights(db.Model):
                 flights_list[flight.flight_id] = {
                     "flight_id": flight.flight_id,
                     "flight_number": flight.flight_number,
+                    "departure": flight.departure,
+                    "arrival": flight.arrival,
                     "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
                     "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
-                    "arrival_hour_time": flight.arrival_hour_time.strftime('%H:%M'),
-                    "terminal": flight.terminal,
-                    "status": flight.status.name
+                    "status": flight.status.name,
+                    "airplane_id": flight.airplane_id
                 }
             results = list(flights_list.values())
         return results

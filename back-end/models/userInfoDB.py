@@ -43,6 +43,10 @@ class UserInfo(db.Model):
             "date_of_birth_json": date_of_birth_json,
             "phone_number": self.phone_number
         }
+        
+    @classmethod
+    def find_user_id(cls, account_id):
+        return cls.query.filter_by(account_id=account_id).first()
     
     def save_to_db(self):
         db.session.add(self)

@@ -14,10 +14,10 @@ from controllers.promotionC import PromotionPrice, PromotionAdmin
 from controllers.postC import PostCustomer, PostAdmin, PostDetail
 from controllers.checkinC import CheckinC
 from controllers.seatsC import SeatsAirplane
-
+from controllers.adminC import QuantityRole, AddAccount, DeleteAccount
 from services.__init__ import init_app
 from controllers.__init__ import init_app
-from controllers.adminC import *
+
 
 app = Flask(__name__)
 cors = CORS(app, supports_credentials=True)
@@ -31,8 +31,9 @@ api.add_resource(AccountRegister, '/register')
 api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
 
+api.add_resource(QuantityRole, '/quantity-role')
 api.add_resource(AddAccount, '/addaccount')
-api.add_resource(DeleteAccount, '/deleteaccount')
+api.add_resource(DeleteAccount, '/deleteaccount', '/deleteaccount/<int:account_id>')
 
 api.add_resource(DepartureArrival, '/departure-arrival')
 api.add_resource(FlightSearch, '/flights-search')
