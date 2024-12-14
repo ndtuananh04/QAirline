@@ -31,6 +31,42 @@
 	onMount(() => {
 		fetchFlights();
 	});
+
+	let showModalDelete = false;
+	let select_flight_id = '';
+
+	const openModalDelete = (flight_id) => {
+		select_flight_id = flight_id;
+		showModalDelete = true;
+	};
+
+	const closeModalDelete = () => {
+		showModalDelete = false;
+		select_flight_id = '';
+	};
+
+	const deleteFlight = async (flight_id) => {
+		const token = localStorage.getItem('jwt');
+		try {
+			const response = await fetch(`http://localhost:5000/flights/${flight_id}`, {
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+			const result = await response.json();
+			if (response.ok) {
+				alert(result.msg);
+				fetchFlights();
+				closeModalDelete();
+			} else {
+				alert(result.msg);
+			}
+		} catch (error) {
+			console.error('Lỗi khi khóa chuyến bay.', error);
+			alert('Đã xảy ra lỗi khi khóa chuyến bay.');
+		}
+	};
 </script>
 
 <div class="header-container">
@@ -42,7 +78,7 @@
 	</div>
 </div>
 
-<table class="table-airplane">
+<table class="table-flight">
 	<thead>
 		<tr>
 			<th scope="col">ID</th>
@@ -53,6 +89,7 @@
 			<th scope="col">Giờ đi</th>
 			<th scope="col">Trạng thái</th>
 			<th scope="col">Máy bay</th>
+			<th scope="col">Khóa</th>
 			<th class="action-header">Hành động</th>
 		</tr>
 	</thead>
@@ -67,21 +104,52 @@
 				<td>{flight.departure_hour_time}</td>
 				<td>{flight.status}</td>
 				<td>{flight.airplane_id}</td>
+				<td>
+					{#if flight.is_locked === 1}
+						Khóa
+					{:else}
+						Mở
+					{/if}
+				</td>
 				<td class="action-cell">
 					<button class="edit">Sửa</button>
-					<button class="delete">Xóa</button>
+					<button
+						class="delete {flight.is_locked === 1 ? 'open' : 'locked'}"
+						on:click={() => openModalDelete(flight.flight_id)}
+					>
+						{#if flight.is_locked === 1}
+							Mở
+						{:else}
+							Khóa
+						{/if}
+					</button>
 				</td>
 			</tr>
 		{/each}
+
+		{#if showModalDelete}
+			<div class="modal">
+				<div class="modal-content delete-modal animate">
+					<h3 class="warning-text">Bạn có chắc chắn muốn khóa chuyến bay?</h3>
+					<div class="button-group">
+						<button on:click={() => deleteFlight(select_flight_id)} class="delete-btn"
+							>Đồng ý</button
+						>
+						<button on:click={closeModalDelete} class="cancel-btn">Không</button>
+					</div>
+				</div>
+			</div>
+		{/if}
+		
 	</tbody>
 </table>
 
 <style>
 	.modal {
-		display: flex; /* Đảm bảo modal hiện */
+		display: flex;
 		justify-content: center;
 		align-items: center;
-		opacity: 1; /* Hiển thị rõ */
+		opacity: 1;
 		visibility: visible;
 	}
 

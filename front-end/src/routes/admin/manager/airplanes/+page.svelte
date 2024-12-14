@@ -293,10 +293,10 @@
 
 <style>
 	.modal {
-		display: flex; /* Đảm bảo modal hiện */
+		display: flex;
 		justify-content: center;
 		align-items: center;
-		opacity: 1; /* Hiển thị rõ */
+		opacity: 1;
 		visibility: visible;
 	}
 

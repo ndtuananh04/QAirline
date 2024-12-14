@@ -33,10 +33,10 @@ class Flights(db.Model):
     boarding_time = db.Column(db.Time, nullable=False)
     terminal = db.Column(db.Integer , nullable=False)
     status = db.Column(db.Enum(FlightType), nullable=False)
-    available_seats = db.Column(db.Integer, nullable=False)
-    airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'), onupdate="CASCADE")
+    airplane_id = db.Column(db.Integer, db.ForeignKey('airplanes.airplane_id'))
+    is_locked = db.Column(db.Integer, default=0)
 
-    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, boarding_time, terminal, status, available_seats, airplane_id):
+    def __init__(self, flight_number, departure, code_departure, arrival, code_arrival, departure_time, departure_hour_time, arrival_hour_time, boarding_time, terminal, status, airplane_id, is_locked):
         self.flight_number = flight_number
         self.departure = departure
         self.code_departure = code_departure
@@ -48,8 +48,8 @@ class Flights(db.Model):
         self.boarding_time = boarding_time.strftime('%H:%M') if boarding_time else None
         self.terminal = terminal
         self.status = FlightType.from_string(status.upper())
-        self.available_seats = available_seats
-        self.airplane_id = airplane_id
+        self.airplane_id = airplane_id,
+        self.is_locked = self.is_locked
 
     def to_json(self):
         return {
@@ -64,7 +64,8 @@ class Flights(db.Model):
             "boarding_time": self.boarding_time.strftime('%H:%M'),
             "terminal": self.terminal,
             "status": self.status.name,
-            "available_seats": self.available_seats
+            "airplane_id": self.airplane_id,
+            "is_locked": self.is_locked
         }
 
     @classmethod
@@ -89,7 +90,8 @@ class Flights(db.Model):
             Flights.departure_time,
             Flights.departure_hour_time,
             Flights.status,
-            Flights.airplane_id
+            Flights.airplane_id,
+            Flights.is_locked
         ).all()
         flights_list = {}
         for flight in flights:
@@ -102,7 +104,8 @@ class Flights(db.Model):
                     "departure_time": flight.departure_time.strftime('%Y-%m-%d'),
                     "departure_hour_time": flight.departure_hour_time.strftime('%H:%M'),
                     "status": flight.status.name,
-                    "airplane_id": flight.airplane_id
+                    "airplane_id": flight.airplane_id,
+                    "is_locked": flight.is_locked
                 }
             results = list(flights_list.values())
         return results

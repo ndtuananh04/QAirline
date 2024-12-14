@@ -106,18 +106,19 @@ class FlightAdmin(Resource):
     @authorized_required(roles=["admin"])
     def delete(self, flight_id):
         # Kiểm tra xem chuyến bay có tồn tại hay không
-        flight = Flights.query.filter_by(flight_id=flight_id).first()
+        flight = Flights.find_flight_id(flight_id)
 
         if not flight:
-            return {'msg': 'Flight not found'}, 400
+            return {'msg': 'Không tìm thấy chuyến bay.'}, 400
 
-        # Xóa chuyến bay khỏi cơ sở dữ liệu
-        db.session.delete(flight)
+        flight.is_locked = 0 if flight.is_locked == 1 else 1
+
         db.session.commit()
 
-        new_flights = Flights.get_all_flights()
-        return {'msg': 'Flight delete successfully', 'flights': new_flights}, 201
-
+        if flight.is_locked == 1:
+            return {'msg': 'Khóa chuyến bay thành công.'}, 201
+        else:
+            return {'msg': 'Mở khóa chuyến bay thành công.'}, 200
     
     update_parser = reqparse.RequestParser()
     update_parser.add_argument('flight_number', type=str, help="Flight number")
