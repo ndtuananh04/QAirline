@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { goto } from '$app/navigation';
-
+	
 	let isLoggedIn = writable(false);
 	let family_name = writable('');
 	let given_name = writable('');
@@ -20,7 +20,6 @@
 						Authorization: `Bearer ${token}`
 					}
 				});
-
 				if (response.ok) {
 					const data = await response.json();
 					isLoggedIn.set(true);
@@ -38,6 +37,7 @@
 			}
 		}
 	});
+
 	const logout = async () => {
 		const token = localStorage.getItem('jwt');
 		if (token) {
@@ -49,7 +49,6 @@
 						Authorization: `Bearer ${token}`
 					}
 				});
-
 				if (response.ok) {
 					localStorage.removeItem('jwt');
 					isLoggedIn.set(false);
@@ -66,6 +65,7 @@
 			}
 		}
 	};
+
 	const toggleDropdown = () => {
 		showDropdown.update((value) => !value);
 	};
