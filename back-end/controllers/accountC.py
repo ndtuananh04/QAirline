@@ -136,6 +136,21 @@ class AccountRegister(Resource):
 
         return {"msg": "Đăng ký tài khoản thành công!"}, 200
     
+class VerifyToken(Resource):
+    @jwt_required()
+    def post(self):
+        current_user = get_jwt_identity()
+        user = Account.query.filter_by(account_id=current_user).first()
+        if user:
+            user_info = UserInfo.query.filter_by(account_id=user.account_id).first()
+            if user_info:
+                return jsonify(
+                    user_email=user.email,
+                    family_name=user_info.family_name,
+                    given_name=user_info.given_name
+                )
+        return {'msg': 'Token is invalid'}, 401
+    
 class UserLogoutAccess(Resource):
     """
     User Logout Api
