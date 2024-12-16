@@ -1,9 +1,8 @@
-from models.ticketsDB import Tickets, TicketUser
 import os
 from flask import session
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from datetime import datetime, timedelta
 from flask_restful import Resource, reqparse
+from models.ticketsDB import Tickets, TicketUser
 
 class CheckinC(Resource):
     parser = reqparse.RequestParser()

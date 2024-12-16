@@ -2,11 +2,10 @@ import os
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 from flask_restful import Resource, reqparse
-from models.postsDB import Posts
-from core.auth import authorized_required
 from database import db
 from flask import jsonify, request
-
+from models.postsDB import Posts
+from core.auth import authorized_required
 
 class PostDetail(Resource):
     def get(self, post_id):

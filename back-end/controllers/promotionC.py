@@ -1,12 +1,11 @@
 import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, AccountType
-from models.promotionsDB import Promotions
-from core.auth import authorized_required
 from database import db
 from flask import jsonify, session, request
+from models.promotionsDB import Promotions
 from services.promotionS import PromotionService
+from core.auth import authorized_required
 
 class PromotionPrice(Resource):
     parser = reqparse.RequestParser()

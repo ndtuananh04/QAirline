@@ -1,23 +1,3 @@
-.add-account-container {
-    text-align: right;
-    margin-top: auto; /* Khoảng cách từ header đến nút */
-    margin-right: 0px;
-    margin-left: auto;
-
-    .btn-add-admin {
-        background-color: #4CAF50;
-        color: white;
-        padding: 0.8rem 1.2rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-
-    .btn-add-admin:hover {
-        background-color: #45a049;
-    }
-}
 
 .table-airplane {
     margin-left: 220px; // Khoảng cách cách Menu (Menu rộng 200px + padding)

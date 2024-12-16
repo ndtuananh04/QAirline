@@ -2,9 +2,7 @@ import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask import jsonify, request
 from database import db
-
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, AccountType
 from models.airplanesDB import  Airplanes
 from services.airplaneS import AirplaneService
 from core.auth import authorized_required

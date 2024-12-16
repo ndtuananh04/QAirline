@@ -1,17 +1,22 @@
 import os
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, RevokedTokenModel
-from models.userInfoDB import UserInfo
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask import jsonify, request
+from flask import jsonify, request, make_response
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_mail import Message
-from services.accountS import AccountS
+from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
+from models.accountDB import Account, RevokedTokenModel
+from models.userInfoDB import UserInfo
+from services.accountS import AccountS
 from services import my_mail
-from datetime import timedelta
-import random
-from itsdangerous import URLSafeTimedSerializer
+
+class Valid(Resource):
+    @jwt_required()  # Xác thực token
+    def post(self):
+        current_user = get_jwt_identity()
+        if current_user:
+            return {'msg': 'Token hợp lệ.'}, 200
+        return {'msg': 'Token không hợp lệ.'}, 401
 
 class AccountLogin(Resource):
     parser = reqparse.RequestParser()

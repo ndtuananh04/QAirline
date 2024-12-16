@@ -7,6 +7,7 @@ from models.seatsDB import Seats
 from models.userInfoDB import UserInfo
 from sqlalchemy.orm import aliased
 import enum
+from flask_jwt_extended import JWTManager
 
 # Lựa chọn cho tài khoản admin hoăc user
 class AccountType(enum.Enum):

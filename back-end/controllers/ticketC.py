@@ -2,17 +2,14 @@ import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime, timedelta
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, AccountType
-from models.flightsDB import Flights, FlightDelay
-from models.airplanesDB import Airplanes
-from models.seatsDB import Seats
-from models.ticketsDB import Tickets, TicketUser, StatusClass, Cancellations
-from core.auth import authorized_required
-
-from services.ticketS import TicketS
 from database import db
 from flask import jsonify, session, request
-    
+from models.accountDB import Account, AccountType
+from models.flightsDB import Flights, FlightDelay
+from models.ticketsDB import Tickets, TicketUser, StatusClass, Cancellations
+from core.auth import authorized_required
+from services.ticketS import TicketS
+
 #  Chọn vé và hiển thị giá tiền, lưu data vào session
 class SelectTicket(Resource):
     parser = reqparse.RequestParser()
