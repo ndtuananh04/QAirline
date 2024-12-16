@@ -10,6 +10,12 @@ from flask import jsonify, session, request
 from models.ticketsDB import Tickets
 
 class SeatsAirplane(Resource):
+    @jwt_required()
+    @authorized_required(roles=["admin"])
+    def get(self):
+        seats = Seats.get_all_seats()
+        return seats
+    
     parser = reqparse.RequestParser()
     parser.add_argument('seat_number', type=str, required=True, help="This field cannot be left blank!")
     def post(self):

@@ -154,6 +154,21 @@
 			updateError = 'Đã xảy ra lỗi khi cập nhật máy bay.';
 		}
 	};
+
+	function sortById() {
+		airplanes = [...airplanes].sort((a, b) => a.airplane_id - b.airplane_id);
+	}
+
+	function sortByAirplaneName() {
+		airplanes = [...airplanes].sort((a, b) => {
+			if (a.name_airplane < b.name_airplane) {
+				return -1;
+			} else if (a.name_airplane > b.name_airplane) {
+				return 1;
+			}
+			return 0;
+		});
+	}
 </script>
 
 <div class="header-container">
@@ -202,10 +217,10 @@
 <table class="table-airplane">
 	<thead>
 		<tr>
-			<th scope="col">ID</th>
-			<th scope="col">Tên máy bay</th>
-			<th scope="col">Số lượng ghế</th>
-			<th scope="col">Trạng thái</th>
+			<th scope="col" class="sortable-header" on:click={sortById}>ID</th>
+			<th scope="col" class="sortable-header" on:click={sortByAirplaneName}>Tên máy bay</th>
+			<th scope="col" class="sortable-header">Số lượng ghế</th>
+			<th scope="col" class="sortable-header">Trạng thái</th>
 			<th class="action-header">Hành động</th>
 		</tr>
 	</thead>
@@ -482,5 +497,15 @@
 
 	.btn-add-admin:hover {
 		background-color: #0056b3;
+	}
+
+	.sortable-header {
+		cursor: pointer;
+		color: black; /* Màu mặc định */
+		transition: color 0.3s ease;
+	}
+
+	.sortable-header:hover {
+		color: rgb(0, 255, 255); /* Màu khi di chuột */
 	}
 </style>

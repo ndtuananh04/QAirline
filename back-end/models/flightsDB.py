@@ -11,6 +11,7 @@ class FlightType(enum.Enum):
     SCHEDULED = "scheduled"
     DELAYED = "delayed"
     CANCELLED = "cancelled"
+    FINISHED = "finished"
 
     @classmethod
     def from_string(cls, value):

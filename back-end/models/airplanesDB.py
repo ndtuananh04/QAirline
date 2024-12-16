@@ -1,4 +1,3 @@
-from datetime import date
 from database import db
 from sqlalchemy.sql import func
 from flask import jsonify

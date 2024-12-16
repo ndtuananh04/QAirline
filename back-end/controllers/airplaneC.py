@@ -6,6 +6,7 @@ from database import db
 from flask_restful import Resource, reqparse
 from models.accountDB import Account, AccountType
 from models.airplanesDB import  Airplanes
+from services.airplaneS import AirplaneService
 from core.auth import authorized_required
 
 class AirplaneSearch(Resource):
@@ -26,6 +27,12 @@ class AirplaneSearch(Resource):
         data = request.get_json()
         name_airplane = data['name_airplane']
         capacity = data['capacity']
+        
+        if not AirplaneService.check_format(name_airplane):
+            return {'msg': 'Tên máy bay phải có 6 ký tự gồm 3 số đầu và QAL'}, 400
+        
+        if not AirplaneService.check_positive_integer(capacity):
+            return {'msg': 'Số lượng ghế phải là số nguyên dương.'}, 400
 
         existing_airplane = Airplanes.find_name_airplane(name_airplane)
         if existing_airplane:
@@ -73,6 +80,12 @@ class AirplaneSearch(Resource):
         data = request.get_json()
         name_airplane = data['name_airplane']
         capacity = data['capacity']
+        
+        if not AirplaneService.check_format(name_airplane):
+            return {'msg': 'Tên máy bay phải có 6 ký tự gồm 3 số đầu và QAL'}, 400
+        
+        if not AirplaneService.check_positive_integer(capacity):
+            return {'msg': 'Capacity phải là số nguyên dương.'}, 400
 
         airplane = Airplanes.find_airplane_id(airplane_id)
         if not airplane:

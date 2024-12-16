@@ -175,6 +175,32 @@
 			addError = 'Đã có lỗi xảy ra khi thêm tài khoản.';
 		}
 	};
+
+	function sortById() {
+		accounts = [...accounts].sort((a, b) => a.account_id - b.account_id);
+	}
+
+	function sortByAccountName() {
+		accounts = [...accounts].sort((a, b) => {
+			if (a.email < b.email) {
+				return -1;
+			} else if (a.email > b.email) {
+				return 1;
+			}
+			return 0;
+		});
+	}
+
+	function sortByRole() {
+		accounts = [...accounts].sort((a, b) => {
+			if (a.role < b.role) {
+				return -1;
+			} else if (a.role > b.role) {
+				return 1;
+			}
+			return 0;
+		});
+	}
 </script>
 
 <div class="header-container">
@@ -219,9 +245,9 @@
 <table class="table-account">
 	<thead>
 		<tr>
-			<th scope="col">ID</th>
-			<th scope="col">Email</th>
-			<th scope="col">Role</th>
+			<th scope="col" class="sortable-header" on:click={sortById}>ID</th>
+			<th scope="col" class="sortable-header" on:click={sortByAccountName}>Email</th>
+			<th scope="col" class="sortable-header" on:click={sortByRole}>Role</th>
 			<th class="action-header">Hành động</th>
 		</tr>
 	</thead>
@@ -473,5 +499,15 @@
 
 	.btn-add-admin:hover {
 		background-color: #0056b3;
+	}
+
+	.sortable-header {
+		cursor: pointer;
+		color: black; /* Màu mặc định */
+		transition: color 0.3s ease;
+	}
+
+	.sortable-header:hover {
+		color: rgb(0, 255, 255); /* Màu khi di chuột */
 	}
 </style>
