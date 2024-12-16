@@ -72,12 +72,19 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
 # dotenv environment variable files
 .env
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+
+# Ignore config.py file
+back-end/core/config.py
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
