@@ -5,7 +5,6 @@
 	let postsss = [];
 	let error = '';
 
-	// Hàm gọi API để lấy danh sách bài viết
 	const fetchPostAdmin = async () => {
 		const token = localStorage.getItem('jwt');
 		try {
@@ -19,7 +18,7 @@
 			if (response.ok) {
 				const data = await response.json();
 				postsss = data;
-				console.log(postsss); // Kiểm tra dữ liệu trả về (chỉ có post_id và title)
+				console.log(postsss);
 			} else {
 				const err = await response.json();
 				error = err.msg || 'Lỗi khi lấy danh sách bài viết';
@@ -29,7 +28,7 @@
 			error = 'Đã xảy ra lỗi khi lấy danh sách bài viết.';
 		}
 	};
-	// Gọi hàm fetchPostAdmin khi trang được tải lên
+
 	onMount(() => {
 		fetchPostAdmin();
 	});
@@ -41,11 +40,6 @@
 	</div>
 </div>
 
-{#if error}
-	<p class="error">{error}</p>
-	<!-- Hiển thị lỗi nếu có -->
-{/if}
-
 <table class="table-post">
 	<thead>
 		<tr>
@@ -53,12 +47,12 @@
 			<th scope="col" class="sortable-header">Tiêu đề</th>
 		</tr>
 	</thead>
-	<tbody>
+    <tbody>
 		{#each postsss as post}
 			<tr>
 				<td>{post.post_id}</td>
 				<td>{post.title}</td>
 			</tr>
 		{/each}
-	</tbody>
+    </tbody>
 </table>

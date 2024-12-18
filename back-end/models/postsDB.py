@@ -63,13 +63,22 @@ class Posts(db.Model):
 
     @classmethod
     def get_all_posts_admin(cls):
-        posts = db.session.query(Posts).all()
+        posts = db.session.query(
+            Posts.post_id,
+            Posts.title
+        ).all()
         
-        posts_list = []
+        posts_list = {}
+        
         for post in posts:
-            posts_list.append(post.to_json_2())
-
-        return posts_list
+            if post.post_id not in posts_list:
+                posts_list[post.post_id] = {
+                    "post_id": post.post_id,
+                    "title": post.title
+                }
+            results = list(posts_list.values())
+        return results
+        
     
     @classmethod
     def get_all_posts1(cls):

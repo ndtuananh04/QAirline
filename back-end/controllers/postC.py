@@ -36,4 +36,4 @@ class PostAdmin(Resource):
         if not postsss:
             return jsonify({"msg": "Không có bài viết nào."}), 400
         
-        return jsonify(postsss)
+        return postsss
