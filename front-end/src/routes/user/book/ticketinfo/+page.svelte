@@ -116,6 +116,7 @@
 	};
 </script>
 
+<div class="ticket-info-bg">
 <div class="formbold-main-wrapper">
 	<form class="signup__form" on:submit={handleSubmit}>
 		{#each forms as form, index}
@@ -288,3 +289,16 @@
 		</div>
 	</form>
 </div>
+</div>
+
+<style>
+	.ticket-info-bg {
+		background-image: url('/images/signup-background.jpg');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+	}
+	.formbold-main-wrapper{
+		margin: 0;
+	}
+</style>

@@ -327,3 +327,9 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.formbold-main-wrapper{
+		margin: 0;
+	}
+</style>

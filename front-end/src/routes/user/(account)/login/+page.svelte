@@ -190,4 +190,8 @@ async function fetchUserName() {
 		margin-right: 8px;
 		font-size: 1.2rem;
 	}
+
+	.formbold-main-wrapper {
+		margin: 0;
+	}
 </style>

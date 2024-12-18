@@ -28,78 +28,132 @@
 		}
 	}
 
-	.news__controls {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 10px;
-	}
+	// .news__controls {
+	// 	display: flex;
+	// 	justify-content: space-between;
+	// 	align-items: center;
+	// 	margin-bottom: 10px;
+	// }
 
-	.news__nav {
-		background-color: #4a2c82;
-		border: none;
-		color: white;
-		border-radius: 5px;
-		padding: 8px;
-		cursor: pointer;
-	}
+	// .news__nav {
+	// 	background-color: #4a2c82;
+	// 	border: none;
+	// 	color: white;
+	// 	border-radius: 5px;
+	// 	padding: 8px;
+	// 	cursor: pointer;
+	// }
 
-	.news__list {
-		display: flex;
-		justify-content: space-between; /* Điều chỉnh các phần tử đều nhau */
-		align-items: stretch; /* Đảm bảo các phần tử có chiều cao đồng đều */
-		gap: 15px;
-		padding-bottom: 10px;
-	}
+	// .news__list {
+	// 	display: flex;
+	// 	justify-content: space-between; /* Điều chỉnh các phần tử đều nhau */
+	// 	align-items: stretch; /* Đảm bảo các phần tử có chiều cao đồng đều */
+	// 	gap: 15px;
+	// 	padding-bottom: 10px;
+	// }
 	
-	.news__item {
-		background: white;
-		border-radius: 8px;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-		flex: 1 1 30%; /* Giữ độ rộng cố định */
-		min-width: 250px;
-		max-height: 500px; /* Thêm chiều cao tối đa để khung không thay đổi */
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-	}
+	// .news__item {
+	// 	background: white;
+	// 	border-radius: 8px;
+	// 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	// 	max-width: 320px;
+	// 	max-height: 500px; /* Thêm chiều cao tối đa để khung không thay đổi */
+	// 	display: flex;
+	// 	flex-direction: column;
+	// }
 
-	&__image {
-		width: 100%;
-		height: 200px; /* Giảm chiều cao ảnh để có tỷ lệ hợp lý */
-		object-fit: cover;
-	}
+	// &__image {
+	// 	width: 100%;
+	// 	height: 200px; /* Giảm chiều cao ảnh để có tỷ lệ hợp lý */
+	// 	object-fit: cover;
+	// }
 
-	&__content {
-		padding: 16px; /* Thêm khoảng cách trong khung thông tin */
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		overflow: hidden; /* Ẩn phần tử ngoài giới hạn */
-	}
+	// &__content {
+	// 	padding: 16px; /* Thêm khoảng cách trong khung thông tin */
+	// 	flex: 1;
+	// 	display: flex;
+	// 	flex-direction: column;
+	// 	justify-content: space-between;
+	// 	overflow: hidden; /* Ẩn phần tử ngoài giới hạn */
+	// }
 
-	&__item-title {
-		font-size: 18px; /* Tăng kích thước tiêu đề */
-		font-weight: bold;
-		color: #333;
-		margin-bottom: 8px;
-	}
+	// &__item-title {
+	// 	font-size: 18px; /* Tăng kích thước tiêu đề */
+	// 	font-weight: bold;
+	// 	color: #333;
+	// 	margin-bottom: 8px;
+	// }
 
-	&__description {
-		color: #555;
-		font-size: 14px; /* Thêm font size dễ đọc */
-		margin-bottom: 8px;
-		flex: 1;
-		overflow: hidden; /* Ẩn phần nội dung vượt quá */
-		display: -webkit-box; /* Cho phép nội dung xuống dòng */
-		-webkit-line-clamp: 5; /* Giới hạn số dòng (4 dòng) */
-		-webkit-box-orient: vertical; /* Đảm bảo nội dung xuống dòng theo chiều dọc */
-		text-overflow: ellipsis; /* Thêm dấu ba chấm nếu văn bản dài */
-	}
+	// &__description {
+	// 	color: #555;
+	// 	font-size: 14px; /* Thêm font size dễ đọc */
+	// 	margin-bottom: 8px;
+	// 	flex: 1;
+	// 	overflow: hidden; /* Ẩn phần nội dung vượt quá */
+	// 	display: -webkit-box; /* Cho phép nội dung xuống dòng */
+	// 	-webkit-line-clamp: 5; /* Giới hạn số dòng (4 dòng) */
+	// 	-webkit-box-orient: vertical; /* Đảm bảo nội dung xuống dòng theo chiều dọc */
+	// 	text-overflow: ellipsis; /* Thêm dấu ba chấm nếu văn bản dài */
+	// }
 
-	&__date {
-		font-size: 14px;
-		color: #999;
-	}
+	// &__date {
+	// 	font-size: 14px;
+	// 	color: #999;
+	// }
+		.splide-news {
+			width: 100%;
+	
+			.splide__slide {
+				width: 100%;
+				height: 480px;
+				margin: 0 10px;
+				border: solid 1px #8d8c8c;
+				border-radius: 5px;
+				/* Example height for the slides */
+				background-size: cover;
+				background-position: center;
+	
+				// @include media-breakpoint-up(md) {
+				// 	height: 400px;
+				// 	/* Example height for larger screens */
+				// }
+	
+				.news__image {
+					width: 100%;
+					height: 200px;
+					/* Adjust the height of the image */
+					object-fit: cover;
+				}
+	
+				.news__content {
+					padding: 16px;
+					/* Add padding inside the content box */
+					display: flex;
+					flex-direction: column;
+					justify-content: space-between;
+					overflow: hidden;
+					/* Hide overflow content */
+				}
+	
+				.news__item-title {
+					font-size: 18px;
+					/* Increase the title font size */
+					font-weight: bold;
+					color: #333;
+					margin-bottom: 8px;
+				}
+	
+				.news__description {
+					color: #555;
+					font-size: 14px;
+					/* Set a readable font size */
+					margin-bottom: 8px;
+				}
+	
+				.news__date {
+					font-size: 12px;
+					color: #999;
+				}
+			}
+		}
 }

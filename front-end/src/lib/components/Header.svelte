@@ -9,6 +9,7 @@
 	let family_name = writable('');
 	let given_name = writable('');
 	let isLoggedIn = writable(false);
+	let showMobileMenu = writable(false);
 
 	onMount(() => {
 		const token = localStorage.getItem('jwt');
@@ -84,6 +85,11 @@
 
 	const toggleMobileMenu = () => {
 		showMobileMenu.update((value) => !value);
+		if ($showMobileMenu) {
+			document.body.classList.add('no-scroll');
+		} else {
+			document.body.classList.remove('no-scroll');
+		}
 	};
 </script>
 
@@ -129,50 +135,31 @@
 		</div>
 
 		{#if $showMobileMenu}
-			<div class="header__mobile--menu" transition:fade>
-				<nav class="mobile-links">
+			<div class="overlay" transition:fade on:click={toggleMobileMenu}></div>
+			<div class="header__mobile-menu" transition:fade>
+				<nav class="header__mobile-links">
 					<a href="/user/dashboard#news-section" on:click={toggleMobileMenu}>Khám phá</a>
 					<a href="/user/checkin" on:click={toggleMobileMenu}>Làm thủ tục</a>
 					<a href="/user/ticket" on:click={toggleMobileMenu}>Thông tin vé</a>
 				</nav>
 
-				<div class="mobile-auth">
+				<div class="header__mobile-links">
 					{#if $isLoggedIn}
-						<div class="dropdown">
-							<span class="username" on:click={toggleDropdown}>{$family_name} {$given_name}</span>
-							{#if $showDropdown}
-								<div class="dropdown-menu">
-									<button on:click={logout} class="logout-btn">Đăng xuất</button>
-								</div>
-							{/if}
+						<div class="header__mobile-auth">
+							<div class="header__mobile-account">
+								<span class="header__mobile-username" on:click={toggleDropdown}>{$family_name} {$given_name}</span>
+								<Icon icon="codicon:account" style="font-size: 22px; color: $light-purple;" />
+							</div>
+							<button on:click={logout} class="logout-btn">Đăng xuất</button>
 						</div>
 					{:else}
-						<a href="/user/login" class="login" on:click={toggleMobileMenu}>Đăng nhập</a> |
-						<a href="/user/signup" class="register" on:click={toggleMobileMenu}>Đăng ký</a>
+						<div class="header__mobile-auth">
+							<button on:click={() => goto('/user/login')} class="login">Đăng nhập</button>
+							<button on:click={() => goto('/user/signup')} class="register">Đăng ký</button>
+						</div>
 					{/if}
 				</div>
 			</div>
 		{/if}
 	</div>
 </header>
-
-<style>
-	.mobile-menu {
-		display: block;
-		position: absolute;
-		top: 60px;
-		left: 0;
-		width: 100%;
-		background-color: white;
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-		z-index: 1;
-	}
-
-	.mobile-links a,
-	.mobile-auth a {
-		display: block;
-		padding: 12px 16px;
-		text-decoration: none;
-		color: black;
-	}
-</style>

@@ -1,13 +1,13 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { writable, get } from 'svelte/store';
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
 	import { quantity, tripType } from '../store';
 
-	let splideElement;
-	let splideInstance;
+	let splideElement1;
+	let splideElement2;
 	let showHiddenForm = false;
 	let departures = writable([]);
 	let arrivals = writable([]);
@@ -46,6 +46,9 @@
 					...post,
 					image_url: getRandomImage() // Gán ảnh ngẫu nhiên
 				}));
+				await tick();
+				initializeSplide();
+				console.log('Posts loaded:', posts); // Debug
 			} else {
 				console.error('Failed to fetch posts:', response.status);
 			}
@@ -78,33 +81,8 @@
 		return imageList[randomIndex];
 	}
 
-	onMount(() => {
-		fetchPosts();
-	});
-
-	// Duyệt sang tin tức tiếp theo
-	function goNext() {
-		if (currentIndex + 3 < posts.length) {
-			currentIndex += 1;
-		}
-	}
-
-	// Duyệt ngược về tin tức trước đó
-	function goPrevious() {
-		if (currentIndex > 0) {
-			currentIndex -= 1;
-		}
-	}
-
-	function closeModal() {
-		showModal = false;
-	}
-
-	// Lấy 3 tin tức cần hiển thị dựa vào currentIndex
-	$: visiblePosts = posts.slice(currentIndex, currentIndex + 3);
-
-	onMount(() => {
-		const splideInstance = new Splide(splideElement, {
+	const initializeSplide = () => {
+		const splideInstance = new Splide(splideElement1, {
 			type: 'loop',
 			autoplay: true,
 			interval: 5000,
@@ -115,6 +93,59 @@
 			pauseOnHover: false,
 			pauseOnFocus: false
 		}).mount();
+
+		const splidePost = new Splide(splideElement2, {
+			type: 'loop',
+			autoplay: true,
+			interval: 4000,
+			speed: 1500,
+			easing: 'ease',
+			arrows: true,
+			pagination: false,
+			pauseOnHover: false,
+			pauseOnFocus: false,
+			perPage: 3,
+			perMove: 1
+		}).mount();
+	};
+
+	onMount(() => {
+		fetchPosts();
+	});
+
+	function closeModal() {
+		showModal = false;
+	}
+
+	// Lấy 3 tin tức cần hiển thị dựa vào currentIndex
+	// $: visiblePosts = posts.slice(currentIndex, currentIndex + 3);
+
+	onMount(() => {
+		// const splideInstance = new Splide(splideElement1, {
+		// 	type: 'loop',
+		// 	autoplay: true,
+		// 	interval: 5000,
+		// 	speed: 1500,
+		// 	easing: 'ease',
+		// 	arrows: false,
+		// 	pagination: true,
+		// 	pauseOnHover: false,
+		// 	pauseOnFocus: false
+		// }).mount();
+
+		// const splidePost = new Splide(splideElement2, {
+		// 	type: 'loop',
+		// 	autoplay: true,
+		// 	interval: 4000,
+		// 	speed: 1500,
+		// 	easing: 'ease',
+		// 	arrows: true,
+		// 	pagination: true,
+		// 	pauseOnHover: false,
+		// 	pauseOnFocus: false,
+		// 	perPage: 3,
+		// 	perMove: 1
+		// }).mount();
 
 		document.addEventListener('click', handleClickOutside);
 	});
@@ -180,12 +211,21 @@
 
 <div class="slick">
 	<div class="blur {showHiddenForm ? 'show' : 'd-none'}"></div>
-	<div class="splide" bind:this={splideElement}>
+	<div class="splide splide--1" bind:this={splideElement1}>
 		<div class="splide__track">
 			<ul class="splide__list">
-				<li class="splide__slide" style="background-image: url('/images/cau.jpg');"></li>
-				<li class="splide__slide" style="background-image: url('/images/vinhhalong.jpg');"></li>
-				<li class="splide__slide" style="background-image: url('/images/ruongbacthang.jpg');"></li>
+				<li
+					class="splide__slide splide__slide--1"
+					style="background-image: url('/images/cau.jpg');"
+				></li>
+				<li
+					class="splide__slide splide__slide--1"
+					style="background-image: url('/images/vinhhalong.jpg');"
+				></li>
+				<li
+					class="splide__slide splide__slide--1"
+					style="background-image: url('/images/ruongbacthang.jpg');"
+				></li>
 			</ul>
 		</div>
 	</div>
@@ -302,7 +342,46 @@
 			<h2 class="news__title">Tin Tức và Thông Báo</h2>
 			<button class="news__view-all">View All</button>
 		</div>
-		<div class="news__controls">
+		<div bind:this={splideElement2} class="splide splide-news">
+			<div class="splide__track">
+				<ul class="splide__list">
+					{#if posts.length === 0}
+						<li class="splide__slide">Đang tải...</li>
+					{:else}
+						{#each posts as post}
+							<li class="splide__slide news__item" on:click={() => fetchPostDetail(post.post_id)}>
+								<img
+									class="news__image"
+									src={post.image_url || 'https://via.placeholder.com/150'}
+									alt="anh"
+								/>
+								<div class="news__content">
+									<h3 class="news__item-title">{post.title}</h3>
+									<p class="news__description">{post.block_1 || 'Không có mô tả'}</p>
+									<span class="news__date">{post.post_date || 'Ngày không xác định'}</span>
+								</div>
+							</li>
+						{/each}
+					{/if}
+					<!-- {#each posts as post}
+							<li class="splide__slide news__item" on:click={() => fetchPostDetail(post.post_id)}>
+								<img
+									class="news__image"
+									src={post.image_url || 'https://via.placeholder.com/150'}
+									alt="anh"
+								/>
+								<div class="news__content">
+									<h3 class="news__item-title">{post.title}</h3>
+									<p class="news__description">sàg</p>
+									<span class="news__date">sgsh</span>
+								</div>
+							</li>
+						{/each} -->
+				</ul>
+			</div>
+		</div>
+
+		<!-- <div class="news__controls">
 			<button on:click={goPrevious} class="news__nav">←</button>
 			<div class="news__list">
 				{#each visiblePosts as post}
@@ -321,7 +400,7 @@
 				{/each}
 			</div>
 			<button on:click={goNext} class="news__nav">→</button>
-		</div>
+		</div> -->
 	</div>
 
 	<!-- Modal -->
