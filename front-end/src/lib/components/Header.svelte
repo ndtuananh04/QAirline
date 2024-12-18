@@ -79,6 +79,7 @@
 		}
 	};
 
+	let showMobileMenu = writable(false);
 	const toggleDropdown = () => {
 		showDropdown.update((value) => !value);
 	};

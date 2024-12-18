@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 class Posts(db.Model):
     __tablename__ = 'posts'
     post_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(1024), nullable=False)
     block_1 = db.Column(db.Text, nullable=False)
     block_2 = db.Column(db.Text, nullable=True)
     block_3 = db.Column(db.Text, nullable=True)
@@ -54,23 +54,17 @@ class Posts(db.Model):
             "block_5": self.block_5 or '',
             "post_date": self.post_date.strftime('%Y-%m-%d %H:%M:%S')
         }    
-    
-    def to_json_2(self):
-        return {
-            "post_id": self.post_id,
-            "title": self.title
-        }
 
     @classmethod
     def get_all_posts_admin(cls):
-        posts = db.session.query(
+        postsss = db.session.query(
             Posts.post_id,
             Posts.title
         ).all()
         
         posts_list = {}
         
-        for post in posts:
+        for post in postsss:
             if post.post_id not in posts_list:
                 posts_list[post.post_id] = {
                     "post_id": post.post_id,
@@ -78,11 +72,39 @@ class Posts(db.Model):
                 }
             results = list(posts_list.values())
         return results
+    
+    @classmethod
+    def get_post_id(cls, post_id):
+        post = db.session.query(
+            Posts.post_id,
+            Posts.title,
+            Posts.block_1,
+            Posts.block_2,
+            Posts.block_3,
+            Posts.block_4,
+            Posts.block_5,
+        ).filter(Posts.post_id == post_id).first()
+        
+        post_data = {
+            'post_id': post.post_id,
+            'title': post.title,
+            'block_1': post.block_1,
+            'block_2': post.block_2,
+            'block_3': post.block_3,
+            'block_4': post.block_4,
+            'block_5': post.block_5
+        }
+        
+        return post_data
         
     
     @classmethod
     def get_all_posts1(cls):
         return cls.query.all()   
+    
+    @classmethod
+    def find_post_id(cls, post_id):
+        return cls.query.filter_by(post_id=post_id).first()
     
     def save_to_db(self):
         db.session.add(self)

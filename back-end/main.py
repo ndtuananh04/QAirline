@@ -8,9 +8,9 @@ from flask_jwt_extended import create_access_token
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass, VerifyToken, VerifyTokenAdmin
 from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin
 from controllers.airplaneC import AirplaneSearch
-from controllers.ticketC import TicketCustomer, TicketAdmin, SelectTicket
+from controllers.ticketC import TicketCustomer, TicketAdmin, SelectTicket,QuantityTicket
 from controllers.promotionC import PromotionPrice, PromotionAdmin
-from controllers.postC import PostCustomer, PostAdmin, PostDetail
+from controllers.postC import PostCustomer, PostAdmin, PostDetail, PostModal
 from controllers.checkinC import CheckinC
 from controllers.seatsC import SeatsAirplane, SeatsAdmin
 from controllers.adminC import QuantityRole, AddAccount, DeleteAccount
@@ -46,13 +46,15 @@ api.add_resource(AirplaneSearch, '/airplanes', '/airplanes/<int:airplane_id>')
 api.add_resource(SelectTicket, '/select-ticket')
 api.add_resource(TicketCustomer, '/ticket-customer', '/ticket-customer/<int:ticket_id>')
 api.add_resource(TicketAdmin, '/ticket-admin', '/ticket-customer/<int:ticket_id>')
+api.add_resource(QuantityTicket, '/quantity-ticket')
 
 api.add_resource(PromotionPrice, '/promotion-search')
 api.add_resource(PromotionAdmin, '/promotions', '/promotions/<int:promotion_id>')
 
 api.add_resource(PostCustomer, '/post-customer')
-api.add_resource(PostAdmin, '/posts')
+api.add_resource(PostAdmin, '/posts', '/posts/<int:post_id>')
 api.add_resource(PostDetail, '/post-detail/<int:post_id>')
+api.add_resource(PostModal, '/post-modal/<int:post_id>')
 
 api.add_resource(CheckinC, '/checkin')
 

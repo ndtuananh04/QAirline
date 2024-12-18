@@ -29,6 +29,11 @@
 	};
 
 	onMount(() => {
+		const token = localStorage.getItem('jwt');
+		if (!token) {
+			alert('Bạn chưa đăng nhập. Vui lòng đăng nhập!');
+			goto('/admin/login'); // Điều hướng tới trang đăng nhập
+		}
 		fetchFlights();
 	});
 
