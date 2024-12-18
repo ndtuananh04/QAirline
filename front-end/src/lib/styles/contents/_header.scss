@@ -39,6 +39,11 @@
             display: none;
         }
 
+        i {
+            &:hover {
+                cursor: pointer;
+            }
+        }
     }
 
     &__account {
@@ -72,4 +77,6 @@
             }
         }
     }
+
+    
 }
