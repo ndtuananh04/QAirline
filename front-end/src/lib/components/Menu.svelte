@@ -1,6 +1,12 @@
 <div class="menu-admin">
 	<ul class="menu-admin__list">
 		<li>
+			<a href="/admin/dashboard">
+				<img src="/images/dashboard-admin.png" alt="Icon" class="menu-icon" />
+				Tổng quan
+			</a>
+		</li>
+		<li>
 			<a href="/admin/manager/accounts">
 				<img src="/images/account-admin.png" alt="Icon" class="menu-icon" />
 				Tài khoản

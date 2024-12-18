@@ -10,14 +10,6 @@ from models.userInfoDB import UserInfo
 from services.accountS import AccountS
 from services import my_mail
 
-class Valid(Resource):
-    @jwt_required()  # Xác thực token
-    def post(self):
-        current_user = get_jwt_identity()
-        if current_user:
-            return {'msg': 'Token hợp lệ.'}, 200
-        return {'msg': 'Token không hợp lệ.'}, 401
-
 class AccountLogin(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('email', type=str, required=True, help="This field cannot be left blank")
@@ -154,6 +146,19 @@ class VerifyToken(Resource):
                     family_name=user_info.family_name,
                     given_name=user_info.given_name
                 )
+        return {'msg': 'Token is invalid'}, 401
+    
+class VerifyTokenAdmin(Resource):
+    @jwt_required()
+    def post(self):
+        current_user = get_jwt_identity()
+        user = Account.query.filter_by(account_id=current_user).first()
+        if user.role.name == 'customer':
+            return {'msg': 'Trang chỉ dành cho quản trị viên'}, 401
+        if user.role.name == 'admin':   
+            return jsonify(
+                email=user.email
+            )
         return {'msg': 'Token is invalid'}, 401
     
 class UserLogoutAccess(Resource):

@@ -3,7 +3,7 @@ import os
 
 ''' SQLALCHEMY_DATABASE_URI = 'sqlite:///database123.db' '''
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:19052004@localhost/qairline'
-SECRET_KEY = 'Latinos4PussinBoots'
+SECRET_KEY = 'LeBaHoang'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_POOL_SIZE = 1000   # Để tạm là 300 -> setTimeOutError sqlachemy
 MAIL_SERVER = 'smtp.gmail.com'
