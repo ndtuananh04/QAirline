@@ -1,0 +1,261 @@
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+}
+
+.modal-content1 {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 800px; /* Kích thước cố định */
+    width: 100%;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+}
+
+.modal-content1.animate {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-content.animate {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.modal-body {
+    display: flex;
+    justify-content: space-between; /* Giãn cách giữa các ô */
+    gap: 30px;
+    margin-bottom: -10px;
+}
+
+.select-wrapper {
+    margin: 5px 0;
+}
+
+.custom-select {
+    appearance: none;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 16px;
+    color: #333;
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.custom-select:hover {
+    border-color: #888;
+}
+
+.custom-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.delete-btn,
+.submit-btn,
+.cancel-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 48%;
+}
+
+.submit-btn {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.cancel-btn {
+    background-color: #e0e0e0;
+    color: #333333;
+}
+
+.cancel-btn:hover {
+    background-color: #c6c6c6;
+}
+
+.delete-btn {
+    background-color: #ff4d4f;
+    color: #ffffff;
+}
+
+.delete-btn:hover {
+    background-color: #d9363e;
+    transform: translateY(-2px);
+}
+
+.submit-btn:hover,
+.cancel-btn:hover {
+    transform: translateY(-2px);
+}
+
+.input-wrapper {
+    flex: 1;
+}
+
+.input-wrapper label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.error-text {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+
+    .delete-btn,
+    .submit-btn,
+    .cancel-btn {
+        font-size: 12px;
+        padding: 8px 15px;
+    }
+
+    .modal-body {
+        flex-wrap: wrap; /* Đưa các ô xuống dòng nếu không đủ chỗ */
+    }
+
+    .input-wrapper {
+        flex: 1 1 100%; /* Ô chiếm toàn bộ dòng trên màn hình nhỏ */
+    }
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: right;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-left: 220px;
+}
+
+.info-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: auto;
+}
+
+.info-box p {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.info-box strong {
+    color: #007bff;
+}
+
+.add-account-container {
+    text-align: right;
+    margin-top: auto; /* Khoảng cách từ header đến nút */
+    margin-right: 0px;
+    margin-left: auto;
+}
+
+.btn-add-admin {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-add-admin:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .input-wrapper {
+        flex: 1 1 100%;
+    }
+}
+
+.custom-select,
+.input-wrapper input {
+    height: 40px; /* Đặt chiều cao đồng bộ */
+    line-height: 1.2;
+    box-sizing: border-box; /* Đảm bảo kích thước bao gồm cả padding và border */
+}
+
+.sortable-header {
+    cursor: pointer;
+    color: black; /* Màu mặc định */
+    transition: color 0.3s ease;
+}
+
+.sortable-header:hover {
+    color: rgb(0, 255, 255); /* Màu khi di chuột */
+}
+
+/* Thay đổi màu khi cột được click */
+.sortable-header.active {
+    color: red; /* Màu khi click */
+}

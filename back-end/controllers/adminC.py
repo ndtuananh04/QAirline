@@ -1,14 +1,11 @@
-from models.accountDB import Account
-from models.userInfoDB import UserInfo
-from flask_restful import Resource, reqparse
-from models.accountDB import Account
-from werkzeug.security import generate_password_hash
-from database import AlchemyEncoder
-import json
-from models.accountDB import AccountType
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
-from core.auth import authorized_required
 from flask import jsonify, session, request
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
+from flask_restful import Resource, reqparse
+from werkzeug.security import generate_password_hash
+from models.userInfoDB import UserInfo
+from models.accountDB import Account, AccountType
+from core.auth import authorized_required
+
 
 class QuantityRole(Resource):
     @jwt_required()

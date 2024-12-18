@@ -1,7 +1,8 @@
+import enum
 from database import db
 from sqlalchemy.sql import func
-import enum
 from flask import jsonify
+from models.airplanesDB import Airplanes
 
 
 class SeatClass(enum.Enum):

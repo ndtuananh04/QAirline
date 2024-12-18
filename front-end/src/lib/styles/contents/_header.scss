@@ -55,7 +55,7 @@
             cursor: pointer;
         }
     }
-
+    
     &__auth {
         position: relative;
     }
@@ -70,7 +70,6 @@
             color: $light-gray;
             padding: 10px 25px;
             border-radius: 5px;
-
             &:hover {
                 background-color: $light-purple;
                 

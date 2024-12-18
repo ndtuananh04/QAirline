@@ -6,7 +6,6 @@
 	import { fade } from 'svelte/transition';
 
 	let showDropdown = writable(false);
-	let showMobileMenu = writable(false);
 	let family_name = writable('');
 	let given_name = writable('');
 	let isLoggedIn = writable(false);
@@ -60,7 +59,6 @@
 						Authorization: `Bearer ${token}`
 					}
 				});
-
 				if (response.ok) {
 					localStorage.removeItem('jwt');
 					localStorage.removeItem('family_name');
@@ -79,6 +77,7 @@
 			}
 		}
 	};
+
 	const toggleDropdown = () => {
 		showDropdown.update((value) => !value);
 	};

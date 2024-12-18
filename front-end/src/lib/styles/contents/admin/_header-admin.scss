@@ -41,4 +41,34 @@
 
     }
 
+    &__account {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    
+    &__auth {
+        position: relative;
+    }
+
+    &__dropdown {
+        position: absolute;
+        display: block;
+        z-index: 100;
+        top: 30px;
+        button {
+            background-color: $dark-blue;
+            color: $light-gray;
+            padding: 10px 25px;
+            border-radius: 5px;
+            &:hover {
+                background-color: $light-purple;
+                
+            }
+        }
+    }
 }

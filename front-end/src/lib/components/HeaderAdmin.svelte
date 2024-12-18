@@ -1,5 +1,72 @@
 <script>
 	import Icon from '@iconify/svelte';
+	import { onMount } from 'svelte';
+	import { writable } from 'svelte/store';
+	import { goto } from '$app/navigation';
+	
+	let isLoggedIn = writable(false);
+	let showDropdown = writable(false);
+	let email = writable('');
+
+	onMount(async () => {
+		const token = localStorage.getItem('jwt');
+		if (token) {
+			try {
+				const response = await fetch('http://localhost:5000/verify-token-admin', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					}
+				});
+				if (response.ok) {
+					const data = await response.json();
+					isLoggedIn.set(true);
+					email.set(data.email);
+				} else {
+					isLoggedIn.set(false);
+					localStorage.removeItem('jwt'); // Remove invalid token
+					const errorData = await response.json();
+					alert(errorData.msg);
+				}
+			} catch (error) {
+				console.error('Error verifying token:', error);
+				isLoggedIn.set(false);
+				localStorage.removeItem('jwt'); // Remove invalid token
+			}
+		}
+	});
+
+	const logout = async () => {
+		const token = localStorage.getItem('jwt');
+		if (token) {
+			try {
+				const response = await fetch('http://localhost:5000/logout', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					}
+				});
+				if (response.ok) {
+					localStorage.removeItem('jwt');
+					isLoggedIn.set(false);
+					email.set('');
+					alert('Đăng xuất thành công.');
+					goto('/admin/login');
+				} else {
+					alert('Đăng xuất thất bại.');
+				}
+			} catch (error) {
+				console.error('Đăng xuất thất bại:', error);
+				alert('Đăng xuất thất bại.');
+			}
+		}
+	};
+
+	const toggleDropdown = () => {
+		showDropdown.update((value) => !value);
+	};
 </script>
 
 <header class="header-admin">
@@ -16,16 +83,18 @@
 		</div>
 
 		<div class="header-admin__pcpart">
-			<nav class="header-admin__links">
-				<a href="/user/dashboard#news-section">Khám phá</a>
-				<a href="/user/checkin">Làm thủ tục</a>
-				<a href="/user/ticket">Thông tin vé</a>
-			</nav>
-
 			<div class="header-admin__auth">
-				<a href="/user/login" class="login">Đăng nhập</a> |
-				<a href="/user/signup" class="register">Đăng ký</a>
-				<Icon icon="codicon:account" style="font-size: 22px; color: white;" />
+				{#if $isLoggedIn}
+					<div class="header-admin__account" on:click={toggleDropdown}>
+						<span>{$email}</span>
+						<Icon icon="codicon:account" style="font-size: 22px; color: white;" />
+					</div>
+					{#if $showDropdown}
+						<div class="header-admin__dropdown">
+							<button on:click={logout} class="logout-btn">Đăng xuất</button>
+						</div>
+					{/if}
+				{/if}
 			</div>
 		</div>
 	</div>

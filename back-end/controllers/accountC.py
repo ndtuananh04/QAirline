@@ -1,17 +1,14 @@
 import os
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, RevokedTokenModel
-from models.userInfoDB import UserInfo
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask import jsonify, request
+from flask import jsonify, request, make_response
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from flask_mail import Message
-from services.accountS import AccountS
+from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
+from models.accountDB import Account, RevokedTokenModel
+from models.userInfoDB import UserInfo
+from services.accountS import AccountS
 from services import my_mail
-from datetime import timedelta
-import random
-from itsdangerous import URLSafeTimedSerializer
 
 class AccountLogin(Resource):
     parser = reqparse.RequestParser()
@@ -149,6 +146,19 @@ class VerifyToken(Resource):
                     family_name=user_info.family_name,
                     given_name=user_info.given_name
                 )
+        return {'msg': 'Token is invalid'}, 401
+    
+class VerifyTokenAdmin(Resource):
+    @jwt_required()
+    def post(self):
+        current_user = get_jwt_identity()
+        user = Account.query.filter_by(account_id=current_user).first()
+        if user.role.name == 'customer':
+            return {'msg': 'Trang chỉ dành cho quản trị viên'}, 401
+        if user.role.name == 'admin':   
+            return jsonify(
+                email=user.email
+            )
         return {'msg': 'Token is invalid'}, 401
     
 class UserLogoutAccess(Resource):
