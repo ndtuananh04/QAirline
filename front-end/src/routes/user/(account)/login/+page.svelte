@@ -45,31 +45,31 @@
 		}
 	}
 
-async function fetchUserName() {
-        const token = localStorage.getItem('jwt');
-        if (token) {
-            try {
-                const response = await fetch('http://localhost:5000/verify-token', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+	async function fetchUserName() {
+		const token = localStorage.getItem('jwt');
+		if (token) {
+			try {
+				const response = await fetch('http://localhost:5000/verify-token', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					}
+				});
 
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('family_name', data.family_name);
+				if (response.ok) {
+					const data = await response.json();
+					localStorage.setItem('family_name', data.family_name);
 					localStorage.setItem('given_name', data.given_name);
-                } else {
-                    localStorage.removeItem('jwt'); // Remove invalid token
-                }
-            } catch (error) {
-                console.error('Error verifying token:', error);
-                localStorage.removeItem('jwt'); // Remove invalid token
-            }
-        }
-    }
+				} else {
+					localStorage.removeItem('jwt'); // Remove invalid token
+				}
+			} catch (error) {
+				console.error('Error verifying token:', error);
+				localStorage.removeItem('jwt'); // Remove invalid token
+			}
+		}
+	}
 </script>
 
 <div class="formbold-main-wrapper">

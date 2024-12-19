@@ -113,7 +113,7 @@ class TicketCustomer(Resource):
         if tickets:
             return tickets
         else:
-            return {"message": "No tickets found"}, 400
+            return {"message": "Không tìm thấy vé"}, 400
         
     @jwt_required()
     @authorized_required(roles=["customer"])

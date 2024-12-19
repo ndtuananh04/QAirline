@@ -1,10 +1,6 @@
 from datetime import date
 from database import db
 from sqlalchemy.sql import func
-from models.flightsDB import Flights
-from models.airplanesDB import Airplanes
-from models.seatsDB import Seats
-from models.userInfoDB import UserInfo
 from sqlalchemy.orm import aliased
 import enum
 from flask_jwt_extended import JWTManager

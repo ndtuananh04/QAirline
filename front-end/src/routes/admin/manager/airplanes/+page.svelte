@@ -287,7 +287,6 @@
 							id="name_airplane"
 							bind:value={upAirplane.name_airplane}
 							placeholder="Nhập tên máy bay"
-							required
 						/>
 					</div>
 					<div class="input-wrapper">
@@ -297,7 +296,6 @@
 							id="capacity"
 							bind:value={upAirplane.capacity}
 							placeholder="Nhập số lượng"
-							required
 						/>
 					</div>
 					<div class="button-group">

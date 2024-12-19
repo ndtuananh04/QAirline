@@ -38,13 +38,13 @@ class Promotions(db.Model):
         
         promotions_list = {}
         for promotion in promotions:
-            promotions_list[promotion.promotion_id] = {
-                "promotion_id": promotion.promotion_id,
-                "code_promotion": promotion.code_promotion,
-                "percent": promotion.percent
-            }
-        results = list(promotions_list.values())
-        
+            if promotion.promotion_id not in promotions_list:
+                promotions_list[promotion.promotion_id] = {
+                    "promotion_id": promotion.promotion_id,
+                    "code_promotion": promotion.code_promotion,
+                    "percent": promotion.percent
+                }
+            results = list(promotions_list.values())
         return results
     
     def save_to_db(self):

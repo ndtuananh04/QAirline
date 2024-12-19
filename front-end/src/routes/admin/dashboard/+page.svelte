@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { Chart, registerables } from 'chart.js';
+	import { goto } from '$app/navigation';
 
 	let chartCanvas;
 	let chartInstance;
@@ -148,6 +149,11 @@
 	};
 
 	onMount(() => {
+		const token = localStorage.getItem('jwt');
+		if (!token) {
+			alert('Bạn chưa đăng nhập. Vui lòng đăng nhập!');
+			goto('/admin/login'); // Điều hướng tới trang đăng nhập
+		}
 		fetchChartData(selectedYear); // Lấy dữ liệu cho năm mặc định khi trang tải
 	});
 </script>
@@ -161,9 +167,9 @@
 <div class="year-selector">
 	<label for="year">Chọn năm: </label>
 	<select id="year" bind:value={selectedYear} on:change={handleYearChange}>
-		<option value="2024">2024</option>
-		<option value="2025">2025</option>
-		<option value="2026">2026</option>
+		<option value={2024}>2024</option>
+		<option value={2025}>2025</option>
+		<option value={2026}>2026</option>
 	</select>
 </div>
 
@@ -173,6 +179,7 @@
 		overflow-y: auto;
 		padding: 50px;
 		margin-left: 200px;
+		margin-top: 50px;
 	}
 
 	.chart-container canvas {
@@ -184,14 +191,34 @@
 	}
 
 	.year-selector {
-		margin-top: 20px;
+		margin-top: -10px;
 		text-align: center;
+		margin-left: 200px;
 	}
 
 	.year-selector select {
 		font-size: 16px;
-		padding: 5px;
-		border-radius: 5px;
-		border: 1px solid #ccc;
+		padding: 10px 15px; /* Tăng padding để dễ nhìn hơn */
+		border-radius: 8px; /* Bo tròn các góc */
+		border: 1px solid #ccc; /* Viền nhẹ */
+		background-color: #f9f9f9; /* Màu nền sáng */
+		color: #333; /* Màu chữ */
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+		transition: all 0.3s ease; /* Thêm hiệu ứng chuyển động */
+		cursor: pointer; /* Thêm biểu tượng con trỏ khi hover */
+	}
+
+	/* Hiệu ứng hover */
+	.year-selector select:hover {
+		background-color: #e6f7ff; /* Đổi màu nền khi hover */
+		border-color: #40a9ff; /* Đổi màu viền khi hover */
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Tăng đổ bóng */
+	}
+
+	/* Hiệu ứng khi click vào */
+	.year-selector select:focus {
+		outline: none; /* Bỏ đường viền mặc định */
+		border-color: #1890ff; /* Viền xanh đậm */
+		box-shadow: 0 0 5px rgba(24, 144, 255, 0.5); /* Tăng hiệu ứng sáng */
 	}
 </style>

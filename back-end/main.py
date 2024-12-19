@@ -14,6 +14,7 @@ from controllers.postC import PostCustomer, PostAdmin, PostDetail, PostModal
 from controllers.checkinC import CheckinC
 from controllers.seatsC import SeatsAirplane, SeatsAdmin
 from controllers.adminC import QuantityRole, AddAccount, DeleteAccount
+from controllers.userInfoC import UserInfoController
 
 from services.__init__ import init_app
 from controllers.__init__ import init_app
@@ -32,6 +33,8 @@ api.add_resource(UserLogoutAccess, '/logout')
 api.add_resource(Repass, '/repass')
 api.add_resource(VerifyToken, '/verify-token')
 api.add_resource(VerifyTokenAdmin, '/verify-token-admin')
+
+api.add_resource(UserInfoController, '/user-info')
 
 api.add_resource(QuantityRole, '/quantity-role')
 api.add_resource(AddAccount, '/addaccount')

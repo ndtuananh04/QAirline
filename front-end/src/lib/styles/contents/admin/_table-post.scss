@@ -1,23 +1,23 @@
 .table-post {
-    margin-left: 220px; // Khoảng cách cách Menu (Menu rộng 200px + padding)
-    margin-top: 1rem; // Khoảng cách cách HeaderAdmin
+    margin-left: 220px; // Khoảng cách so với Menu (Menu rộng 200px + padding)
+    margin-top: 1rem; // Khoảng cách so với HeaderAdmin
     border-collapse: collapse;
     width: calc(100% - 240px); // Trừ chiều rộng menu và padding
-    border: px solid rgba(0, 0, 0, 0.1); // Viền ngoài của bảng
+    border: 1px solid rgba(0, 0, 0, 0.1); // Viền ngoài của bảng
     background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // Giảm độ nổi của bóng
 
     thead {
-        background-color: #f7f7f7; // Nền của header bảng
+        background-color: #f3f3f3; // Nền của header bảng
         text-align: left;
-    
+
         th {
             padding: 1rem;
             font-weight: 700;
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1); // Đường viền dưới header
-    
-            &.action-header { /* Áp dụng cho cột Hành động */
-                text-align: center;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1); // Đường viền dưới của header
+
+            &.action-header { 
+                text-align: center; 
             }
         }
     }
@@ -28,8 +28,12 @@
                 background-color: #f9f9f9; // Nền xen kẽ cho các hàng lẻ
             }
 
+            &:nth-child(even) {
+                background-color: #ffffff; // Nền cho các hàng chẵn
+            }
+
             &:hover {
-                background-color: rgba(0, 0, 255, 0.05); // Hiệu ứng hover
+                background-color: #e6f7ff; // Đổi màu khi di chuột qua
             }
 
             td {
@@ -38,7 +42,7 @@
                 text-align: left;
 
                 &.action-cell {
-                    text-align: center; /* Giữ cho nội dung căn giữa */
+                    text-align: center; // Giữ cho nội dung căn giữa
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -50,15 +54,24 @@
                         border-radius: 4px;
                         font-size: 0.9rem;
                         cursor: pointer;
+                        transition: background-color 0.3s ease; // Thêm hiệu ứng mượt khi đổi màu
 
                         &.edit {
                             background-color: #4caf50;
                             color: white;
+
+                            &:hover {
+                                background-color: #45a049; // Màu sáng hơn khi hover
+                            }
                         }
 
                         &.delete {
                             background-color: #f44336;
                             color: white;
+
+                            &:hover {
+                                background-color: #e53935; // Màu sáng hơn khi hover
+                            }
                         }
                     }
                 }

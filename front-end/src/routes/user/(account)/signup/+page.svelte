@@ -192,7 +192,7 @@
 						</div>
 					</div>
 
-					<div class="formbold-mb-3">
+					<div class="formbold-input-flex">
 						<div>
 							<label for="nationality" class="formbold-form-label"> Quốc Tịch </label>
 							<input
@@ -212,9 +212,6 @@
 								</div>
 							{/if}
 						</div>
-					</div>
-
-					<div class="formbold-mb-3">
 						<div>
 							<label for="identification" class="formbold-form-label"> CMND/CCCD </label>
 							<input

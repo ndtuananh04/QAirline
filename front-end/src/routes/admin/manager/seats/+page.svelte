@@ -193,6 +193,9 @@
 </script>
 
 <div class="header-container">
+	<div class="info-box">
+		<p>Tổng số lượng ghế: <strong>{seats.length}</strong></p>
+	</div>
 	<div class="add-account-container">
 		<button class="btn-add-admin" on:click={openModalAdd}>Thêm ghế</button>
 	</div>

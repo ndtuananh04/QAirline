@@ -2,6 +2,7 @@ from datetime import date
 from database import db
 from sqlalchemy.sql import func
 import enum
+from models.accountDB import Account
 
 class GenderType(enum.Enum):
     male = "male"
@@ -45,8 +46,36 @@ class UserInfo(db.Model):
         }
         
     @classmethod
-    def find_user_id(cls, account_id):
+    def find_by_account_id(cls, account_id):
         return cls.query.filter_by(account_id=account_id).first()
+        
+    @classmethod
+    def find_user_id(cls, account_id):
+        user_info = db.session.query(
+            UserInfo.identification,
+            UserInfo.family_name,
+            UserInfo.given_name,
+            UserInfo.gender,
+            UserInfo.nationality,
+            UserInfo.date_of_birth,
+            UserInfo.phone_number,
+            Account.email,
+        ).join(Account, Account.account_id == UserInfo.account_id) \
+        .filter(Account.account_id == account_id) \
+        .first()
+        
+        result = {
+            "identification": user_info.identification,
+            "family_name": user_info.family_name,
+            "given_name": user_info.given_name,
+            "gender": user_info.gender.value,
+            "nationality": user_info.nationality,
+            "date_of_birth": user_info.date_of_birth.strftime('%Y-%m-%d'),
+            "phone_number": user_info.phone_number,
+            "email": user_info.email
+        }
+        
+        return result
     
     def save_to_db(self):
         db.session.add(self)

@@ -182,7 +182,7 @@
     align-items: center;
     gap: 1rem;
     text-align: right;
-    margin-top: 20px;
+    margin-top: 100px; /* Thêm khoảng trống để tránh bị header đè lên */
     margin-right: 20px;
     margin-left: 220px;
 }
@@ -212,7 +212,7 @@
 
 .add-account-container {
     text-align: right;
-    margin-top: auto; /* Khoảng cách từ header đến nút */
+    margin-top: auto; 
     margin-right: 0px;
     margin-left: auto;
 }

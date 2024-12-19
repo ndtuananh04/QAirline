@@ -11,12 +11,6 @@
 			</a>
 		</div>
 		<div class="header__auth">
-			<!-- {#if isLoggedIn}
-        <a href="/profile" class="user-icon">👤</a>
-      {:else}
-        <a href="/login" class="login">Đăng nhập</a> |
-        <a href="/register" class="register">Đăng ký</a>
-      {/if} -->
 			<a href="/user/login" class="login">Đăng nhập</a> |
 			<a href="/user/signup" class="register">Đăng ký</a>
 			<Icon icon="codicon:account" style="font-size: 22px;" />

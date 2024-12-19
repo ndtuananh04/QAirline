@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let flights = [];
 	let error = '';

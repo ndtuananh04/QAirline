@@ -110,16 +110,28 @@ class PostAdmin(Resource):
 
         # Chỉ cập nhật các trường có trong payload
         if 'title' in data and data['title']:
+            if not PostService.is_valid_input(data['title']):
+                return {'msg': 'Tiêu đề không hợp lệ.'}, 400
             post.title = data['title']
         if 'block_1' in data and data['block_1']:
+            if not PostService.is_valid_input(data['block_1']):
+                return {'msg': 'Block 1 không hợp lệ.'}, 400
             post.block_1 = data['block_1']
         if 'block_2' in data and data['block_2']:
+            if not PostService.is_valid_input(data['block_2']):
+                return {'msg': 'Block 2 không hợp lệ.'}, 400
             post.block_2 = data['block_2']
         if 'block_3' in data and data['block_3']:
+            if not PostService.is_valid_input(data['block_3']):
+                return {'msg': 'Block 3 không hợp lệ.'}, 400
             post.block_3 = data['block_3']
         if 'block_4' in data and data['block_4']:
+            if not PostService.is_valid_input(data['block_4']):
+                return {'msg': 'Block 4 không hợp lệ.'}, 400
             post.block_4 = data['block_4']
         if 'block_5' in data and data['block_5']:
+            if not PostService.is_valid_input(data['block_5']):
+                return {'msg': 'Block 5 không hợp lệ.'},
             post.block_5 = data['block_5']
         post.post_date = datetime.now()
 

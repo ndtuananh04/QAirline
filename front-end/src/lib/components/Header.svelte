@@ -20,6 +20,7 @@
 			console.log('Logged in as:', $family_name, $given_name);
 		}
 	});
+
 	// onMount(async() => {
 	// 	const token = localStorage.getItem('jwt');
 	// 	if (token) {
@@ -79,7 +80,6 @@
 		}
 	};
 
-	let showMobileMenu = writable(false);
 	const toggleDropdown = () => {
 		showDropdown.update((value) => !value);
 	};
@@ -117,7 +117,8 @@
 					</div>
 					{#if $showDropdown}
 						<div class="header__dropdown">
-							<button on:click={logout} class="logout-btn">Đăng xuất</button>
+							<a href="/user/user-info" class="info-btn">Thông tin cá nhân</a>
+							<a  class="logoutt-btn" on:click={logout}>Đăng xuất</a>
 						</div>
 					{/if}
 				{:else}
@@ -151,7 +152,8 @@
 								<span class="header__mobile-username" on:click={toggleDropdown}>{$family_name} {$given_name}</span>
 								<Icon icon="codicon:account" style="font-size: 22px; color: $light-purple;" />
 							</div>
-							<button on:click={logout} class="logout-btn">Đăng xuất</button>
+							<button class="info-btn">Thông tin cá nhân</button>
+							<button on:click={logout} class="logoutt-btn">Đăng xuất</button>
 						</div>
 					{:else}
 						<div class="header__mobile-auth">

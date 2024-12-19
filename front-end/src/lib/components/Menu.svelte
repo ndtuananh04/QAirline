@@ -36,6 +36,12 @@
 				Thông báo
 			</a>
 		</li>
+		<li>
+			<a href="/admin/manager/promotions">
+				<img src="/images/promotion-admin.png" alt="Icon" class="menu-icon" />
+				Khuyến mãi
+			</a>
+		</li>
 	</ul>
 </div>
 

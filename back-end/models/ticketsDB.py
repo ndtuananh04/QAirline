@@ -178,9 +178,7 @@ class Tickets(db.Model):
             .join(Flights, Flights.flight_id == Tickets.flight_id) \
             .filter(Tickets.flight_id == Flights.flight_id) \
             .all()
-        
-        print(f"Tickets found: {len(tickets)}")
-        
+                
         ticket_list = {}
         
         for ticket in tickets:
@@ -191,7 +189,6 @@ class Tickets(db.Model):
                     "departure_time": ticket.departure_time
                 }
             results = list(ticket_list.values())
-        print(results)
         return results
     
     # Trả về danh sách vé theo account
