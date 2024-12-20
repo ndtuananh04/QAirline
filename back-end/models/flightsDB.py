@@ -76,6 +76,11 @@ class Flights(db.Model):
             arrival=arrival,
             departure_time=departure_time
         ).all()
+        
+    '''Trả về chuyến bay delay'''
+    @classmethod
+    def get_delayed_flights(cls):
+        return cls.query.filter_by(status=FlightType.DELAYED).all()
     
     '''
     Trả về tất cả chuyến bay hiển thị ở admin
@@ -181,33 +186,6 @@ class Flights(db.Model):
     @classmethod
     def find_flight_number(cls, flight_number):
         return cls.query.filter_by(flight_number=flight_number).first()
-    
-    def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def commit_to_db(self):
-        db.session.commit()
-
-    def delete_from_db(self):
-        db.session.delete(self)
-        db.session.commit()
-    
-class FlightDelay(db.Model):
-    __tablename__ = 'flight_delay'
-    delay_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    flight_id = db.Column(db.Integer, db.ForeignKey('flight.flight_id'), nullable=False)
-    new_departure_time = db.Column(db.DateTime())
-
-    def __init__(self, delay_id, new_departure_time):
-        self.delay_id = delay_id   
-        self.new_departure_time = new_departure_time
-
-    def to_json(self):
-        return {
-            "delay_id": self.delay_id,
-            "new_departure_time": self.new_departure_time,
-        }
     
     def save_to_db(self):
         db.session.add(self)

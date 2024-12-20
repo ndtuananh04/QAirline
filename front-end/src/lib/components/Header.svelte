@@ -92,6 +92,7 @@
 			document.body.classList.remove('no-scroll');
 		}
 	};
+
 </script>
 
 <header class="header">
@@ -152,7 +153,7 @@
 								<span class="header__mobile-username" on:click={toggleDropdown}>{$family_name} {$given_name}</span>
 								<Icon icon="codicon:account" style="font-size: 22px; color: $light-purple;" />
 							</div>
-							<button class="info-btn">Thông tin cá nhân</button>
+							<button class="info-btn" on:click={goto('/user/user-info'), toggleMobileMenu}>Thông tin cá nhân</button>
 							<button on:click={logout} class="logoutt-btn">Đăng xuất</button>
 						</div>
 					{:else}

@@ -4,10 +4,15 @@ from datetime import datetime
 from flask_restful import Resource, reqparse
 from database import db
 from flask import jsonify, session, request
-from models.flightsDB import Flights, FlightDelay
+from models.flightsDB import Flights
 from models.airplanesDB import Airplanes
 from services.flightS import FlightService, valid_date, valid_time
 from core.auth import authorized_required
+
+class FlightDelay(Resource):
+    def get(self):
+        flights = Flights.get_delayed_flights()
+        return jsonify([flight.to_json() for flight in flights])
 
 class DepartureArrival(Resource):
     def get(self):

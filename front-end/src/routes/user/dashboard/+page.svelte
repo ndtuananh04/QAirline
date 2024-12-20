@@ -22,8 +22,7 @@
 	let localQuantity = 1;
 
 	let posts = []; // Dữ liệu tin tức
-	let visiblePosts = []; // Tin tức hiển thị
-	let currentIndex = 0; // Chỉ số tin tức hiện tại hiển thị (3 tin mỗi lần)
+	let delayedFlights = writable([]); // Dữ liệu chuyến bay bị delay
 
 	let showModal = false; // Hiển thị modal
 	let selectedPost = null; // Dữ liệu bài viết được chọn
@@ -56,6 +55,21 @@
 			console.error('Error loading posts:', error);
 		}
 	}
+
+	async function fetchDelayedFlights() {
+        try {
+            const response = await fetch('http://localhost:5000/flights-delay');
+            if (response.ok) {
+                const data = await response.json();
+                delayedFlights.set(data);
+                console.log('Delayed flights loaded:', data);
+            } else {
+                console.error('Failed to fetch delayed flights:', response.status);
+            }
+        } catch (error) {
+            console.error('Error loading delayed flights:', error);
+        }
+    }
 
 	// Hàm gọi API lấy chi tiết bài viết
 	async function fetchPostDetail(post_id) {
@@ -110,6 +124,7 @@
 	};
 
 	onMount(() => {
+		fetchDelayedFlights();
 		fetchPosts();
 	});
 
@@ -117,36 +132,7 @@
 		showModal = false;
 	}
 
-	// Lấy 3 tin tức cần hiển thị dựa vào currentIndex
-	// $: visiblePosts = posts.slice(currentIndex, currentIndex + 3);
-
 	onMount(() => {
-		// const splideInstance = new Splide(splideElement1, {
-		// 	type: 'loop',
-		// 	autoplay: true,
-		// 	interval: 5000,
-		// 	speed: 1500,
-		// 	easing: 'ease',
-		// 	arrows: false,
-		// 	pagination: true,
-		// 	pauseOnHover: false,
-		// 	pauseOnFocus: false
-		// }).mount();
-
-		// const splidePost = new Splide(splideElement2, {
-		// 	type: 'loop',
-		// 	autoplay: true,
-		// 	interval: 4000,
-		// 	speed: 1500,
-		// 	easing: 'ease',
-		// 	arrows: true,
-		// 	pagination: true,
-		// 	pauseOnHover: false,
-		// 	pauseOnFocus: false,
-		// 	perPage: 3,
-		// 	perMove: 1
-		// }).mount();
-
 		document.addEventListener('click', handleClickOutside);
 	});
 
@@ -336,6 +322,25 @@
 	</div>
 </div>
 
+<div class="delayed-flights">
+	<h2 class="delayed-flights__header">Thông Báo Chuyến Bay Bị Hoãn</h2>
+	<ul class="delayed-flights__list">
+		{#if $delayedFlights.length === 0}
+			<li class="delayed-flights__item">Không có chuyến bay nào bị hoãn.</li>
+		{:else}
+			{#each $delayedFlights as flight}
+				<li class="delayed-flights__item">
+					<p>
+						<strong>Chuyến bay:</strong> {flight.flight_number} <br />
+						<strong>Hành trình:</strong> {flight.departure} - {flight.arrival} <br />
+						<strong>Thời gian mới:</strong> {flight.departure_time} khởi hành lúc {flight.departure_hour_time}
+					</p>
+				</li>
+			{/each}
+		{/if}
+	</ul>
+</div>
+
 <section id="news-section" class="news">
 	<div class="container">
 		<div class="news__header">
@@ -363,44 +368,9 @@
 							</li>
 						{/each}
 					{/if}
-					<!-- {#each posts as post}
-							<li class="splide__slide news__item" on:click={() => fetchPostDetail(post.post_id)}>
-								<img
-									class="news__image"
-									src={post.image_url || 'https://via.placeholder.com/150'}
-									alt="anh"
-								/>
-								<div class="news__content">
-									<h3 class="news__item-title">{post.title}</h3>
-									<p class="news__description">sàg</p>
-									<span class="news__date">sgsh</span>
-								</div>
-							</li>
-						{/each} -->
 				</ul>
 			</div>
 		</div>
-
-		<!-- <div class="news__controls">
-			<button on:click={goPrevious} class="news__nav">←</button>
-			<div class="news__list">
-				{#each visiblePosts as post}
-					<div class="news__item" on:click={() => fetchPostDetail(post.post_id)}>
-						<img
-							class="news__image"
-							src={post.image_url || 'https://via.placeholder.com/150'}
-							alt={post.title}
-						/>
-						<div class="news__content">
-							<h3 class="news__item-title">{post.title}</h3>
-							<p class="news__description">{post.block_1}</p>
-							<span class="news__date">{post.post_date}</span>
-						</div>
-					</div>
-				{/each}
-			</div>
-			<button on:click={goNext} class="news__nav">→</button>
-		</div> -->
 	</div>
 
 	<!-- Modal -->
@@ -421,6 +391,47 @@
 </section>
 
 <style>
+	.delayed-flights {
+		display: flex;
+		flex-direction: column;
+		align-items: center; /* Căn giữa nội dung theo chiều ngang */
+		justify-content: center; /* Căn giữa nội dung theo chiều dọc */
+		min-height: 100vh; /* Đảm bảo nội dung nằm giữa toàn trang */
+		text-align: center; /* Canh giữa tiêu đề */
+		margin-bottom: -150px;
+		margin-top: -200px;
+	}
+
+	.delayed-flights__header {
+		margin-bottom: 30px;
+		font-size: 32x;
+		font-weight: bold;
+		color: #333;
+	}
+
+	.delayed-flights__list {
+		list-style-type: none; /* Xóa dấu chấm đầu dòng */
+		padding: 0; /* Xóa padding mặc định */
+		width: 100%; /* Để căn chỉnh list với chiều rộng container */
+		max-width: 600px; /* Giới hạn chiều rộng tối đa */
+		text-align: left; /* Căn trái nội dung danh sách */
+	}
+
+	.delayed-flights__item {
+		margin-bottom: 15px;
+		padding: 10px;
+		border: 1px solid #ddd; /* Tạo đường viền nhẹ */
+		border-radius: 5px;
+		background-color: #f9f9f9;
+		color: #333;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Hiệu ứng nổi nhẹ */
+	}
+
+	.delayed-flights__item p {
+		margin: 0; /* Xóa khoảng cách mặc định giữa các đoạn văn */
+		line-height: 1.5; /* Tăng khoảng cách giữa các dòng */
+	}
+
 	.modal {
 		position: fixed;
 		top: 0;

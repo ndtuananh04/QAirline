@@ -5,7 +5,7 @@ from flask_restful import Resource, reqparse
 from database import db
 from flask import jsonify, session, request
 from models.accountDB import Account, AccountType
-from models.flightsDB import Flights, FlightDelay
+from models.flightsDB import Flights
 from models.ticketsDB import Tickets, TicketUser, StatusClass, Cancellations
 from core.auth import authorized_required
 from services.ticketS import TicketS

@@ -74,7 +74,7 @@ class DeleteAccount(Resource):
         if not account:
             return {'msg': 'Không tìm thấy tài khoản'}, 400
         
-        user_jnfos = UserInfo.find_user_id(account_id)
+        user_jnfos = UserInfo.find_by_account_id(account_id)
         if user_jnfos:
             user_jnfos.delete_from_db()
         
