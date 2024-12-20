@@ -8,6 +8,7 @@
 
 	let splideElement1;
 	let splideElement2;
+	let splideElement3;
 	let showHiddenForm = false;
 	let departures = writable([]);
 	let arrivals = writable([]);
@@ -28,11 +29,12 @@
 	let selectedPost = null; // Dữ liệu bài viết được chọn
 
 	const imageList = [
-		'/images/1.png',
-		'/images/1.png',
-		'/images/1.png',
-		'/images/1.png',
-		'/images/1.png'
+		'/images/airplane1.jpg',
+		'/images/airplane2.jpg',
+		'/images/airplane3.jpg',
+		'/images/airplane4.jpg',
+		'/images/airplane5.jpg',
+		'/images/airplane6.jpg'
 	];
 
 	// Gọi API để lấy thông tin tin tức
@@ -57,19 +59,21 @@
 	}
 
 	async function fetchDelayedFlights() {
-        try {
-            const response = await fetch('http://localhost:5000/flights-delay');
-            if (response.ok) {
-                const data = await response.json();
-                delayedFlights.set(data);
-                console.log('Delayed flights loaded:', data);
-            } else {
-                console.error('Failed to fetch delayed flights:', response.status);
-            }
-        } catch (error) {
-            console.error('Error loading delayed flights:', error);
-        }
-    }
+		try {
+			const response = await fetch('http://localhost:5000/flights-delay');
+			if (response.ok) {
+				const data = await response.json();
+				delayedFlights.set(data);
+				await tick();
+				initializeSplideDelay();
+				console.log('Delayed flights loaded:', data);
+			} else {
+				console.error('Failed to fetch delayed flights:', response.status);
+			}
+		} catch (error) {
+			console.error('Error loading delayed flights:', error);
+		}
+	}
 
 	// Hàm gọi API lấy chi tiết bài viết
 	async function fetchPostDetail(post_id) {
@@ -88,11 +92,12 @@
 			console.error('Error loading post detail:', error);
 		}
 	}
-
+	let currentIndex = 0;
 	// Hàm chọn ảnh ngẫu nhiên
 	function getRandomImage() {
-		const randomIndex = Math.floor(Math.random() * imageList.length);
-		return imageList[randomIndex];
+		const image = imageList[currentIndex];
+        currentIndex = (currentIndex + 1) % imageList.length;
+        return image;
 	}
 
 	const initializeSplide = () => {
@@ -122,15 +127,30 @@
 			perMove: 1,
 			gap: '12px',
 			breakpoints: {
-                1200: {
-                    perPage: 2,
-                    gap: '8px',
-                },
-                768: {
-                    perPage: 1,
-                    gap: '5px',
-                },
-            },
+				1200: {
+					perPage: 2,
+					gap: '8px'
+				},
+				768: {
+					perPage: 1,
+					gap: '5px'
+				}
+			}
+		}).mount();
+	};
+
+	const initializeSplideDelay = () => {
+		const splideDelay = new Splide(splideElement3, {
+			type: 'loop',
+			autoplay: true,
+			interval: 4000,
+			speed: 1500,
+			easing: 'ease',
+			arrows: false,
+			direction: 'ttb', // Thiết lập trượt dọc
+			height: '100px',
+			perPage: 1, // Số lượng phần tử hiển thị cùng lúc
+			gap: '10px'
 		}).mount();
 	};
 
@@ -335,28 +355,35 @@
 
 <div class="delayed-flights">
 	<h2 class="delayed-flights__header">Thông Báo Chuyến Bay Bị Hoãn</h2>
-	<ul class="delayed-flights__list">
-		{#if $delayedFlights.length === 0}
-			<li class="delayed-flights__item">Không có chuyến bay nào bị hoãn.</li>
-		{:else}
-			{#each $delayedFlights as flight}
-				<li class="delayed-flights__item">
-					<p>
-						<strong>Chuyến bay:</strong> {flight.flight_number} <br />
-						<strong>Hành trình:</strong> {flight.departure} - {flight.arrival} <br />
-						<strong>Thời gian mới:</strong> {flight.departure_time} khởi hành lúc {flight.departure_hour_time}
-					</p>
-				</li>
-			{/each}
-		{/if}
-	</ul>
+	<div bind:this={splideElement3} class="splide splide-delayed-flights">
+		<div class="splide__track delayed-flights__track">
+			<ul class="splide__list delayed-flights__list">
+				{#if $delayedFlights.length === 0}
+					<li class="splide__slide delayed-flights__item">Không có chuyến bay nào bị hoãn.</li>
+				{:else}
+					{#each $delayedFlights as flight}
+						<li class="splide__slide delayed-flights__item">
+							<p>
+								<strong>Chuyến bay:</strong>
+								{flight.flight_number} <br />
+								<strong>Hành trình:</strong>
+								{flight.departure} - {flight.arrival} <br />
+								<strong>Thời gian mới:</strong>
+								{flight.departure_time} khởi hành lúc {flight.departure_hour_time}
+							</p>
+						</li>
+					{/each}
+				{/if}
+			</ul>
+		</div>
+	</div>
 </div>
 
 <section id="news-section" class="news">
 	<div class="container">
 		<div class="news__header">
 			<h2 class="news__title">Tin Tức và Thông Báo</h2>
-			<button class="news__view-all">View All</button>
+			<button class="news__view-all">Xem thêm</button>
 		</div>
 		<div bind:this={splideElement2} class="splide splide-news">
 			<div class="splide__track">
@@ -402,47 +429,6 @@
 </section>
 
 <style>
-	.delayed-flights {
-		display: flex;
-		flex-direction: column;
-		align-items: center; /* Căn giữa nội dung theo chiều ngang */
-		justify-content: center; /* Căn giữa nội dung theo chiều dọc */
-		min-height: 100vh; /* Đảm bảo nội dung nằm giữa toàn trang */
-		text-align: center; /* Canh giữa tiêu đề */
-		margin-bottom: -150px;
-		margin-top: -200px;
-	}
-
-	.delayed-flights__header {
-		margin-bottom: 30px;
-		font-size: 32x;
-		font-weight: bold;
-		color: #333;
-	}
-
-	.delayed-flights__list {
-		list-style-type: none; /* Xóa dấu chấm đầu dòng */
-		padding: 0; /* Xóa padding mặc định */
-		width: 100%; /* Để căn chỉnh list với chiều rộng container */
-		max-width: 600px; /* Giới hạn chiều rộng tối đa */
-		text-align: left; /* Căn trái nội dung danh sách */
-	}
-
-	.delayed-flights__item {
-		margin-bottom: 15px;
-		padding: 10px;
-		border: 1px solid #ddd; /* Tạo đường viền nhẹ */
-		border-radius: 5px;
-		background-color: #f9f9f9;
-		color: #333;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Hiệu ứng nổi nhẹ */
-	}
-
-	.delayed-flights__item p {
-		margin: 0; /* Xóa khoảng cách mặc định giữa các đoạn văn */
-		line-height: 1.5; /* Tăng khoảng cách giữa các dòng */
-	}
-
 	.modal {
 		position: fixed;
 		top: 0;
