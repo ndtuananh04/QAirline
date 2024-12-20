@@ -3,7 +3,6 @@
     font-weight: 600;
     background-color: $dark-blue;
     padding: 1rem 0;
-    color: $light-gray;
 
     a {
         color: $light-gray;
@@ -50,6 +49,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        color: $light-gray;
         
         &:hover {
             cursor: pointer;
@@ -75,7 +75,7 @@
             padding: 10px 20px;
             text-align: left; /* Căn trái */
             background-color: transparent;
-            color: $light-gray; /* Chữ màu đen */
+            color: $dark-blue; /* Chữ màu đen */
             border: none;
             border-radius: 5px;
             text-decoration: none;
@@ -84,7 +84,7 @@
 
             &:hover {
                 background-color: $light-gray; /* Hiệu ứng nền khi hover */
-                color: $black; /* Giữ màu chữ đen */
+                color: $dark; /* Giữ màu chữ đen */
                 cursor: pointer;
             }
         }
