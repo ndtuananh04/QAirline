@@ -4,8 +4,12 @@
     align-items: flex-start; /* Align items to the top of the container */
     gap: 20px; /* Optional: adds space between the form and the plane */
     max-width: 100%; /* Ensure it doesn't exceed the container's width */
-	margin-bottom: 150px; /* Center the form and the plane */
-	margin-top: 80px;
+	padding-bottom: 150px; /* Center the form and the plane */
+	padding-top: 80px;
+	background-image: url('/images/signup-background-1.png');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .checkin-form {
@@ -13,12 +17,16 @@
 	margin: auto;
 	font-family: Arial, sans-serif;
 	text-align: center;
+	background-color: white;
+	padding: 40px 40px;
+	border-radius: 10px;
 
 	.info-text {
 		font-size: 14px;
 		color: #333;
 		margin-bottom: 20px;
-		margin-top: 50px;
+		margin-top: 20px;
+		font-weight: bold;
 	}
 
 	.form {

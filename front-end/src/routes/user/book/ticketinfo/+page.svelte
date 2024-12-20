@@ -262,7 +262,7 @@
 							{/if}
 						</div>
 						<div>
-							<label for="nationality" class="formbold-form-label"> Tên </label>
+							<label for="nationality" class="formbold-form-label"> Quốc tịch </label>
 							<input
 								type="text"
 								name="nationality"
@@ -293,7 +293,7 @@
 
 <style>
 	.ticket-info-bg {
-		background-image: url('/images/signup-background.jpg');
+		background-image: url('/images/signup-background-1.png');
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;

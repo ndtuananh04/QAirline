@@ -119,7 +119,18 @@
 			pauseOnHover: false,
 			pauseOnFocus: false,
 			perPage: 3,
-			perMove: 1
+			perMove: 1,
+			gap: '12px',
+			breakpoints: {
+                1200: {
+                    perPage: 2,
+                    gap: '8px',
+                },
+                768: {
+                    perPage: 1,
+                    gap: '5px',
+                },
+            },
 		}).mount();
 	};
 
