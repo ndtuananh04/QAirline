@@ -145,7 +145,7 @@ class FlightAdmin(Resource):
 
     @jwt_required()
     @authorized_required(roles=["admin"])
-    def delete(self, flight_id):
+    def delete(self):
         # Kiểm tra xem chuyến bay có tồn tại hay không
         flight = Flights.find_flight_id(flight_id)
 
