@@ -116,6 +116,7 @@
 	};
 </script>
 
+<div class="ticket-info-bg">
 <div class="formbold-main-wrapper">
 	<form class="signup__form" on:submit={handleSubmit}>
 		{#each forms as form, index}
@@ -261,7 +262,7 @@
 							{/if}
 						</div>
 						<div>
-							<label for="nationality" class="formbold-form-label"> Tên </label>
+							<label for="nationality" class="formbold-form-label"> Quốc tịch </label>
 							<input
 								type="text"
 								name="nationality"
@@ -284,7 +285,20 @@
 			</div>
 		{/each}
 		<div class="formbold-submit-wrapper">
-			<input type="submit" name="submit" value="Đi Tiếp" class="formbold-btn" />
+			<input type="submit" name="submit" value="Mua vé" class="formbold-btn" />
 		</div>
 	</form>
 </div>
+</div>
+
+<style>
+	.ticket-info-bg {
+		background-image: url('/images/signup-background-1.png');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+	}
+	.formbold-main-wrapper{
+		margin: 0;
+	}
+</style>

@@ -1,5 +1,5 @@
 <script>
-	import { onMount, tick } from 'svelte';
+	import { onMount } from 'svelte';
 	let tickets = [];
 	let error = '';
 	let showModal = false;
@@ -82,7 +82,7 @@
 	};
 </script>
 
-<div class="formbold-main-wrapper">
+<div class="formbold-main-wrapper" class:empty={tickets.length === 0}>
 	{#if tickets.length > 0}
 		{#each tickets as ticket}
 			<div class="boarding-pass">
@@ -95,8 +95,8 @@
 							style="width: 80px; height: auto"
 						/>
 					</div>
-					<div class="cancel-ticket">
-						<button class="cancel-btn" on:click={() => openModal(ticket.ticket_id)} >
+					<div class="cancel12-ticket">
+						<button class="cancel12-btn" on:click={() => openModal(ticket.ticket_id)} >
 							Hủy vé
 						</button>
 					</div>
@@ -169,7 +169,7 @@
 							<small>Date</small>
 							<strong id="departure_time">{ticket.departure_time}</strong>
 						</div>
-						<div class="status">
+						<div class="status" class:red={ticket.status === 'cancelled'}>
 							<small>STATUS</small>
 							<strong id="status">{ticket.status}</strong>
 						</div>
@@ -181,20 +181,20 @@
 			</div>
 		{/each}
 	{:else}
-		<p>No tickets found.</p>
+		<h2>Không tìm thấy vé.</h2>
 	{/if}
 
 	<!-- Modal lý do hủy vé rồi nhấn đồng ý thì mới hủy -->
 	{#if showModal}
-		<div class="modal">
-			<div class="modal-content">
+		<div class="modal12">
+			<div class="modal12-content">
 				<h2>Hủy vé</h2>
 				<p>Vui lòng nhập lý do hủy vé:</p>
 				<textarea
 					bind:value={reason}
 					placeholder="Nhập lý do hủy vé..."
 				></textarea>
-				<div class="modal-actions">
+				<div class="modal12-actions">
 					<button on:click={closeModal} class="cancel-btn">Đóng</button>
 					<button on:click={() => cancelTicket(select_ticket_id)} class="submit-btn">Đồng ý</button>
 				</div>
@@ -204,7 +204,7 @@
 </div>
 
 <style>
-	.modal {
+	.modal12 {
 		position: fixed;
 		top: 0;
 		left: 0;
@@ -216,7 +216,7 @@
 		align-items: center;
 	}
 
-	.modal-content {
+	.modal12-content {
 		background: white;
 		padding: 20px;
 		border-radius: 8px;
@@ -234,26 +234,37 @@
 		border-radius: 4px;
 	}
 
-	.modal-actions {
+	.modal12-actions {
 		display: flex;
 		justify-content: space-between;
 	}
 
-	.submit-btn, .cancel-btn {
-		padding: 10px 20px;
+	.cancel12-btn {
+		background-color: #e74c3c; /* Màu đỏ đậm */
+		color: white;
 		border: none;
-		border-radius: 4px;
+		border-radius: 5px; /* Bo góc */
+		padding: 10px 20px; /* Kích thước nút */
+		font-size: 14px;
+		font-weight: bold;
 		cursor: pointer;
+		transition: all 0.3s ease; /* Hiệu ứng chuyển đổi */
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng */
 	}
 
-	.submit-btn {
-		background-color: #007bff;
-		color: white;
+	.cancel12-btn:hover {
+		background-color: #c0392b; /* Màu đậm hơn khi hover */
+		box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Tăng đổ bóng */
+		transform: translateY(-2px); /* Hiệu ứng nổi */
 	}
 
-	.cancel-btn {
-		background-color: #f44336;
-		color: white;
+	.cancel12-btn:active {
+		transform: translateY(0); /* Giảm hiệu ứng khi nhấn */
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.red {
+		color: #e74c3c; /* Màu đỏ */
 	}
 </style>
 

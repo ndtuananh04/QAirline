@@ -166,6 +166,31 @@ class Tickets(db.Model):
             .first()
         return results.departure_time
     
+    # Trả về ticket theo flight_id, seat_class, departure_time
+    @classmethod
+    def get_ticket_admin_dashboard(cls):
+        tickets = db.session.query(
+            Tickets.ticket_id,
+            Tickets.flight_id,
+            Tickets.seat_class,
+            Flights.departure_time
+        ).select_from(Tickets) \
+            .join(Flights, Flights.flight_id == Tickets.flight_id) \
+            .filter(Tickets.flight_id == Flights.flight_id) \
+            .all()
+                
+        ticket_list = {}
+        
+        for ticket in tickets:
+            if ticket.flight_id not in ticket_list:
+                ticket_list[ticket.ticket_id] = {
+                    "flight_id": ticket.flight_id,
+                    "seat_class": ticket.seat_class.value,
+                    "departure_time": ticket.departure_time
+                }
+            results = list(ticket_list.values())
+        return results
+    
     # Trả về danh sách vé theo account
     @classmethod
     def get_all_ticket_account_id(cls, account_id):

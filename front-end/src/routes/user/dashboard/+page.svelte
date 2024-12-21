@@ -1,18 +1,23 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { writable, get } from 'svelte/store';
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
 	import { quantity, tripType } from '../store';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
-	let splideElement;
-	let splideInstance;
+	let splideElement1;
+	let splideElement2;
+	let splideElement3;
 	let showHiddenForm = false;
 	let departures = writable([]);
 	let arrivals = writable([]);
 	let fromInput = '';
 	let toInput = '';
+	let departureDatePicker;
+	let returnDatePicker;
 	let departureDate = '';
 	let returnDate = '';
 	let showDepartureSuggestions = false;
@@ -22,18 +27,18 @@
 	let localQuantity = 1;
 
 	let posts = []; // Dữ liệu tin tức
-	let visiblePosts = []; // Tin tức hiển thị
-	let currentIndex = 0; // Chỉ số tin tức hiện tại hiển thị (3 tin mỗi lần)
+	let delayedFlights = writable([]); // Dữ liệu chuyến bay bị delay
 
 	let showModal = false; // Hiển thị modal
 	let selectedPost = null; // Dữ liệu bài viết được chọn
 
 	const imageList = [
-		'/images/1.png',
-		'/images/1.png',
-		'/images/1.png',
-		'/images/1.png',
-		'/images/1.png'
+		'/images/airplane1.jpg',
+		'/images/airplane2.jpg',
+		'/images/airplane3.jpg',
+		'/images/airplane4.jpg',
+		'/images/airplane5.jpg',
+		'/images/airplane6.jpg'
 	];
 
 	// Gọi API để lấy thông tin tin tức
@@ -46,11 +51,31 @@
 					...post,
 					image_url: getRandomImage() // Gán ảnh ngẫu nhiên
 				}));
+				await tick();
+				initializeSplide();
+				console.log('Posts loaded:', posts); // Debug
 			} else {
 				console.error('Failed to fetch posts:', response.status);
 			}
 		} catch (error) {
 			console.error('Error loading posts:', error);
+		}
+	}
+
+	async function fetchDelayedFlights() {
+		try {
+			const response = await fetch('http://localhost:5000/flights-delay');
+			if (response.ok) {
+				const data = await response.json();
+				delayedFlights.set(data);
+				await tick();
+				initializeSplideDelay();
+				console.log('Delayed flights loaded:', data);
+			} else {
+				console.error('Failed to fetch delayed flights:', response.status);
+			}
+		} catch (error) {
+			console.error('Error loading delayed flights:', error);
 		}
 	}
 
@@ -71,40 +96,16 @@
 			console.error('Error loading post detail:', error);
 		}
 	}
-
+	let currentIndex = 0;
 	// Hàm chọn ảnh ngẫu nhiên
 	function getRandomImage() {
-		const randomIndex = Math.floor(Math.random() * imageList.length);
-		return imageList[randomIndex];
+		const image = imageList[currentIndex];
+		currentIndex = (currentIndex + 1) % imageList.length;
+		return image;
 	}
 
-	onMount(() => {
-		fetchPosts();
-	});
-
-	// Duyệt sang tin tức tiếp theo
-	function goNext() {
-		if (currentIndex + 3 < posts.length) {
-			currentIndex += 1;
-		}
-	}
-
-	// Duyệt ngược về tin tức trước đó
-	function goPrevious() {
-		if (currentIndex > 0) {
-			currentIndex -= 1;
-		}
-	}
-
-	function closeModal() {
-		showModal = false;
-	}
-
-	// Lấy 3 tin tức cần hiển thị dựa vào currentIndex
-	$: visiblePosts = posts.slice(currentIndex, currentIndex + 3);
-
-	onMount(() => {
-		const splideInstance = new Splide(splideElement, {
+	const initializeSplide = () => {
+		const splideInstance = new Splide(splideElement1, {
 			type: 'loop',
 			autoplay: true,
 			interval: 5000,
@@ -116,6 +117,115 @@
 			pauseOnFocus: false
 		}).mount();
 
+		const splidePost = new Splide(splideElement2, {
+			type: 'loop',
+			autoplay: true,
+			interval: 4000,
+			speed: 1500,
+			easing: 'ease',
+			arrows: true,
+			pagination: false,
+			pauseOnHover: false,
+			pauseOnFocus: false,
+			perPage: 3,
+			perMove: 1,
+			gap: '12px',
+			breakpoints: {
+				1200: {
+					perPage: 2,
+					gap: '8px'
+				},
+				768: {
+					perPage: 1,
+					gap: '5px'
+				}
+			}
+		}).mount();
+	};
+
+	const initializeSplideDelay = () => {
+		console.log('splide');
+		const splideDelay = new Splide(splideElement3, {
+			type: 'loop',
+			autoplay: true,
+			interval: 4000,
+			speed: 1500,
+			easing: 'ease',
+			arrows: false,
+			direction: 'ttb', // Thiết lập trượt dọc
+			height: '100px',
+			perPage: 1, // Số lượng phần tử hiển thị cùng lúc
+			gap: '10px'
+		}).mount();
+
+		let isScrolling = false;
+
+		splideElement3.addEventListener('wheel', (event) => {
+			event.preventDefault(); // Ngăn chặn hành vi mặc định của sự kiện cuộn
+
+			if (!isScrolling) {
+				isScrolling = true;
+				requestAnimationFrame(() => {
+					if (event.deltaY > 0) {
+						splideDelay.go('>');
+					} else {
+						splideDelay.go('<');
+					}
+					isScrolling = false;
+				});
+			}
+		});
+	};
+
+	let formattedDepartureDate = '';
+	let formattedReturnDate = '';
+	let dpInstance;
+	let returnInstance;
+	const initializeDatePickers = () => {
+		if (departureDatePicker) {
+			dpInstance = flatpickr(departureDatePicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				minDate: 'today',
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						formattedDepartureDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+						if (returnInstance) {
+							returnInstance.set('minDate', date);
+						}
+					}
+				}
+			});
+		}
+
+		if (returnDatePicker) {
+			console.log('dpIN',dpInstance);
+			returnInstance = flatpickr(returnDatePicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				minDate: 'today',
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						formattedReturnDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					}
+				}
+			});
+		}
+	};
+
+	onMount(() => {
+		initializeDatePickers();
+		fetchDelayedFlights();
+		fetchPosts();
+	});
+
+	function closeModal() {
+		showModal = false;
+	}
+
+	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
 	});
 
@@ -180,12 +290,21 @@
 
 <div class="slick">
 	<div class="blur {showHiddenForm ? 'show' : 'd-none'}"></div>
-	<div class="splide" bind:this={splideElement}>
+	<div class="splide splide--1" bind:this={splideElement1}>
 		<div class="splide__track">
 			<ul class="splide__list">
-				<li class="splide__slide" style="background-image: url('/images/cau.jpg');"></li>
-				<li class="splide__slide" style="background-image: url('/images/vinhhalong.jpg');"></li>
-				<li class="splide__slide" style="background-image: url('/images/ruongbacthang.jpg');"></li>
+				<li
+					class="splide__slide splide__slide--1"
+					style="background-image: url('/images/cau.jpg');"
+				></li>
+				<li
+					class="splide__slide splide__slide--1"
+					style="background-image: url('/images/vinhhalong.jpg');"
+				></li>
+				<li
+					class="splide__slide splide__slide--1"
+					style="background-image: url('/images/ruongbacthang.jpg');"
+				></li>
 			</ul>
 		</div>
 	</div>
@@ -256,23 +375,25 @@
 						<div class="form-group col-12 col-md-4">
 							<label for="departure">Ngày đi</label>
 							<input
-								type="date"
+								type="text"
 								id="departure"
-								name="departureDate"
-								bind:value={departureDate}
+								bind:this={departureDatePicker}
+								placeholder="Chọn ngày đi"
 								required
 							/>
+							<input type="hidden" name="departureDate" value={formattedDepartureDate} />
 						</div>
 						{#if $tripType === 'round-trip'}
 							<div class="form-group col-12 col-md-4">
 								<label for="return-date">Ngày về</label>
 								<input
-									type="date"
+									type="text"
 									id="return-date"
-									name="returnDate"
-									bind:value={returnDate}
+									bind:this={returnDatePicker}
+									placeholder="Chọn ngày về"
 									required
 								/>
+								<input type="hidden" name="returnDate" value={formattedReturnDate} />
 							</div>
 						{/if}
 						<div class="form-group col-12 col-md-4">
@@ -296,31 +417,61 @@
 	</div>
 </div>
 
+<div class="delayed-flights">
+	<h2 class="delayed-flights__header">Thông Báo Chuyến Bay Bị Hoãn</h2>
+	<div bind:this={splideElement3} class="splide splide-delayed-flights">
+		<div class="splide__track delayed-flights__track">
+			<ul class="splide__list delayed-flights__list">
+				{#if $delayedFlights.length === 0}
+					<li class="splide__slide delayed-flights__item">Không có chuyến bay nào bị hoãn.</li>
+				{:else}
+					{#each $delayedFlights as flight}
+						<li class="splide__slide delayed-flights__item">
+							<p>
+								<strong>Chuyến bay:</strong>
+								{flight.flight_number} <br />
+								<strong>Hành trình:</strong>
+								{flight.departure} - {flight.arrival} <br />
+								<strong>Thời gian mới:</strong>
+								{flight.departure_time} khởi hành lúc {flight.departure_hour_time}
+							</p>
+						</li>
+					{/each}
+				{/if}
+			</ul>
+		</div>
+	</div>
+</div>
+
 <section id="news-section" class="news">
 	<div class="container">
 		<div class="news__header">
 			<h2 class="news__title">Tin Tức và Thông Báo</h2>
-			<button class="news__view-all">View All</button>
+			<button class="news__view-all">Xem thêm</button>
 		</div>
-		<div class="news__controls">
-			<button on:click={goPrevious} class="news__nav">←</button>
-			<div class="news__list">
-				{#each visiblePosts as post}
-					<div class="news__item" on:click={() => fetchPostDetail(post.post_id)}>
-						<img
-							class="news__image"
-							src={post.image_url || 'https://via.placeholder.com/150'}
-							alt={post.title}
-						/>
-						<div class="news__content">
-							<h3 class="news__item-title">{post.title}</h3>
-							<p class="news__description">{post.block_1}</p>
-							<span class="news__date">{post.post_date}</span>
-						</div>
-					</div>
-				{/each}
+		<div bind:this={splideElement2} class="splide splide-news">
+			<div class="splide__track">
+				<ul class="splide__list">
+					{#if posts.length === 0}
+						<li class="splide__slide">Đang tải...</li>
+					{:else}
+						{#each posts as post}
+							<li class="splide__slide news__item" on:click={() => fetchPostDetail(post.post_id)}>
+								<img
+									class="news__image"
+									src={post.image_url || 'https://via.placeholder.com/150'}
+									alt="anh"
+								/>
+								<div class="news__content">
+									<h3 class="news__item-title">{post.title}</h3>
+									<p class="news__description">{post.block_1 || 'Không có mô tả'}</p>
+									<span class="news__date">{post.post_date || 'Ngày không xác định'}</span>
+								</div>
+							</li>
+						{/each}
+					{/if}
+				</ul>
 			</div>
-			<button on:click={goNext} class="news__nav">→</button>
 		</div>
 	</div>
 

@@ -276,7 +276,9 @@
 					</ol>
 				</li>
 			</ol>
-			<button type="button" class="select-seat-button" on:click={handleSelectSeat}>Chọn Ghế</button>
+			<div class="button-holder">
+				<button type="button" class="select-seat-button" on:click={handleSelectSeat}>Chọn Ghế</button>
+			</div>
 			<div class="exit exit--back fuselage"></div>
 		</div>
 	{/if}

@@ -20,25 +20,55 @@
 		}
 	};
 
-	async function submitInput(e) {
-		const response = await fetch('http://localhost:5000/login', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				email: email,
-				password: password
-			})
-		});
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(errorData.message || 'Login failed');
-		} else {
-			const data = await response.json();
-			localStorage.setItem('jwt', data.access_token);
-			alert('Đăng nhập thành công');
-			goto('/user/dashboard/');
+	async function handleLogin(e) {
+		try {
+			const response = await fetch('http://localhost:5000/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ email, password })
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				localStorage.setItem('jwt', data.access_token);
+				await fetchUserName();
+				alert('Đăng nhập thành công');
+				goto('/user/dashboard');
+			} else {
+				const errorData = await response.json();	
+				alert(errorData.msg);
+			}
+		} catch (error) {
+			console.error('Error logging in:', error);
+			alert('Login failed');
+		}
+	}
+
+	async function fetchUserName() {
+		const token = localStorage.getItem('jwt');
+		if (token) {
+			try {
+				const response = await fetch('http://localhost:5000/verify-token', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`
+					}
+				});
+
+				if (response.ok) {
+					const data = await response.json();
+					localStorage.setItem('family_name', data.family_name);
+					localStorage.setItem('given_name', data.given_name);
+				} else {
+					localStorage.removeItem('jwt'); // Remove invalid token
+				}
+			} catch (error) {
+				console.error('Error verifying token:', error);
+				localStorage.removeItem('jwt'); // Remove invalid token
+			}
 		}
 	}
 </script>
@@ -46,7 +76,7 @@
 <div class="formbold-main-wrapper">
 	<div class="formbold-form-container">
 		<div class="formbold-form-wrapper">
-			<form class="signup__form" on:submit={submitInput}>
+			<form class="signup__form" on:submit={handleLogin}>
 				<div class="form-header">
 					<img
 						src="/images/logo.png"
@@ -160,5 +190,9 @@
 	.error-icon {
 		margin-right: 8px;
 		font-size: 1.2rem;
+	}
+
+	.formbold-main-wrapper {
+		margin: 0;
 	}
 </style>

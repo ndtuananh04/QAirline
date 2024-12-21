@@ -29,8 +29,9 @@
 	"dependencies": {
 		"@iconify/svelte": "^4.0.2",
 		"@splidejs/splide": "^4.1.4",
-		"bootstrap": "^4.5.1",
-		"front-end": "file:",
-		"jquery": "^3.5.1"
+		"bootstrap": "^5.3.3",
+		"chart.js": "^4.4.7",
+		"flatpickr": "^4.6.13",
+		"front-end": "file:"
 	}
 }

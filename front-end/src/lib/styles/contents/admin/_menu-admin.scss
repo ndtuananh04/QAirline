@@ -1,0 +1,46 @@
+.menu-admin {
+    background-color: #f9f9f9; // Màu nền sáng, hiện đại
+    color: #444; // Màu chữ tối nhẹ
+    width: 200px; // Tăng chiều rộng menu để dễ nhìn
+    height: calc(100vh - 80px); // Chiều cao bằng chiều cao màn hình trừ header
+    position: fixed;
+    top: 80px; // Căn ngay dưới header
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15); // Bóng đổ mềm mại hơn
+    padding: 1.5rem; // Tăng khoảng cách bên trong
+    border-right: 1px solid #ddd; // Đường viền phân tách rõ ràng
+
+    &__list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            margin-bottom: 1.5rem; // Tăng khoảng cách giữa các mục
+
+            a {
+                display: flex;
+                align-items: center;
+                color: #555; // Màu chữ trung tính
+                text-decoration: none;
+                font-size: 1rem;
+                font-weight: 500;
+                padding: 0.75rem 1rem; // Tăng padding để dễ click
+                border-radius: 8px; // Bo góc mềm mại
+                transition: all 0.3s ease; // Hiệu ứng chuyển đổi mượt
+
+                &:hover {
+                    color: #fff; // Màu chữ nổi bật khi hover
+                    background-color: #007bff; // Màu nền xanh dương hiện đại
+                    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2); // Hiệu ứng bóng đổ khi hover
+                }
+
+                img {
+                    width: 24px; // Tăng kích thước icon
+                    height: 24px;
+                    margin-right: 12px; // Tăng khoảng cách giữa icon và chữ
+                }
+            }
+        }
+    }
+}

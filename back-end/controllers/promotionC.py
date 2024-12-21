@@ -1,12 +1,11 @@
 import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, AccountType
-from models.promotionsDB import Promotions
-from core.auth import authorized_required
 from database import db
 from flask import jsonify, session, request
+from models.promotionsDB import Promotions
 from services.promotionS import PromotionService
+from core.auth import authorized_required
 
 class PromotionPrice(Resource):
     parser = reqparse.RequestParser()
@@ -33,35 +32,56 @@ class PromotionAdmin(Resource):
     @authorized_required(roles=["admin"])
     def get(self):
         promotions = Promotions.get_all_promotions()
+        
         return promotions
-    
-    parser = reqparse.RequestParser()
-    parser.add_argument('percent', type=int, required=True, help="Percent is required")
 
     @jwt_required()
     @authorized_required(roles=["admin"])
     def post(self):
-        data = self.parser.parse_args()
+        data = request.get_json()
+        code_promotion = data['code_promotion']
         percent = data['percent']
+        
+        if not PromotionService.validate_input(code_promotion):
+            return {"msg": "Mã khuyến mại không hợp lệ."}, 400
+        
+        if not PromotionService.is_numeric_input(percent):
+            return {"msg": "Phần trăm khuyến mại không hợp lệ."}, 400
 
-        # Tạo mã giảm giá
-        code_promotion = PromotionService.generate_custom_random_string()
-        while Promotions.find_promotion_code(code_promotion):
-            code_promotion = PromotionService.generate_custom_random_string()
+        if Promotions.find_promotion_code(code_promotion):
+            return {"msg": "Mã khuyến mại đã tồn tại."}, 400
         
         new_promotion = Promotions(code_promotion, percent)
         new_promotion.save_to_db()
-        new_promotions = Promotions.get_all_promotions()
-        
-        return new_promotions
+        return {"msg": "Thêm mã khuyến mại thành công"}, 201
     
     @jwt_required()
     @authorized_required(roles=["admin"])
     def delete(self, promotion_id):
         promotion = Promotions.find_promotion_id(promotion_id)
         if not promotion:
-            return jsonify({"message": "Promotion not found"}), 404
+            return {"msg": "Không tìm thấy mã khuyến mại"}, 404
         
         promotion.delete_from_db()
-        new_promotions = Promotions.get_all_promotions()
-        return new_promotions
+        
+        return {"msg": "Xóa mã khuyến mại thành công"}, 200
+    
+    @jwt_required()
+    @authorized_required(roles=["admin"])
+    def put(self, promotion_id):
+        promotion = Promotions.find_promotion_id(promotion_id)
+        if not promotion:
+            return jsonify({"message": "Promotion not found"}), 404
+        
+        data = request.get_json()
+        if 'code_promotion' in data and data['code_promotion']:
+            if not PromotionService.validate_input(data['code_promotion']):
+                return {"msg": "Mã khuyến mại không hợp lệ"}, 400
+            promotion.code_promotion = data['code_promotion']
+        if 'percent' in data and data['percent']:
+            if not PromotionService.is_numeric_input(data['percent']):
+                return {"msg": "Phần trăm khuyến mại không hợp lệ"}, 400
+            promotion.percent = data['percent']
+        promotion.commit_to_db()
+        
+        return {"msg": "Cập nhật mã khuyến mại thành công"}, 200

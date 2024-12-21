@@ -2,16 +2,55 @@ import os
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime, timedelta
 from flask_restful import Resource, reqparse
-from models.accountDB import Account, AccountType
-from models.flightsDB import Flights, FlightDelay
-from models.airplanesDB import Airplanes
-from models.seatsDB import Seats
-from models.ticketsDB import Tickets, TicketUser, StatusClass, Cancellations
-from core.auth import authorized_required
-
-from services.ticketS import TicketS
 from database import db
 from flask import jsonify, session, request
+from models.accountDB import Account, AccountType
+from models.flightsDB import Flights
+from models.ticketsDB import Tickets, TicketUser, StatusClass, Cancellations
+from core.auth import authorized_required
+from services.ticketS import TicketS
+
+class QuantityTicket(Resource):
+    @jwt_required()
+    @authorized_required(roles=["admin"])
+    def get(self):
+        # Lấy danh sách vé từ hàm get_ticket_admin_dashboard
+        tickets = Tickets.get_ticket_admin_dashboard()
+
+        # Dictionary để lưu kết quả thống kê
+        monthly_summary = {}
+        
+        for ticket in tickets:
+            departure_month = ticket['departure_time'].month  # Lấy tháng từ thời gian khởi hành
+            departure_year = ticket['departure_time'].year  # Lấy năm từ thời gian khởi hành
+            
+            seat_class = str(ticket['seat_class']).strip().lower()  # Loại ghế (business, skyboss, economy)
+            
+            if departure_year not in monthly_summary:
+                monthly_summary[departure_year] = {}
+
+            if departure_month not in monthly_summary[departure_year]:
+                monthly_summary[departure_year][departure_month] = {
+                    "business": 0,
+                    "skyboss": 0,
+                    "economy": 0
+                }
+
+            # Cập nhật số lượng cho từng loại ghế
+            if seat_class == 'business':
+                monthly_summary[departure_year][departure_month]["business"] += 1
+            elif seat_class == 'skyboss':
+                monthly_summary[departure_year][departure_month]["skyboss"] += 1
+            elif seat_class == 'economy':
+                monthly_summary[departure_year][departure_month]["economy"] += 1
+
+        # Chuyển đổi kết quả sang danh sách để trả về
+        response = []
+        for year, months in monthly_summary.items():
+            for month, data in sorted(months.items()):
+                response.append({"year": year, "month": month, **data})
+
+        return jsonify({"status": "success", "data": response})
     
 #  Chọn vé và hiển thị giá tiền, lưu data vào session
 class SelectTicket(Resource):
@@ -74,7 +113,7 @@ class TicketCustomer(Resource):
         if tickets:
             return tickets
         else:
-            return {"message": "No tickets found"}, 400
+            return {"message": "Không tìm thấy vé"}, 400
         
     @jwt_required()
     @authorized_required(roles=["customer"])

@@ -1,0 +1,81 @@
+.table-airplane {
+    margin-left: 220px; // Khoảng cách so với Menu (Menu rộng 200px + padding)
+    margin-top: 1rem; // Khoảng cách so với HeaderAdmin
+    border-collapse: collapse;
+    width: calc(100% - 240px); // Trừ chiều rộng menu và padding
+    border: 1px solid rgba(0, 0, 0, 0.1); // Viền ngoài của bảng
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // Giảm độ nổi của bóng
+
+    thead {
+        background-color: #f3f3f3; // Nền của header bảng
+        text-align: left;
+
+        th {
+            padding: 1rem;
+            font-weight: 700;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1); // Đường viền dưới của header
+
+            &.action-header { 
+                text-align: center; 
+            }
+        }
+    }
+
+    tbody {
+        tr {
+            &:nth-child(odd) {
+                background-color: #f9f9f9; // Nền xen kẽ cho các hàng lẻ
+            }
+
+            &:nth-child(even) {
+                background-color: #ffffff; // Nền cho các hàng chẵn
+            }
+
+            &:hover {
+                background-color: #e6f7ff; // Đổi màu khi di chuột qua
+            }
+
+            td {
+                padding: 1rem;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1); // Đường viền giữa các hàng
+                text-align: left;
+
+                &.action-cell {
+                    text-align: center; // Giữ cho nội dung căn giữa
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 1rem; // Khoảng cách giữa các nút
+
+                    button {
+                        padding: 0.5rem 1rem;
+                        border: none;
+                        border-radius: 4px;
+                        font-size: 0.9rem;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease; // Thêm hiệu ứng mượt khi đổi màu
+
+                        &.edit {
+                            background-color: #4caf50;
+                            color: white;
+
+                            &:hover {
+                                background-color: #45a049; // Màu sáng hơn khi hover
+                            }
+                        }
+
+                        &.delete {
+                            background-color: #f44336;
+                            color: white;
+
+                            &:hover {
+                                background-color: #e53935; // Màu sáng hơn khi hover
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

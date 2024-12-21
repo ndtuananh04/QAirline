@@ -1,12 +1,9 @@
 from datetime import date
 from database import db
 from sqlalchemy.sql import func
-from models.flightsDB import Flights
-from models.airplanesDB import Airplanes
-from models.seatsDB import Seats
-from models.userInfoDB import UserInfo
 from sqlalchemy.orm import aliased
 import enum
+from flask_jwt_extended import JWTManager
 
 # Lựa chọn cho tài khoản admin hoăc user
 class AccountType(enum.Enum):
@@ -30,8 +27,33 @@ class Account(db.Model):
         return {
             "email" : self.email,
             "password": self.password,
-            "role": self.role,
+            "role": self.role.name
         }
+        
+    @staticmethod
+    def get_quantity_role():
+        admin_count = db.session.query(db.func.count(Account.account_id)).filter(Account.role == 'admin').scalar()
+        customer_count = db.session.query(db.func.count(Account.account_id)).filter(Account.role == 'customer').scalar()
+        return {'admin': admin_count, 'customer': customer_count}
+        
+    @classmethod
+    def get_all_accounts(cls):
+        accounts = db.session.query(
+            Account.account_id,
+            Account.email,
+            Account.role
+        ).all()
+        account_list = {}
+        for account in accounts:
+            if account.account_id not in account_list:
+                account_list[account.account_id] = {
+                    "account_id": account.account_id,
+                    "email": account.email,
+                    "role": account.role.name
+                }
+
+        results = list(account_list.values())
+        return results
     
     @classmethod
     def find_email(cls, email):

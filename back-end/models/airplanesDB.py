@@ -1,4 +1,3 @@
-from datetime import date
 from database import db
 from sqlalchemy.sql import func
 from flask import jsonify
@@ -46,7 +45,7 @@ class Airplanes(db.Model):
     
     @classmethod
     def find_airplane_id(cls, airplane_id):
-        return cls.query.filter_by(airplane_id=airplane_id, is_locked=0).first()
+        return cls.query.filter_by(airplane_id=airplane_id).first()
     
     @classmethod
     def find_name_airplane(cls, name_airplane):

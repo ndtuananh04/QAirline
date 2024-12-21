@@ -216,3 +216,20 @@ ol {
 	-webkit-animation-name: rubberBand;
 	animation-name: rubberBand;
 }
+
+.button-holder {
+	text-align: center;
+}
+
+.select-seat-button {
+	padding: 10px 20px;
+	font-size: 14px;
+	background-color: #d7af49;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	&:hover {
+		background-color: #d4a017;
+	}
+}

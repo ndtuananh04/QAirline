@@ -1,4 +1,4 @@
-.splide {
+.splide--1 {
     width: 100%;
 
     @include media-breakpoint-up(md) {
@@ -6,7 +6,7 @@
     }
 }
 
-.splide__slide {
+.splide__slide--1 {
     width: 100%;
     height: 300px;
     background-size: cover;
