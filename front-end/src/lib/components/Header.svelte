@@ -71,11 +71,11 @@
 					alert('Bạn đã đăng xuất');
 					goto('/');
 				} else {
-					alert('Failed to log out');
+					alert('Đăng xuất thất bại');
 				}
 			} catch (error) {
-				console.error('Error logging out:', error);
-				alert('Failed to log out');
+				console.error('Lỗi khi đăng xuất:', error);
+				alert('Đăng xuất thất bại');
 			}
 		}
 	};

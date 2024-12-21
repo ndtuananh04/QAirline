@@ -77,6 +77,20 @@ class Flights(db.Model):
             departure_time=departure_time
         ).all()
         
+    '''Cập nhật status với thời gian thực'''
+    @classmethod
+    def find_flights_to_update(cls, current_time):
+        return Flights.query.filter(
+            db.or_(
+                Flights.departure_time < current_time.date(),  # Ngày khởi hành bé hơn ngày hiện tại
+                db.and_(
+                    Flights.departure_time == current_time.date(),  # Ngày khởi hành bằng ngày hiện tại
+                    Flights.arrival_hour_time <= current_time.time()  # Giờ đến bé hơn hoặc bằng giờ hiện tại
+                )
+            ),
+            Flights.status.in_([FlightType.SCHEDULED, FlightType.DELAYED])  # Chỉ cập nhật nếu trạng thái là "scheduled" hoặc "delayed"
+        ).all()
+        
     '''Trả về chuyến bay delay'''
     @classmethod
     def get_delayed_flights(cls):

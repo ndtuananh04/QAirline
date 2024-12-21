@@ -285,7 +285,7 @@
 			</div>
 		{/each}
 		<div class="formbold-submit-wrapper">
-			<input type="submit" name="submit" value="Đi Tiếp" class="formbold-btn" />
+			<input type="submit" name="submit" value="Mua vé" class="formbold-btn" />
 		</div>
 	</form>
 </div>

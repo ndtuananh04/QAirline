@@ -5,6 +5,29 @@
 	let flights = [];
 	let error = '';
 
+	const fetchUpdateStatus = async () => {
+		const token = localStorage.getItem('jwt');
+		try {
+			const response = await fetch('http://localhost:5000/flights-update', {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				console.log(data.msg);
+			} else {
+				const err = await response.json();
+				error = err.msg || 'Lỗi khi cập nhật trạng thái chuyến bay.';
+			}
+		} catch (err) {
+			console.error('Lỗi khi cập nhật trạng thái chuyến bay.', err);
+			error = 'Đã xảy ra lỗi khi cập nhật trạng thái chuyến bay.';
+		}
+	}
+
 	const fetchFlights = async () => {
 		const token = localStorage.getItem('jwt');
 		try {
@@ -16,6 +39,7 @@
 			});
 
 			if (response.ok) {
+				fetchUpdateStatus();
 				const data = await response.json();
 				flights = data;
 				console.log(flights);
@@ -35,6 +59,7 @@
 			alert('Bạn chưa đăng nhập. Vui lòng đăng nhập!');
 			goto('/admin/login'); // Điều hướng tới trang đăng nhập
 		}
+		fetchUpdateStatus();
 		fetchFlights();
 	});
 
@@ -109,6 +134,7 @@
 
 			if (response.ok) {
 				alert(result.msg);
+				fetchUpdateStatus();
 				fetchFlights();
 				closeModalAdd();
 			} else {
@@ -225,6 +251,7 @@
 			const result = await response.json();
 			if (response.ok) {
 				alert(result.msg);
+				fetchUpdateStatus();
 				fetchFlights();
 				closeModalUpdate();
 			} else {
@@ -321,16 +348,16 @@
 
 <div class="header-container">
 	<div class="info-box">
-		<p>Số chuyến bay: <strong>{flights.length}</strong></p>
+		<p>Chuyến bay hoàn thành: <strong>{flights.filter(flight => flight.status === 'FINISHED').length}</strong></p>
 	</div>
 	<div class="info-box">
-		<p>Số chuyến bay đang lên lịch: <strong>{flights.filter(flight => flight.status === 'SCHEDULED').length}</strong></p>
+		<p>Chuyến bay đang lên lịch: <strong>{flights.filter(flight => flight.status === 'SCHEDULED').length}</strong></p>
 	</div>
 	<div class="info-box">
-		<p>Số chuyến bay chậm: <strong>{flights.filter(flight => flight.status === 'DELAYED').length}</strong></p>
+		<p>Chuyến bay chậm: <strong>{flights.filter(flight => flight.status === 'DELAYED').length}</strong></p>
 	</div>
 	<div class="info-box">
-		<p>Số chuyến bay hủy: <strong>{flights.filter(flight => flight.status === 'CANCELLED').length}</strong></p>
+		<p>Chuyến bay hủy: <strong>{flights.filter(flight => flight.status === 'CANCELLED').length}</strong></p>
 	</div>
 	<div class="add-account-container">
 		<button class="btn-add-admin" on:click={openModalAdd}>Thêm chuyến bay</button>
@@ -468,6 +495,7 @@
 						<option value="scheduled">SCHEDULED</option>
 						<option value="delayed">DELAYED</option>
 						<option value="cancelled">CANCELLED</option>
+						<option value="finished">FINISHED</option>
 					</select>
 				</div>
 			</div>
@@ -682,6 +710,7 @@
 								<option value="scheduled">SCHEDULED</option>
 								<option value="delayed">DELAYED</option>
 								<option value="cancelled">CANCELLED</option>
+								<option value="FINISHED">FINISHED</option>
 							</select>
 						</div>
 					</div>

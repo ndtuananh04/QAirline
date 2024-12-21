@@ -9,7 +9,7 @@
 
 <style>
 	.sign-background {
-		background-image: url('/images/signup-background-1.png');
+		background-image: url('/images/signup-background.jpg');
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;

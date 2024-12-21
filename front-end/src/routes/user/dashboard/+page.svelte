@@ -157,6 +157,24 @@
 			perPage: 1, // Số lượng phần tử hiển thị cùng lúc
 			gap: '10px'
 		}).mount();
+
+		let isScrolling = false;
+
+		splideElement3.addEventListener('wheel', (event) => {
+			event.preventDefault(); // Ngăn chặn hành vi mặc định của sự kiện cuộn
+
+			if (!isScrolling) {
+				isScrolling = true;
+				requestAnimationFrame(() => {
+					if (event.deltaY > 0) {
+						splideDelay.go('>');
+					} else {
+						splideDelay.go('<');
+					}
+					isScrolling = false;
+				});
+			}
+		});
 	};
 
 	let formattedDepartureDate = '';
