@@ -4,10 +4,30 @@ from datetime import datetime
 from flask_restful import Resource, reqparse
 from database import db
 from flask import jsonify, session, request
-from models.flightsDB import Flights
+from models.flightsDB import Flights, FlightType
 from models.airplanesDB import Airplanes
 from services.flightS import FlightService, valid_date, valid_time
 from core.auth import authorized_required
+
+class FlightUpdateStatus(Resource):
+    @jwt_required()
+    @authorized_required(roles=["admin"])
+    def get(self):
+        current_time = datetime.now()
+        
+        # Gọi hàm từ lớp Flights
+        flights_to_update = Flights.find_flights_to_update(current_time)
+
+        if not flights_to_update:
+            return {'msg': 'Không có chuyến bay cần cập nhật.'}, 200
+
+        # Cập nhật trạng thái các chuyến bay
+        for flight in flights_to_update:
+            flight.status = FlightType.FINISHED
+
+        db.session.commit()
+        return {'msg': f'Cập nhật trạng thái thành công cho {len(flights_to_update)} chuyến bay.'}, 200
+   
 
 class FlightDelay(Resource):
     def get(self):

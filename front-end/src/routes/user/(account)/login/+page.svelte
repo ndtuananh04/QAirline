@@ -37,7 +37,8 @@
 				alert('Đăng nhập thành công');
 				goto('/user/dashboard');
 			} else {
-				alert('Login failed');
+				const errorData = await response.json();	
+				alert(errorData.msg);
 			}
 		} catch (error) {
 			console.error('Error logging in:', error);

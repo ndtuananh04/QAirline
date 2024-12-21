@@ -6,7 +6,7 @@ from flask_restful import Api
 from flask_jwt_extended import create_access_token
 
 from controllers.accountC import AccountLogin, AccountRegister, UserLogoutAccess, Repass, VerifyToken, VerifyTokenAdmin
-from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin, FlightDelay
+from controllers.flightC import DepartureArrival, FlightSearch, FlightAdmin, FlightDelay, FlightUpdateStatus
 from controllers.airplaneC import AirplaneSearch
 from controllers.ticketC import TicketCustomer, TicketAdmin, SelectTicket,QuantityTicket
 from controllers.promotionC import PromotionPrice, PromotionAdmin
@@ -44,6 +44,7 @@ api.add_resource(DepartureArrival, '/departure-arrival')
 api.add_resource(FlightSearch, '/flights-search')
 api.add_resource(FlightAdmin, '/flights', '/flights/<int:flight_id>')
 api.add_resource(FlightDelay, '/flights-delay')
+api.add_resource(FlightUpdateStatus, '/flights-update')
 
 api.add_resource(AirplaneSearch, '/airplanes', '/airplanes/<int:airplane_id>')
 

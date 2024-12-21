@@ -1,10 +1,15 @@
+<script>
+	import Footer from '$lib/components/Footer.svelte';
+</script>
+
 <div class="sign-background">
 	<slot />
 </div>
+<Footer />
 
 <style>
 	.sign-background {
-		background-image: url('/images/signup-background-1.png');
+		background-image: url('/images/signup-background.jpg');
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
