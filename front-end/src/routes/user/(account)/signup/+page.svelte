@@ -4,6 +4,8 @@
 	import { writable, get } from 'svelte/store';
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
 	let family_name = '';
 	let given_name = '';
@@ -23,6 +25,24 @@
 		phone_number: '',
 		identification: ''
 	};
+	
+	let dateOfBirthPicker;
+
+	onMount(() => {
+		if (dateOfBirthPicker) {
+			flatpickr(dateOfBirthPicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				maxDate: new Date().setFullYear(new Date().getFullYear()),
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						date_of_birth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					}
+				}
+			});
+		}
+	});
 
 	// Check định dạng email
 	const handleEmailInput = (e) => {
@@ -101,11 +121,11 @@
 			} else {
 				alert(data.msg); // Hiển thị thông báo thành công
 				goto('/user/login');
-        	}
+			}
 		} catch (error) {
-			console.error("Error:", error);
-			alert("Đã xảy ra lỗi. Vui lòng thử lại sau.");
-    	}
+			console.error('Error:', error);
+			alert('Đã xảy ra lỗi. Vui lòng thử lại sau.');
+		}
 	};
 </script>
 
@@ -173,11 +193,12 @@
 						<div>
 							<label for="date_of_birth" class="formbold-form-label"> Ngày, Tháng, Năm Sinh </label>
 							<input
-								type="date"
+								type="text"
 								id="date_of_birth"
-								bind:value={date_of_birth}
+								bind:this={dateOfBirthPicker}
 								name="date_of_birth"
 								class="formbold-form-input"
+								placeholder="Chọn ngày sinh"
 								required
 							/>
 						</div>
@@ -326,7 +347,7 @@
 </div>
 
 <style>
-	.formbold-main-wrapper{
+	.formbold-main-wrapper {
 		margin: 0;
 	}
 </style>

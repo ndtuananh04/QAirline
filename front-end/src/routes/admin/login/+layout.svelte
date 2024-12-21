@@ -1,6 +1,11 @@
+<script>
+	import FooterAdmin from '../../../lib/components/FooterAdmin.svelte';
+</script>
+
 <div class="sign-background">
 	<slot />
 </div>
+<FooterAdmin />
 
 <style>
 	.sign-background {

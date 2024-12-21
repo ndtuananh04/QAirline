@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
 	let isEditing = writable(false); // Biến để kiểm tra trạng thái đang chỉnh sửa
 	let user = writable({
@@ -16,8 +18,8 @@
 
 	let isLoading = writable(true);
 
-    const fetchInfo = async () => {
-        const token = localStorage.getItem('jwt');
+	const fetchInfo = async () => {
+		const token = localStorage.getItem('jwt');
 		const response = await fetch('http://127.0.0.1:5000/user-info', {
 			method: 'GET',
 			headers: {
@@ -30,13 +32,30 @@
 			user.set(data);
 		} else {
 			const err = await response.json();
-            alert(err.msg || 'Lỗi khi lấy thông tin người dùng');
+			alert(err.msg || 'Lỗi khi lấy thông tin người dùng');
 		}
-    };
-        
+	};
+
+	let dateOfBirthPicker;
+
+	onMount(() => {
+		if (dateOfBirthPicker) {
+			flatpickr(dateOfBirthPicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				maxDate: new Date().setFullYear(new Date().getFullYear()),
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						$user.date_of_birth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					}
+				}
+			});
+		}
+	});
 
 	onMount(async () => {
-        const token = localStorage.getItem('jwt');
+		const token = localStorage.getItem('jwt');
 		if (!token) {
 			goto('/');
 		}
@@ -129,7 +148,15 @@
 							</div>
 							<div class="col-sm-9 text-secondary">
 								{#if $isEditing}
-									<input type="text" bind:value={$user.date_of_birth} class="form-control" />
+									<input
+										type="text"
+										id="date_of_birth"
+										bind:this={dateOfBirthPicker}
+										name="date_of_birth"
+										class="form-control"
+										placeholder="Chọn ngày sinh"
+										required
+									/>
 								{:else}
 									{$user.date_of_birth}
 								{/if}

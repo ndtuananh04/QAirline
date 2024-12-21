@@ -5,6 +5,8 @@
 	import '@splidejs/splide/dist/css/splide.min.css';
 	import Splide from '@splidejs/splide';
 	import { quantity, tripType } from '../store';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
 	let splideElement1;
 	let splideElement2;
@@ -14,6 +16,8 @@
 	let arrivals = writable([]);
 	let fromInput = '';
 	let toInput = '';
+	let departureDatePicker;
+	let returnDatePicker;
 	let departureDate = '';
 	let returnDate = '';
 	let showDepartureSuggestions = false;
@@ -96,8 +100,8 @@
 	// Hàm chọn ảnh ngẫu nhiên
 	function getRandomImage() {
 		const image = imageList[currentIndex];
-        currentIndex = (currentIndex + 1) % imageList.length;
-        return image;
+		currentIndex = (currentIndex + 1) % imageList.length;
+		return image;
 	}
 
 	const initializeSplide = () => {
@@ -140,6 +144,7 @@
 	};
 
 	const initializeSplideDelay = () => {
+		console.log('splide');
 		const splideDelay = new Splide(splideElement3, {
 			type: 'loop',
 			autoplay: true,
@@ -154,7 +159,46 @@
 		}).mount();
 	};
 
+	let formattedDepartureDate = '';
+	let formattedReturnDate = '';
+	let dpInstance;
+	let returnInstance;
+	const initializeDatePickers = () => {
+		if (departureDatePicker) {
+			dpInstance = flatpickr(departureDatePicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				minDate: 'today',
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						formattedDepartureDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+						if (returnInstance) {
+							returnInstance.set('minDate', date);
+						}
+					}
+				}
+			});
+		}
+
+		if (returnDatePicker) {
+			console.log('dpIN',dpInstance);
+			returnInstance = flatpickr(returnDatePicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				minDate: 'today',
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						formattedReturnDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					}
+				}
+			});
+		}
+	};
+
 	onMount(() => {
+		initializeDatePickers();
 		fetchDelayedFlights();
 		fetchPosts();
 	});
@@ -313,23 +357,25 @@
 						<div class="form-group col-12 col-md-4">
 							<label for="departure">Ngày đi</label>
 							<input
-								type="date"
+								type="text"
 								id="departure"
-								name="departureDate"
-								bind:value={departureDate}
+								bind:this={departureDatePicker}
+								placeholder="Chọn ngày đi"
 								required
 							/>
+							<input type="hidden" name="departureDate" value={formattedDepartureDate} />
 						</div>
 						{#if $tripType === 'round-trip'}
 							<div class="form-group col-12 col-md-4">
 								<label for="return-date">Ngày về</label>
 								<input
-									type="date"
+									type="text"
 									id="return-date"
-									name="returnDate"
-									bind:value={returnDate}
+									bind:this={returnDatePicker}
+									placeholder="Chọn ngày về"
 									required
 								/>
+								<input type="hidden" name="returnDate" value={formattedReturnDate} />
 							</div>
 						{/if}
 						<div class="form-group col-12 col-md-4">
