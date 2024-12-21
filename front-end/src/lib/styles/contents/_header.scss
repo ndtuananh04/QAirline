@@ -3,6 +3,7 @@
     font-weight: 600;
     background-color: $dark-blue;
     padding: 1rem 0;
+    color: $light-gray;
 
     a {
         color: $light-gray;
@@ -75,7 +76,7 @@
             padding: 10px 20px;
             text-align: left; /* Căn trái */
             background-color: transparent;
-            color: $dark-blue; /* Chữ màu đen */
+            color: $dark-blue !important; 
             border: none;
             border-radius: 5px;
             text-decoration: none;
@@ -92,10 +93,6 @@
         .info-btn, div {
             margin-bottom: 10px; /* Khoảng cách giữa các nút */
         }
-    }
-
-    .logoutt-btn {
-        color: black;
     }
 
     .overlay {

@@ -150,6 +150,7 @@
 			autoplay: true,
 			interval: 4000,
 			speed: 1500,
+			pagination: false,
 			easing: 'ease',
 			arrows: false,
 			direction: 'ttb', // Thiết lập trượt dọc
