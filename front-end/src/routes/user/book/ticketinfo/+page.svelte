@@ -1,7 +1,10 @@
 <script>
+	import { onMount } from 'svelte';
 	import { quantity, tripType } from '../../store';
 	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
 	let forms = Array.from({ length: get(quantity) }, (_, i) => ({
 		identification: '',
@@ -22,6 +25,48 @@
 		phone_number: '',
 		identification: ''
 	}));
+
+	// let dateOfBirthPicker;
+
+	// onMount(() => {
+	// 	if (dateOfBirthPicker) {
+	// 		flatpickr(dateOfBirthPicker, {
+	// 			dateFormat: 'd/m/Y',
+	// 			altFormat: 'Y-m-d',
+	// 			maxDate: new Date().setFullYear(new Date().getFullYear()),
+	// 			onChange: function (selectedDates) {
+	// 				if (selectedDates[0]) {
+	// 					const date = selectedDates[0];
+	// 					forms.date_of_birth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+	// 				}
+	// 				console.log('Date of birth:', forms.date_of_birth);
+	// 				console.log('Selected dates:', selectedDates[0]);
+	// 			}
+	// 		});
+	// 	}
+	// });
+
+	const initDatePicker = (node, index) => {
+		const instance = flatpickr(node, {
+			dateFormat: 'd-m-Y',
+			altFormat: 'Y-m-d',
+			maxDate: new Date().setFullYear(new Date().getFullYear()),
+			onChange: function (selectedDates) {
+				if (selectedDates[0]) {
+					const date = selectedDates[0];
+					forms[index].date_of_birth =
+						`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					forms = [...forms]; // Trigger reactivity
+				}
+			}
+		});
+
+		return {
+			destroy() {
+				instance.destroy();
+			}
+		};
+	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -117,178 +162,187 @@
 </script>
 
 <div class="ticket-info-bg">
-<div class="formbold-main-wrapper">
-	<form class="signup__form" on:submit={handleSubmit}>
-		{#each forms as form, index}
-			<div class="formbold-form-container">
-				<div class="formbold-form-wrapper">
-					<div class="formbold-title-center">
-						<p>Người thứ {index + 1}</p>
-					</div>
+	<div class="formbold-main-wrapper">
+		<form class="signup__form" on:submit={handleSubmit}>
+			{#each forms as form, index}
+				<div class="formbold-form-container">
+					<div class="formbold-form-wrapper">
+						<div class="formbold-title-center">
+							<p>Người thứ {index + 1}</p>
+						</div>
 
-					<div class="formbold-input-flex">
-						<div>
-							<label for="family_name" class="formbold-form-label"> Họ </label>
-							<input
-								type="text"
-								name="family_name"
-								id="family_name"
-								placeholder="Ví dụ: NGUYEN"
-								bind:value={form.family_name}
-								on:input={(e) => handleInputChange('family_name', index, e.target.value)}
-								class="formbold-form-input {errorMessages[index].family_name ? 'input-error' : ''}"
-								required
-							/>
-							{#if errorMessages[index].family_name}
-								<div class="error-message">
-									<span class="error-icon">⚠️</span>
-									<span>{errorMessages[index].family_name}</span>
-								</div>
-							{/if}
+						<div class="formbold-input-flex">
+							<div>
+								<label for="family_name" class="formbold-form-label"> Họ </label>
+								<input
+									type="text"
+									name="family_name"
+									id="family_name"
+									placeholder="Ví dụ: NGUYEN"
+									bind:value={form.family_name}
+									on:input={(e) => handleInputChange('family_name', index, e.target.value)}
+									class="formbold-form-input {errorMessages[index].family_name
+										? 'input-error'
+										: ''}"
+									required
+								/>
+								{#if errorMessages[index].family_name}
+									<div class="error-message">
+										<span class="error-icon">⚠️</span>
+										<span>{errorMessages[index].family_name}</span>
+									</div>
+								{/if}
+							</div>
+							<div>
+								<label for="given_name" class="formbold-form-label"> Tên </label>
+								<input
+									type="text"
+									name="given_name"
+									id="given_name"
+									placeholder="Ví dụ: VAN A"
+									bind:value={form.given_name}
+									on:input={(e) => handleInputChange('given_name', index, e.target.value)}
+									class="formbold-form-input {errorMessages[index].given_name ? 'input-error' : ''}"
+									required
+								/>
+								{#if errorMessages[index].given_name}
+									<div class="error-message">
+										<span class="error-icon">⚠️</span>
+										<span>{errorMessages[index].given_name}</span>
+									</div>
+								{/if}
+							</div>
 						</div>
-						<div>
-							<label for="given_name" class="formbold-form-label"> Tên </label>
-							<input
-								type="text"
-								name="given_name"
-								id="given_name"
-								placeholder="Ví dụ: VAN A"
-								bind:value={form.given_name}
-								on:input={(e) => handleInputChange('given_name', index, e.target.value)}
-								class="formbold-form-input {errorMessages[index].given_name ? 'input-error' : ''}"
-								required
-							/>
-							{#if errorMessages[index].given_name}
-								<div class="error-message">
-									<span class="error-icon">⚠️</span>
-									<span>{errorMessages[index].given_name}</span>
-								</div>
-							{/if}
-						</div>
-					</div>
 
-					<div class="formbold-input-flex">
-						<div>
-							<label for="date_of_birth" class="formbold-form-label"> Ngày, Tháng, Năm Sinh </label>
-							<input
-								type="date"
-								name="date_of_birth"
-								id="date_of_birth"
-								bind:value={form.date_of_birth}
-								class="formbold-form-input"
-								required
-							/>
+						<div class="formbold-input-flex">
+							<div>
+								<label for="date_of_birth_{index}" class="formbold-form-label">
+									Ngày, Tháng, Năm Sinh
+								</label>
+								<input
+									type="text"
+									id="date_of_birth_{index}"
+									name="date_of_birth"
+									class="formbold-form-input"
+									placeholder="Chọn ngày sinh"
+									use:initDatePicker={index}
+									required
+								/>
+							</div>
+							<div>
+								<label for="gender" class="formbold-form-label"> Giới Tính </label>
+								<select
+									id="gender"
+									name="gender"
+									bind:value={form.gender}
+									class="formbold-form-input"
+								>
+									<option value="" disabled selected hidden>Chọn giới tính</option>
+									<option value="male">Nam</option>
+									<option value="female">Nữ</option>
+									<option value="other">Khác</option>
+								</select>
+							</div>
 						</div>
-						<div>
-							<label for="gender" class="formbold-form-label"> Giới Tính </label>
-							<select
-								id="gender"
-								name="gender"
-								bind:value={form.gender}
-								class="formbold-form-input"
-							>
-								<option value="" disabled selected hidden>Chọn giới tính</option>
-								<option value="male">Nam</option>
-								<option value="female">Nữ</option>
-								<option value="other">Khác</option>
-							</select>
-						</div>
-					</div>
 
-					<div class="formbold-mb-3">
-						<div>
-							<label for="identification" class="formbold-form-label"> CMND/CCCD </label>
-							<input
-								type="text"
-								name="identification"
-								id="identification"
-								placeholder="CMND/CCCD"
-								bind:value={form.identification}
-								on:input={(e) => handleInputChange('identification', index, e.target.value)}
-								class="formbold-form-input {errorMessages[index].identification
-									? 'input-error'
-									: ''}"
-								required
-							/>
-							{#if errorMessages[index].identification}
-								<div class="error-message">
-									<span class="error-icon">⚠️</span>
-									<span>{errorMessages[index].identification}</span>
-								</div>
-							{/if}
+						<div class="formbold-mb-3">
+							<div>
+								<label for="identification" class="formbold-form-label"> CMND/CCCD </label>
+								<input
+									type="text"
+									name="identification"
+									id="identification"
+									placeholder="CMND/CCCD"
+									bind:value={form.identification}
+									on:input={(e) => handleInputChange('identification', index, e.target.value)}
+									class="formbold-form-input {errorMessages[index].identification
+										? 'input-error'
+										: ''}"
+									required
+								/>
+								{#if errorMessages[index].identification}
+									<div class="error-message">
+										<span class="error-icon">⚠️</span>
+										<span>{errorMessages[index].identification}</span>
+									</div>
+								{/if}
+							</div>
 						</div>
-					</div>
 
-					<div class="formbold-mb-3">
-						<div>
-							<label for="email" class="formbold-form-label"> Email </label>
-							<input
-								type="email"
-								name="email"
-								id="email"
-								placeholder="Email của bạn"
-								bind:value={form.email}
-								on:input={(e) => handleInputChange('email', index, e.target.value)}
-								class="formbold-form-input {errorMessages[index].email ? 'input-error' : ''}"
-								required
-							/>
-							{#if errorMessages[index].email}
-								<div class="error-message">
-									<span class="error-icon">⚠️</span>
-									<span>{errorMessages[index].email}</span>
-								</div>
-							{/if}
+						<div class="formbold-mb-3">
+							<div>
+								<label for="email" class="formbold-form-label"> Email </label>
+								<input
+									type="email"
+									name="email"
+									id="email"
+									placeholder="Email của bạn"
+									bind:value={form.email}
+									on:input={(e) => handleInputChange('email', index, e.target.value)}
+									class="formbold-form-input {errorMessages[index].email ? 'input-error' : ''}"
+									required
+								/>
+								{#if errorMessages[index].email}
+									<div class="error-message">
+										<span class="error-icon">⚠️</span>
+										<span>{errorMessages[index].email}</span>
+									</div>
+								{/if}
+							</div>
 						</div>
-					</div>
 
-					<div class="formbold-input-flex">
-						<div>
-							<label for="phone_number" class="formbold-form-label"> Số điện thoại </label>
-							<input
-								type="text"
-								name="phone_number"
-								id="phone_number"
-								placeholder="Số điện thoại"
-								bind:value={form.phone_number}
-								on:input={(e) => handleInputChange('phone_number', index, e.target.value)}
-								class="formbold-form-input {errorMessages[index].phone_number ? 'input-error' : ''}"
-								required
-							/>
-							{#if errorMessages[index].phone_number}
-								<div class="error-message">
-									<span class="error-icon">⚠️</span>
-									<span>{errorMessages[index].phone_number}</span>
-								</div>
-							{/if}
-						</div>
-						<div>
-							<label for="nationality" class="formbold-form-label"> Quốc tịch </label>
-							<input
-								type="text"
-								name="nationality"
-								id="nationality"
-								placeholder="Ví dụ VIET NAM"
-								bind:value={form.nationality}
-								on:input={(e) => handleInputChange('nationality', index, e.target.value)}
-								class="formbold-form-input {errorMessages[index].nationality ? 'input-error' : ''}"
-								required
-							/>
-							{#if errorMessages[index].nationality}
-								<div class="error-message">
-									<span class="error-icon">⚠️</span>
-									<span>{errorMessages[index].nationality}</span>
-								</div>
-							{/if}
+						<div class="formbold-input-flex">
+							<div>
+								<label for="phone_number" class="formbold-form-label"> Số điện thoại </label>
+								<input
+									type="text"
+									name="phone_number"
+									id="phone_number"
+									placeholder="Số điện thoại"
+									bind:value={form.phone_number}
+									on:input={(e) => handleInputChange('phone_number', index, e.target.value)}
+									class="formbold-form-input {errorMessages[index].phone_number
+										? 'input-error'
+										: ''}"
+									required
+								/>
+								{#if errorMessages[index].phone_number}
+									<div class="error-message">
+										<span class="error-icon">⚠️</span>
+										<span>{errorMessages[index].phone_number}</span>
+									</div>
+								{/if}
+							</div>
+							<div>
+								<label for="nationality" class="formbold-form-label"> Quốc tịch </label>
+								<input
+									type="text"
+									name="nationality"
+									id="nationality"
+									placeholder="Ví dụ VIET NAM"
+									bind:value={form.nationality}
+									on:input={(e) => handleInputChange('nationality', index, e.target.value)}
+									class="formbold-form-input {errorMessages[index].nationality
+										? 'input-error'
+										: ''}"
+									required
+								/>
+								{#if errorMessages[index].nationality}
+									<div class="error-message">
+										<span class="error-icon">⚠️</span>
+										<span>{errorMessages[index].nationality}</span>
+									</div>
+								{/if}
+							</div>
 						</div>
 					</div>
 				</div>
+			{/each}
+			<div class="formbold-submit-wrapper">
+				<input type="submit" name="submit" value="Mua vé" class="formbold-btn" />
 			</div>
-		{/each}
-		<div class="formbold-submit-wrapper">
-			<input type="submit" name="submit" value="Mua vé" class="formbold-btn" />
-		</div>
-	</form>
-</div>
+		</form>
+	</div>
 </div>
 
 <style>
@@ -298,7 +352,7 @@
 		background-position: center;
 		background-repeat: no-repeat;
 	}
-	.formbold-main-wrapper{
+	.formbold-main-wrapper {
 		margin: 0;
 	}
 </style>

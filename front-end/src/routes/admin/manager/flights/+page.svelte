@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
 	let flights = [];
 	let error = '';
@@ -26,7 +28,7 @@
 			console.error('Lỗi khi cập nhật trạng thái chuyến bay.', err);
 			error = 'Đã xảy ra lỗi khi cập nhật trạng thái chuyến bay.';
 		}
-	}
+	};
 
 	const fetchFlights = async () => {
 		const token = localStorage.getItem('jwt');
@@ -79,6 +81,22 @@
 		airplane_id: ''
 	};
 	let addError = '';
+	let departureDatePicker;
+	let flatpickrInstance;
+	const initFlatpickr = () => {
+		if (departureDatePicker) {
+			flatpickrInstance = flatpickr(departureDatePicker, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						newFlight.departure_time = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					}
+				}
+			});
+		}
+	};
 
 	const openModalAdd = () => {
 		showModalAdd = true;
@@ -97,6 +115,7 @@
 			airplane_id: ''
 		};
 		addError = '';
+		setTimeout(() => initFlatpickr(), 0);
 	};
 
 	const closeModalAdd = () => {
@@ -116,6 +135,9 @@
 			airplane_id: ''
 		};
 		addError = '';
+		if (flatpickrInstance) {
+			flatpickrInstance.destroy();
+		}
 	};
 
 	const addFlight = async () => {
@@ -183,6 +205,22 @@
 		}
 	};
 
+	let departureDatePickerUp;
+	let flatpickrInstanceUp;
+	const initFlatpickrUp = () => {
+		if (departureDatePickerUp) {
+			flatpickrInstanceUp = flatpickr(departureDatePickerUp, {
+				dateFormat: 'd/m/Y',
+				altFormat: 'Y-m-d',
+				onChange: function (selectedDates) {
+					if (selectedDates[0]) {
+						const date = selectedDates[0];
+						upFlight.departure_time = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+					}
+				}
+			});
+		}
+	};
 	let showModalUpdate = false;
 	let upFlight = {
 		flight_number: '',
@@ -216,6 +254,7 @@
 			airplane_id: ''
 		};
 		updateError = '';
+		setTimeout(() => initFlatpickrUp(), 0);
 	};
 
 	const closeModalUpdate = () => {
@@ -235,6 +274,9 @@
 		};
 		updateError = '';
 		select_flight_id = '';
+		if (flatpickrInstanceUp) {
+			flatpickrInstanceUp.destroy();
+		}
 	};
 
 	const updateFlight = async (flight_id) => {
@@ -348,16 +390,32 @@
 
 <div class="header-container">
 	<div class="info-box">
-		<p>Chuyến bay hoàn thành: <strong>{flights.filter(flight => flight.status === 'FINISHED').length}</strong></p>
+		<p>
+			Chuyến bay hoàn thành: <strong
+				>{flights.filter((flight) => flight.status === 'FINISHED').length}</strong
+			>
+		</p>
 	</div>
 	<div class="info-box">
-		<p>Chuyến bay đang lên lịch: <strong>{flights.filter(flight => flight.status === 'SCHEDULED').length}</strong></p>
+		<p>
+			Chuyến bay đang lên lịch: <strong
+				>{flights.filter((flight) => flight.status === 'SCHEDULED').length}</strong
+			>
+		</p>
 	</div>
 	<div class="info-box">
-		<p>Chuyến bay chậm: <strong>{flights.filter(flight => flight.status === 'DELAYED').length}</strong></p>
+		<p>
+			Chuyến bay chậm: <strong
+				>{flights.filter((flight) => flight.status === 'DELAYED').length}</strong
+			>
+		</p>
 	</div>
 	<div class="info-box">
-		<p>Chuyến bay hủy: <strong>{flights.filter(flight => flight.status === 'CANCELLED').length}</strong></p>
+		<p>
+			Chuyến bay hủy: <strong
+				>{flights.filter((flight) => flight.status === 'CANCELLED').length}</strong
+			>
+		</p>
 	</div>
 	<div class="add-account-container">
 		<button class="btn-add-admin" on:click={openModalAdd}>Thêm chuyến bay</button>
@@ -384,7 +442,13 @@
 				</div>
 				<div class="input-wrapper">
 					<label for="departure_time">Ngày đi:</label>
-					<input type="date" id="departure_time" bind:value={newFlight.departure_time} required />
+					<input
+						type="text"
+						id="departure_time"
+						bind:this={departureDatePicker}
+						placeholder="Chọn ngày đi"
+						required
+					/>
 				</div>
 			</div>
 
@@ -603,9 +667,11 @@
 						<div class="input-wrapper">
 							<label for="departure_time">Ngày đi:</label>
 							<input
-								type="date"
+								type="text"
 								id="departure_time"
-								bind:value={upFlight.departure_time}
+								bind:this={departureDatePickerUp}
+								placeholder="Chọn ngày đi"
+								required
 							/>
 						</div>
 					</div>
